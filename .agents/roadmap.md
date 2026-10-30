@@ -2,7 +2,7 @@
 
 **Project:** SynapseHQ  
 **Architecture:** Modular Monolith  
-**Status:** Phase 1 complete / Phase 2 implemented and verified
+**Status:** Phase 1 complete / Phase 2 and Phase 3 implemented and verified
 **Current Stage:** Phase 2 — Authentication
 **Total Phases:** 5
 
@@ -306,98 +306,101 @@ authorization is deferred to Phase 3 by project decision.
 
 **Objective:** Implement the primary workspace and project management functionality.
 
+**Status:** Implementation complete and verified. External invitations remain
+deferred; membership is managed by adding existing users by email.
+
 ## 3.1 Workspace Architecture
 
-- [ ] Define workspace business rules.
-- [ ] Design workspace schema.
-- [ ] Define workspace ownership.
-- [ ] Design workspace membership schema.
-- [ ] Define membership roles.
-- [ ] Define invitation and membership requirements.
-- [ ] Define workspace permission boundaries.
-- [ ] Generate and review migrations.
+- [x] Define workspace business rules.
+- [x] Design workspace schema.
+- [x] Define workspace ownership.
+- [x] Design workspace membership schema.
+- [x] Define membership roles.
+- [x] Define invitation and membership requirements.
+- [x] Define workspace permission boundaries.
+- [x] Generate and review migrations.
 
 ## 3.2 Project Database Design
 
-- [ ] Design project schema.
-- [ ] Define workspace-project relationship.
-- [ ] Define project ownership.
-- [ ] Define project status.
-- [ ] Define project metadata.
-- [ ] Define project timestamps.
-- [ ] Add necessary indexes.
-- [ ] Define deletion behavior.
-- [ ] Generate and apply migrations.
+- [x] Design project schema.
+- [x] Define workspace-project relationship.
+- [x] Define project ownership.
+- [x] Define project status.
+- [x] Define project metadata.
+- [x] Define project timestamps.
+- [x] Add necessary indexes.
+- [x] Define deletion behavior.
+- [x] Generate and apply migrations.
 
 ## 3.3 Workspace Features
 
-- [ ] Implement workspace creation.
-- [ ] Implement workspace listing.
-- [ ] Implement workspace details.
-- [ ] Implement workspace updates.
-- [ ] Implement workspace deletion.
-- [ ] Implement workspace membership.
-- [ ] Implement member listing.
-- [ ] Implement permission checks.
+- [x] Implement workspace creation.
+- [x] Implement workspace listing.
+- [x] Implement workspace details.
+- [x] Implement workspace updates.
+- [x] Implement workspace deletion.
+- [x] Implement workspace membership.
+- [x] Implement member listing.
+- [x] Implement permission checks.
 
 ## 3.4 Project Backend
 
-- [ ] Implement project validation schemas.
-- [ ] Implement project services.
-- [ ] Implement project database operations.
-- [ ] Implement project creation.
-- [ ] Implement project listing.
-- [ ] Implement project details.
-- [ ] Implement project updates.
-- [ ] Implement project deletion.
-- [ ] Implement project ownership checks.
-- [ ] Implement workspace permission checks.
-- [ ] Implement predictable error responses.
-- [ ] Implement cache revalidation where necessary.
+- [x] Implement project validation schemas.
+- [x] Implement project services.
+- [x] Implement project database operations.
+- [x] Implement project creation.
+- [x] Implement project listing.
+- [x] Implement project details.
+- [x] Implement project updates.
+- [x] Implement project deletion.
+- [x] Implement project ownership checks.
+- [x] Implement workspace permission checks.
+- [x] Implement predictable error responses.
+- [x] Implement cache revalidation where necessary.
 
 ## 3.5 Project Frontend
 
-- [ ] Build dashboard overview.
-- [ ] Build workspace navigation.
-- [ ] Build project grid.
-- [ ] Build project creation modal.
-- [ ] Build project editing interface.
-- [ ] Build project detail page.
-- [ ] Build project empty states.
-- [ ] Build loading states.
-- [ ] Build error states.
-- [ ] Implement responsive layouts.
+- [x] Build dashboard overview.
+- [x] Build workspace navigation.
+- [x] Build project grid.
+- [x] Build project creation modal.
+- [x] Build project editing interface.
+- [x] Build project detail page.
+- [x] Build project empty states.
+- [x] Build loading states.
+- [x] Build error states.
+- [x] Implement responsive layouts.
 
 ## 3.6 Access Control
 
-- [ ] Prevent unauthorized workspace access.
-- [ ] Prevent unauthorized project access.
-- [ ] Enforce workspace membership permissions.
-- [ ] Enforce project modification permissions.
-- [ ] Verify access at the server and database-operation level.
+- [x] Prevent unauthorized workspace access.
+- [x] Prevent unauthorized project access.
+- [x] Enforce workspace membership permissions.
+- [x] Enforce project modification permissions.
+- [x] Verify access at the server and database-operation level.
 
 ## 3.7 Testing
 
-- [ ] Test workspace creation.
-- [ ] Test workspace updates.
-- [ ] Test workspace deletion.
-- [ ] Test membership permissions.
-- [ ] Test project creation.
-- [ ] Test project listing.
-- [ ] Test project updates.
-- [ ] Test project deletion.
-- [ ] Test unauthorized project access.
-- [ ] Test cross-workspace access isolation.
+- [x] Test workspace creation.
+- [x] Test workspace updates.
+- [x] Test workspace deletion.
+- [x] Test membership permissions.
+- [x] Test project creation.
+- [x] Test project listing.
+- [x] Test project updates.
+- [x] Test project deletion.
+- [x] Test unauthorized project access.
+- [x] Test cross-workspace access isolation.
 
 ### Phase 3 Completion Criteria
 
-- Users can create and manage workspaces.
-- Workspace membership works.
-- Users can create and manage projects.
-- Project data is correctly associated with workspaces.
-- Authorization is enforced.
-- Project and workspace workflows pass critical tests.
-- Dashboard interfaces are responsive.
+- [x] Users can create and manage workspaces.
+- [x] Workspace membership works.
+- [x] Users can create and manage projects.
+- [x] Project data is correctly associated with workspaces.
+- [x] Authorization is enforced.
+- [x] Project and workspace workflows pass critical tests.
+- [x] Dashboard interfaces are responsive.
 
 **Expected deliverable:** A functional workspace and project management system.
 

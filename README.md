@@ -8,7 +8,7 @@ The project is designed around a **Modular Monolith architecture**, with clearly
 
 Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
 
-> **Project status:** Phase 1 foundation complete. Phase 2 authentication is implemented with registration, login, logout, persistent JWT-backed sessions, route protection, and login throttling. Database integration tests await an isolated `TEST_DATABASE_URL`; resource-level authorization is planned for Phase 3. Workspaces, projects, and tasks remain planned features.
+> **Project status:** Phases 1–3 are implemented. Authentication, workspaces, workspace membership, and projects are available. Tasks remain planned for Phase 4.
 
 ---
 
@@ -64,7 +64,7 @@ Implemented capabilities:
 - Logout and session lifecycle management.
 - Protected application routes.
 - Database-backed login throttling.
-- Role-based and resource-level authorization are planned for Phase 3.
+- Role-based and resource-level authorization are implemented for workspaces and projects.
 
 Technologies: `jose`, `bcryptjs`, and secure cookies.
 
@@ -321,8 +321,7 @@ Security measures include:
 and server-side session guards validate the JWT and persistent session against
 the database. Proxy checks are never the only security boundary.
 
-Resource-level workspace and project authorization is intentionally deferred to
-Phase 3, when those entities exist.
+Resource-level workspace and project authorization is implemented in Phase 3.
 
 ---
 
@@ -337,9 +336,9 @@ Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM 
 | Users | User accounts and identity | Implemented |
 | Sessions | Persistent authentication sessions | Implemented |
 | AuthLoginAttempts | Shared login throttling state | Implemented |
-| Workspaces | Team workspaces | Planned |
-| WorkspaceMembers | Workspace membership and roles | Planned |
-| Projects | Projects belonging to workspaces | Planned |
+| Workspaces | Team workspaces | Implemented |
+| WorkspaceMembers | Workspace membership and roles | Implemented |
+| Projects | Projects belonging to workspaces | Implemented |
 | Tasks | Development tasks belonging to projects | Planned |
 | Notifications | Future user notifications | Planned |
 
@@ -348,7 +347,7 @@ Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM 
 - Sessions belong to users and cascade on user deletion.
 - A user can have multiple active sessions.
 - Login attempts are keyed by hashed email or IP identifiers.
-- A user will be able to belong to multiple workspaces in Phase 3.
+- Users can belong to multiple workspaces.
 - Workspaces will contain projects, and projects will contain tasks.
 
 Schema changes are managed through version-controlled Drizzle migrations.
@@ -363,7 +362,8 @@ Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.m
 |---|---|---|---|
 | Phase 1 | Complete | Foundation & Architecture | Project structure, database foundation, development standards |
 | Phase 2 | Implemented | Custom Authentication | Registration, login, sessions, route protection |
-| Phase 3 | Planned | Workspaces & Projects | Workspace membership and project management |
+| Phase 3 | Implemented | Workspaces & Projects | Workspace membership and project management |
+
 | Phase 4 | Planned | Task Management | Task lifecycle, Kanban board, and data tables |
 | Phase 5 | Planned | Polish & Deployment | Testing, security, accessibility, and deployment |
 
