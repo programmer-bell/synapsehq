@@ -8,7 +8,7 @@ The project is designed around a **Modular Monolith architecture**, with clearly
 
 Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
 
-> **Project status:** Initial development. The repository currently contains a Create Next App starter. The features and architecture described below represent the planned product direction, not necessarily implemented functionality.
+> **Project status:** Phase 1 foundation complete. The repository now includes the modular directory foundation, Neon/Drizzle infrastructure, environment validation, and the application shell. Authentication, workspaces, projects, and tasks remain planned features.
 
 ---
 
@@ -152,7 +152,7 @@ The project targets a modern Next.js and TypeScript ecosystem.
 | Deployment | Vercel | Application hosting |
 | Database Hosting | Neon | PostgreSQL hosting |
 
-**Note:** The repository's installed dependencies are authoritative. Some technologies listed above are planned and must be installed and configured before they can be used.
+**Note:** The repository's installed dependencies are authoritative. Neon PostgreSQL, Drizzle ORM, Zod, and Vitest are installed as part of the Phase 1 foundation. `jose`, `bcryptjs`, Lucide React, React Testing Library, and Playwright remain planned for later phases.
 
 ---
 
@@ -231,12 +231,21 @@ The following is the target architectural layout, not the current repository tre
 ```text
 SynapseHQ/
 │
+├── .agents/
+│   ├── AGENTS.md
+│   ├── ARCHITECTURE.md
+│   └── roadmap.md
+│
 ├── app/
 │   ├── (auth)/
 │   ├── (dashboard)/
 │   ├── api/
+│   ├── error.tsx
+│   ├── globals.css
 │   ├── layout.tsx
-│   └── globals.css
+│   ├── loading.tsx
+│   ├── not-found.tsx
+│   └── page.tsx
 │
 ├── src/
 │   ├── modules/
@@ -255,13 +264,14 @@ SynapseHQ/
 │   │   └── notifications/
 │   │
 │   └── shared/
-│       ├── db/
 │       ├── components/
+│       │   └── layout/
+│       ├── config/
+│       ├── db/
 │       ├── hooks/
 │       ├── lib/
-│       ├── utils/
 │       ├── types/
-│       ├── config/
+│       ├── utils/
 │       └── errors/
 │
 ├── drizzle/
@@ -272,17 +282,16 @@ SynapseHQ/
 │
 ├── public/
 │
-├── AGENTS.md
-├── ARCHITECTURE.md
 ├── README.md
-├── roadmap.md
 ├── package.json
 ├── next.config.ts
 ├── tsconfig.json
+├── drizzle.config.ts
+├── vitest.config.mts
 └── .env.sample
 ```
 
-The Next.js App Router currently lives in the repository-root `app/` directory. The `src/` structure is planned and should be introduced incrementally without unnecessarily moving existing files.
+The Next.js App Router remains in the repository-root `app/` directory. The `src/` foundation was introduced in Phase 1; domain modules are added incrementally as their functionality is implemented.
 
 ---
 
@@ -342,15 +351,15 @@ Schema changes will be managed through version-controlled Drizzle migrations.
 
 ## Development Roadmap
 
-Development will follow the phases defined in [`roadmap.md`](./roadmap.md).
+Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.md).
 
-| Phase | Focus | Main Deliverables |
-|---|---|---|
-| Phase 1 | Foundation & Architecture | Project structure, database foundation, development standards |
-| Phase 2 | Custom Authentication | Registration, login, sessions, authorization |
-| Phase 3 | Workspaces & Projects | Workspace membership and project management |
-| Phase 4 | Task Management | Task lifecycle, Kanban board, and data tables |
-| Phase 5 | Polish & Deployment | Testing, security, accessibility, and deployment |
+| Phase | Status | Focus | Main Deliverables |
+|---|---|---|---|
+| Phase 1 | Complete | Foundation & Architecture | Project structure, database foundation, development standards |
+| Phase 2 | Planned | Custom Authentication | Registration, login, sessions, authorization |
+| Phase 3 | Planned | Workspaces & Projects | Workspace membership and project management |
+| Phase 4 | Planned | Task Management | Task lifecycle, Kanban board, and data tables |
+| Phase 5 | Planned | Polish & Deployment | Testing, security, accessibility, and deployment |
 
 Each phase has its own implementation tasks and completion criteria.
 
@@ -401,11 +410,12 @@ The sample configuration contains templates for:
 
 ```env
 DATABASE_URL=
+DATABASE_URL_UNPOOLED=
 JWT_SECRET=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-These variables are intended for future application configuration. The current starter does not necessarily read them yet.
+`DATABASE_URL` and `NEXT_PUBLIC_APP_URL` are required by the environment validator. `JWT_SECRET` must be at least 32 characters and is required for authentication work. `DATABASE_URL_UNPOOLED` is optional and is used by Drizzle Kit when available. The application validates these variables on the server and fails clearly when required configuration is missing.
 
 ### 4. Start the Development Server
 
@@ -428,12 +438,28 @@ http://localhost:3000
 | `npm install` | Install project dependencies |
 | `npm run dev` | Start the Next.js development server |
 | `npm run lint` | Run ESLint |
-| `npx tsc --noEmit` | Run TypeScript type checking |
+| `npm run typecheck` | Run TypeScript type checking |
+| `npm test` | Run the Vitest suite |
 | `npm run build` | Create a production build |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:migrate` | Apply Drizzle migrations |
+| `npm run db:check` | Check Drizzle migration consistency |
+| `npm run db:studio` | Open Drizzle Studio |
 
-**Important:** The current repository does not define a test script or configured testing framework. Automated testing will be introduced during the relevant development phases.
+Run linting, type checking, and tests after implementation changes. Run a production build when changes affect routing, configuration, or production rendering.
 
-Run linting and type checking after implementation changes. Run a production build when changes affect routing, configuration, or production rendering.
+React Testing Library and Playwright remain planned for later phases.
+
+### Neon Connectivity Troubleshooting
+
+If Node.js 24 times out while connecting to Neon in a restricted network
+environment, run database commands with:
+
+```bash
+NODE_OPTIONS=--no-network-family-autoselection npm run db:migrate
+```
+
+This was required for the Phase 1 smoke verification.
 
 ---
 
@@ -515,9 +541,9 @@ The repository maintains separate documents for product development and engineer
 
 | Document | Purpose |
 |---|---|
-| [`AGENTS.md`](./AGENTS.md) | Repository-specific instructions and development rules |
-| [`roadmap.md`](./roadmap.md) | Phased implementation roadmap and progress tracking |
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Architectural boundaries, design decisions, and technical standards |
+| [`AGENTS.md`](./.agents/AGENTS.md) | Repository-specific instructions and development rules |
+| [`roadmap.md`](./.agents/roadmap.md) | Phased implementation roadmap and progress tracking |
+| [`ARCHITECTURE.md`](./.agents/ARCHITECTURE.md) | Architectural boundaries, design decisions, and technical standards |
 | [`README.md`](./README.md) | Project overview, setup, features, and documentation entry point |
 
 These documents should remain synchronized as the project evolves.
