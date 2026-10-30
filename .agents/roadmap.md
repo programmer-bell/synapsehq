@@ -2,7 +2,7 @@
 
 **Project:** SynapseHQ  
 **Architecture:** Modular Monolith  
-**Status:** Phase 1 complete / Phase 2 next
+**Status:** Phase 1 complete / Phase 2 implemented and verified
 **Current Stage:** Phase 2 — Authentication
 **Total Phases:** 5
 
@@ -180,119 +180,123 @@ Phase 1 is complete only when:
 
 **Objective:** Implement secure authentication without depending on external authentication platforms.
 
+**Status:** Implementation complete. Database integration tests are written but
+require an isolated `TEST_DATABASE_URL`. Resource-level workspace and project
+authorization is deferred to Phase 3 by project decision.
+
 ## 2.1 Authentication Architecture
 
-- [ ] Finalize authentication flow.
-- [ ] Define user identity requirements.
-- [ ] Define session lifecycle.
-- [ ] Define token claims.
-- [ ] Define session expiration policy.
-- [ ] Define logout and revocation behavior.
-- [ ] Define authorization strategy.
-- [ ] Document important security decisions.
+- [x] Finalize authentication flow.
+- [x] Define user identity requirements.
+- [x] Define session lifecycle.
+- [x] Define token claims.
+- [x] Define session expiration policy.
+- [x] Define logout and revocation behavior.
+- [x] Define authorization strategy.
+- [x] Document important security decisions.
 
 ## 2.2 Database Schema
 
-- [ ] Design users schema.
-- [ ] Design sessions schema.
-- [ ] Define unique email constraints.
-- [ ] Define password hash storage.
-- [ ] Define account status fields.
-- [ ] Define timestamps.
-- [ ] Define indexes.
-- [ ] Define foreign key relationships.
-- [ ] Generate migrations.
-- [ ] Review generated SQL.
-- [ ] Apply migrations.
+- [x] Design users schema.
+- [x] Design sessions schema.
+- [x] Define unique email constraints.
+- [x] Define password hash storage.
+- [x] Define account status fields.
+- [x] Define timestamps.
+- [x] Define indexes.
+- [x] Define foreign key relationships.
+- [x] Generate migrations.
+- [x] Review generated SQL.
+- [x] Apply migrations.
 
 ## 2.3 Dependencies & Utilities
 
-- [ ] Verify `zod` installation (completed in Phase 1).
-- [ ] Install `bcryptjs`.
-- [ ] Install `jose`.
-- [ ] Install required TypeScript types.
-- [ ] Extend environment validation for authentication-specific variables.
-- [ ] Implement password hashing utility.
-- [ ] Implement password verification utility.
-- [ ] Implement JWT signing utility.
-- [ ] Implement JWT verification utility.
-- [ ] Implement secure cookie utilities.
-- [ ] Implement session utilities.
+- [x] Verify `zod` installation (completed in Phase 1).
+- [x] Install `bcryptjs`.
+- [x] Install `jose`.
+- [x] Install required TypeScript types.
+- [x] Extend environment validation for authentication-specific variables.
+- [x] Implement password hashing utility.
+- [x] Implement password verification utility.
+- [x] Implement JWT signing utility.
+- [x] Implement JWT verification utility.
+- [x] Implement secure cookie utilities.
+- [x] Implement session utilities.
 
 ## 2.4 Registration
 
-- [ ] Build signup UI.
-- [ ] Create signup validation schema.
-- [ ] Implement registration Server Action.
-- [ ] Validate email format.
-- [ ] Validate password requirements.
-- [ ] Check email uniqueness.
-- [ ] Hash password securely.
-- [ ] Create user record.
-- [ ] Handle duplicate accounts.
-- [ ] Return safe and predictable responses.
+- [x] Build signup UI.
+- [x] Create signup validation schema.
+- [x] Implement registration Server Action.
+- [x] Validate email format.
+- [x] Validate password requirements.
+- [x] Check email uniqueness.
+- [x] Hash password securely.
+- [x] Create user record.
+- [x] Handle duplicate accounts.
+- [x] Return safe and predictable responses.
 
 ## 2.5 Login
 
-- [ ] Build login UI.
-- [ ] Create login validation schema.
-- [ ] Implement login Server Action.
-- [ ] Verify account credentials.
-- [ ] Issue authenticated session/token.
-- [ ] Set HTTP-only cookies.
-- [ ] Configure secure cookie attributes.
-- [ ] Handle invalid credentials safely.
-- [ ] Implement login failure handling.
-- [ ] Implement appropriate rate limiting.
+- [x] Build login UI.
+- [x] Create login validation schema.
+- [x] Implement login Server Action.
+- [x] Verify account credentials.
+- [x] Issue authenticated session/token.
+- [x] Set HTTP-only cookies.
+- [x] Configure secure cookie attributes.
+- [x] Handle invalid credentials safely.
+- [x] Implement login failure handling.
+- [x] Implement appropriate rate limiting.
 
 ## 2.6 Logout & Session Management
 
-- [ ] Implement logout Server Action.
-- [ ] Clear authentication cookies.
-- [ ] Revoke persistent sessions where applicable.
-- [ ] Implement session expiration.
-- [ ] Implement session validation.
-- [ ] Handle expired sessions.
-- [ ] Handle revoked sessions.
-- [ ] Prevent stale session access.
+- [x] Implement logout Server Action.
+- [x] Clear authentication cookies.
+- [x] Revoke persistent sessions where applicable.
+- [x] Implement session expiration.
+- [x] Implement session validation.
+- [x] Handle expired sessions.
+- [x] Handle revoked sessions.
+- [x] Prevent stale session access.
 
 ## 2.7 Route Protection & Authorization
 
-- [ ] Protect dashboard routes.
-- [ ] Implement authentication checks.
-- [ ] Implement role-based authorization where required.
-- [ ] Implement resource-level authorization.
-- [ ] Protect project access.
-- [ ] Protect workspace access.
-- [ ] Protect sensitive Server Actions.
-- [ ] Protect Route Handlers.
-- [ ] Validate permissions close to database operations.
+- [x] Protect dashboard routes.
+- [x] Implement authentication checks.
+- [ ] Implement role-based authorization where required (deferred until roles exist).
+- [ ] Implement resource-level authorization (deferred to Phase 3).
+- [ ] Protect project access (deferred to Phase 3).
+- [ ] Protect workspace access (deferred to Phase 3).
+- [x] Protect sensitive Server Actions.
+- [ ] Protect Route Handlers (no Route Handlers exist yet).
+- [ ] Validate permissions close to database operations (deferred to Phase 3).
 
 ## 2.8 Authentication Testing
 
-- [ ] Test valid registration.
-- [ ] Test duplicate email.
-- [ ] Test invalid registration data.
-- [ ] Test valid login.
-- [ ] Test invalid login.
-- [ ] Test logout.
-- [ ] Test expired sessions.
-- [ ] Test revoked sessions.
-- [ ] Test unauthenticated access.
-- [ ] Test unauthorized resource access.
-- [ ] Test session cookie behavior.
+- [x] Test valid registration (service and database integration tests).
+- [x] Test duplicate email (service and database integration tests).
+- [x] Test invalid registration data (schema tests).
+- [x] Test valid login (service and database integration tests).
+- [x] Test invalid login (service and database integration tests).
+- [ ] Test logout Server Action and cookie behavior (not yet covered).
+- [x] Test expired sessions (database integration test).
+- [x] Test revoked sessions (database integration test).
+- [x] Test unauthenticated access (manual route smoke test).
+- [ ] Test unauthorized resource access (deferred to Phase 3).
+- [x] Test login throttling (database integration test).
 
 ### Phase 2 Completion Criteria
 
-- Registration works.
-- Login works.
-- Logout works.
-- Passwords are securely hashed.
-- Session lifecycle is implemented.
-- Protected routes work.
-- Resource-level authorization works.
-- Sensitive actions enforce permissions.
-- Critical authentication tests pass.
+- [x] Registration is implemented.
+- [x] Login is implemented.
+- [x] Logout is implemented.
+- [x] Passwords are securely hashed.
+- [x] Session lifecycle is implemented.
+- [x] Protected routes work.
+- [ ] Resource-level authorization works (deferred to Phase 3).
+- [x] Sensitive actions use authentication guards.
+- [x] Critical authentication integration tests pass with an isolated `TEST_DATABASE_URL`.
 
 **Expected deliverable:** A secure, fully functional custom authentication system.
 

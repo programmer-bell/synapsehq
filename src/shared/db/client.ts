@@ -24,3 +24,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export const db = drizzle(pool, { schema });
+
+export async function closeDb(): Promise<void> {
+  await pool.end();
+}

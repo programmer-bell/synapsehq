@@ -1,5 +1,7 @@
 import { pgTable, serial, timestamp } from "drizzle-orm/pg-core";
 
+export * from "@/src/modules/auth/db/schema";
+
 /**
  * Infrastructure-only table used to verify the migration and query workflow.
  * Domain schemas belong to their respective modules under src/modules.

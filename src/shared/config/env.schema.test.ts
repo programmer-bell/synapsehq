@@ -42,4 +42,23 @@ describe("envSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("defaults the auth session lifetime to seven days", () => {
+    const result = envSchema.safeParse(validEnv);
+
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.AUTH_SESSION_TTL_SECONDS).toBe(604_800);
+    }
+  });
+
+  it("rejects an auth session lifetime below five minutes", () => {
+    expect(
+      envSchema.safeParse({
+        ...validEnv,
+        AUTH_SESSION_TTL_SECONDS: "60",
+      }).success,
+    ).toBe(false);
+  });
 });

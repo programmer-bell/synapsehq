@@ -8,7 +8,7 @@ The project is designed around a **Modular Monolith architecture**, with clearly
 
 Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
 
-> **Project status:** Phase 1 foundation complete. The repository now includes the modular directory foundation, Neon/Drizzle infrastructure, environment validation, and the application shell. Authentication, workspaces, projects, and tasks remain planned features.
+> **Project status:** Phase 1 foundation complete. Phase 2 authentication is implemented with registration, login, logout, persistent JWT-backed sessions, route protection, and login throttling. Database integration tests await an isolated `TEST_DATABASE_URL`; resource-level authorization is planned for Phase 3. Workspaces, projects, and tasks remain planned features.
 
 ---
 
@@ -55,15 +55,16 @@ The following features represent the planned product scope.
 
 A custom authentication system built without relying on a heavy third-party authentication SDK.
 
-Planned capabilities:
+Implemented capabilities:
 
 - User registration and login.
-- Secure password hashing.
-- JWT-based authentication.
-- HTTP-only cookie-based sessions.
+- Secure bcrypt password hashing.
+- JWT-based authentication with persistent session records.
+- HTTP-only cookie-based sessions with immediate revocation.
 - Logout and session lifecycle management.
 - Protected application routes.
-- Role-based and resource-level authorization.
+- Database-backed login throttling.
+- Role-based and resource-level authorization are planned for Phase 3.
 
 Technologies: `jose`, `bcryptjs`, and secure cookies.
 
@@ -152,7 +153,7 @@ The project targets a modern Next.js and TypeScript ecosystem.
 | Deployment | Vercel | Application hosting |
 | Database Hosting | Neon | PostgreSQL hosting |
 
-**Note:** The repository's installed dependencies are authoritative. Neon PostgreSQL, Drizzle ORM, Zod, and Vitest are installed as part of the Phase 1 foundation. `jose`, `bcryptjs`, Lucide React, React Testing Library, and Playwright remain planned for later phases.
+**Note:** The repository's installed dependencies are authoritative. Neon PostgreSQL, Drizzle ORM, Zod, Vitest, `jose`, and `bcryptjs` are installed. Lucide React, React Testing Library, and Playwright remain planned for later phases.
 
 ---
 
@@ -297,24 +298,31 @@ The Next.js App Router remains in the repository-root `app/` directory. The `src
 
 ## Authentication & Security
 
-SynapseHQ plans to implement custom authentication using:
+SynapseHQ implements custom authentication using:
 
-- **bcryptjs:** Password hashing and verification.
-- **jose:** JWT signing and verification.
-- **HTTP-only cookies:** Secure token storage.
-- **Server-side authorization:** Resource-level access checks.
+- **bcryptjs:** Password hashing and verification at cost factor 12.
+- **jose:** HS256 JWT signing and verification.
+- **HTTP-only cookies:** Secure `synapse_session` token transport.
+- **Persistent sessions:** Every JWT is backed by a revocable PostgreSQL session row.
+- **Server-side authorization:** Authentication guards protect routes and sensitive actions.
 
-Security considerations include:
+Security measures include:
 
-- Never store plaintext passwords.
-- Validate all user-controlled input.
-- Keep authentication secrets server-side.
-- Configure secure cookie attributes.
-- Validate JWT expiration and relevant claims.
-- Consider session revocation and CSRF protection.
-- Enforce authorization on the server, not just through frontend visibility or middleware.
+- Passwords are never stored in plaintext and are limited to 8–72 UTF-8 bytes.
+- All authentication input is validated with Zod.
+- Authentication secrets stay server-side.
+- Cookies use HTTP-only, Secure in production, SameSite=Lax, and an explicit expiration.
+- JWT signature, issuer, audience, expiration, claims, session state, and account status are verified.
+- Logout revokes the persistent session immediately.
+- Login throttling uses hashed email and IP identifiers in PostgreSQL.
+- Server Actions rely on Next.js origin checks and SameSite cookies for CSRF mitigation.
 
-Middleware will be treated as an early navigation guard, not as the only security boundary.
+`proxy.ts` performs optimistic navigation redirects only. The dashboard layout
+and server-side session guards validate the JWT and persistent session against
+the database. Proxy checks are never the only security boundary.
+
+Resource-level workspace and project authorization is intentionally deferred to
+Phase 3, when those entities exist.
 
 ---
 
@@ -324,28 +332,26 @@ Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM 
 
 ### Planned Core Entities
 
-| Entity | Purpose |
-|---|---|
-| Users | User accounts and identity |
-| Sessions | Authentication session records |
-| Workspaces | Team workspaces |
-| WorkspaceMembers | Workspace membership and roles |
-| Projects | Projects belonging to workspaces |
-| Tasks | Development tasks belonging to projects |
-| Notifications | Future user notifications |
+| Entity | Purpose | Status |
+|---|---|---|
+| Users | User accounts and identity | Implemented |
+| Sessions | Persistent authentication sessions | Implemented |
+| AuthLoginAttempts | Shared login throttling state | Implemented |
+| Workspaces | Team workspaces | Planned |
+| WorkspaceMembers | Workspace membership and roles | Planned |
+| Projects | Projects belonging to workspaces | Planned |
+| Tasks | Development tasks belonging to projects | Planned |
+| Notifications | Future user notifications | Planned |
 
-### Planned Relationships
+### Relationships
 
-- A user can belong to multiple workspaces.
-- A workspace can have multiple members.
-- A workspace can contain multiple projects.
-- A project can contain multiple tasks.
-- Tasks can be assigned to workspace members.
-- Sessions belong to users.
+- Sessions belong to users and cascade on user deletion.
+- A user can have multiple active sessions.
+- Login attempts are keyed by hashed email or IP identifiers.
+- A user will be able to belong to multiple workspaces in Phase 3.
+- Workspaces will contain projects, and projects will contain tasks.
 
-Database constraints, foreign keys, indexes, and transactions will be introduced according to actual domain requirements.
-
-Schema changes will be managed through version-controlled Drizzle migrations.
+Schema changes are managed through version-controlled Drizzle migrations.
 
 ---
 
@@ -356,7 +362,7 @@ Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.m
 | Phase | Status | Focus | Main Deliverables |
 |---|---|---|---|
 | Phase 1 | Complete | Foundation & Architecture | Project structure, database foundation, development standards |
-| Phase 2 | Planned | Custom Authentication | Registration, login, sessions, authorization |
+| Phase 2 | Implemented | Custom Authentication | Registration, login, sessions, route protection |
 | Phase 3 | Planned | Workspaces & Projects | Workspace membership and project management |
 | Phase 4 | Planned | Task Management | Task lifecycle, Kanban board, and data tables |
 | Phase 5 | Planned | Polish & Deployment | Testing, security, accessibility, and deployment |
@@ -377,7 +383,7 @@ Before starting development, install:
 - npm.
 - Git.
 
-A Neon PostgreSQL account and Vercel account will be needed when the database and deployment phases are implemented.
+A Neon PostgreSQL account is required for the database, and a Vercel account will be needed for deployment in Phase 5.
 
 ### 1. Clone the Repository
 
@@ -412,10 +418,12 @@ The sample configuration contains templates for:
 DATABASE_URL=
 DATABASE_URL_UNPOOLED=
 JWT_SECRET=
+AUTH_SESSION_TTL_SECONDS=604800
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+TEST_DATABASE_URL=
 ```
 
-`DATABASE_URL` and `NEXT_PUBLIC_APP_URL` are required by the environment validator. `JWT_SECRET` must be at least 32 characters and is required for authentication work. `DATABASE_URL_UNPOOLED` is optional and is used by Drizzle Kit when available. The application validates these variables on the server and fails clearly when required configuration is missing.
+`DATABASE_URL`, `JWT_SECRET`, and `NEXT_PUBLIC_APP_URL` are required by the environment validator. `JWT_SECRET` must be at least 32 characters. `DATABASE_URL_UNPOOLED` is optional and is used by Drizzle Kit when available. `AUTH_SESSION_TTL_SECONDS` is optional and defaults to seven days (604800 seconds). `TEST_DATABASE_URL` is optional and should point to an isolated Neon branch or database for integration tests. The application validates runtime variables on the server and fails clearly when required configuration is missing.
 
 ### 4. Start the Development Server
 
@@ -439,7 +447,7 @@ http://localhost:3000
 | `npm run dev` | Start the Next.js development server |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript type checking |
-| `npm test` | Run the Vitest suite |
+| `npm test` | Run unit tests and DB integration tests when configured |
 | `npm run build` | Create a production build |
 | `npm run db:generate` | Generate Drizzle migrations |
 | `npm run db:migrate` | Apply Drizzle migrations |
@@ -449,6 +457,19 @@ http://localhost:3000
 Run linting, type checking, and tests after implementation changes. Run a production build when changes affect routing, configuration, or production rendering.
 
 React Testing Library and Playwright remain planned for later phases.
+
+### Authentication Integration Tests
+
+Auth integration tests are skipped unless `TEST_DATABASE_URL` is set. Point it
+to an isolated Neon branch or database, apply migrations there, then run:
+
+```bash
+NODE_OPTIONS=--no-network-family-autoselection TEST_DATABASE_URL="postgresql://..." npm test
+```
+
+The test setup maps `TEST_DATABASE_URL` to `DATABASE_URL` for the test process.
+Use a direct test connection string when applying migrations so the development
+database is not modified.
 
 ### Neon Connectivity Troubleshooting
 
