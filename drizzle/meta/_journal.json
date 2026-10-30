@@ -15,6 +15,13 @@
       "when": 1793381732312,
       "tag": "0001_curvy_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793384234714,
+      "tag": "0002_open_ben_urich",
+      "breakpoints": true
     }
   ]
 }

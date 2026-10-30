@@ -785,47 +785,44 @@ Stores shared rate-limit state for serverless deployments.
 
 ### Workspaces
 
-Represents an organizational workspace.
+Represents an organizational workspace. Implemented in Phase 3.
 
-Potential fields:
+Fields:
 
-- id
-- name
-- slug
-- ownerId
-- createdAt
-- updatedAt
+- `id`: UUID primary key.
+- `name`: workspace display name.
+- `slug`: unique URL-safe slug generated from the name.
+- `ownerId`: foreign key to `users`, cascading on user deletion.
+- `createdAt`, `updatedAt`: timezone-aware timestamps.
 
 ### Workspace Members
 
-Represents membership within a workspace.
+Represents membership within a workspace. Implemented in Phase 3.
 
-Potential fields:
+Fields:
 
-- id
-- workspaceId
-- userId
-- role
-- joinedAt
+- `id`: UUID primary key.
+- `workspaceId`: foreign key to `workspaces`, cascading on workspace deletion.
+- `userId`: foreign key to `users`, cascading on user deletion.
+- `role`: `OWNER`, `ADMIN`, or `MEMBER`.
+- `joinedAt`: timezone-aware timestamp.
 
-A user may belong to multiple workspaces if product requirements allow it.
-
-Enforce membership uniqueness according to the chosen relationship.
+Membership is unique per workspace and user. The workspace owner also has an
+`OWNER` membership row.
 
 ### Projects
 
-Represents projects inside workspaces.
+Represents projects inside workspaces. Implemented in Phase 3.
 
-Potential fields:
+Fields:
 
-- id
-- workspaceId
-- name
-- description
-- status
-- createdBy
-- createdAt
-- updatedAt
+- `id`: UUID primary key.
+- `workspaceId`: foreign key to `workspaces`, cascading on workspace deletion.
+- `name`: project name, unique within a workspace.
+- `description`: optional project description.
+- `status`: `ACTIVE` or `ARCHIVED`.
+- `createdBy`: foreign key to `users`, cascading on user deletion.
+- `createdAt`, `updatedAt`: timezone-aware timestamps.
 
 Projects must belong to a valid workspace.
 
@@ -1124,8 +1121,10 @@ boundary.
 
 The protected dashboard layout calls `requireUser()`, which verifies the JWT and
 the persistent session before rendering. Server Actions must use the same guard
-before sensitive operations. Resource-level authorization is added in Phase 3
-when workspaces and projects exist.
+before sensitive operations. `proxy.ts` protects `/dashboard`, `/workspaces`,
+`/projects`, and `/tasks` as an optimistic navigation guard only.
+Resource-level authorization for workspaces and projects is implemented in
+Phase 3.
 
 ## Login Throttling
 
@@ -1157,17 +1156,18 @@ corresponding database operations before those resources are exposed.
 
 Use explicit workspace and resource permissions.
 
-A possible initial workspace role model:
+Phase 3 implements the initial workspace role model:
 
-- OWNER
-- ADMIN
-- MEMBER
+- `OWNER`: full workspace control, member management, and all project operations.
+- `ADMIN`: workspace updates, member management, and all project operations.
+- `MEMBER`: workspace and project read access, plus project creation.
+- Project creators can update or archive their own projects.
 
-Final permissions must be established from product requirements.
-
-Avoid assuming that role names alone define every permission.
-
-Create centralized authorization policies or domain-level permission functions where they are reused.
+Centralized authorization policies live in
+`src/modules/workspaces/lib/permissions.ts` and are reused by the projects
+module. Verify authorization in Server Actions and services, close to database
+operations. Never use client-side visibility as a substitute for server-side
+authorization.
 
 Example conceptual operation:
 
