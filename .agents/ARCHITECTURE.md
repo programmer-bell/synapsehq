@@ -135,9 +135,24 @@ app/
 
 The current `@/*` TypeScript alias maps to the repository root.
 
-The modular `src/` directories are planned and must be created incrementally.
+Phase 1 established the initial modular foundation: `src/shared/`, `src/modules/`, and `drizzle/`. Domain modules are still introduced incrementally as their functionality is implemented.
+
+The canonical engineering documents live in `.agents/`:
+
+```text
+.agents/
+├── AGENTS.md
+├── ARCHITECTURE.md
+└── roadmap.md
+```
 
 Do not move the existing App Router into `src/app/` without a deliberate migration.
+
+Import conventions:
+
+- Use `@/src/modules/...` for domain code.
+- Use `@/src/shared/...` for shared infrastructure.
+- Keep the existing `@/*` root alias.
 
 ## Target Directory Structure
 
@@ -255,9 +270,11 @@ synapsehq/
 ├── next.config.ts
 ├── package.json
 ├── tsconfig.json
-├── AGENTS.md
-├── roadmap.md
-└── ARCHITECTURE.md
+├── vitest.config.mts
+└── .agents/
+    ├── AGENTS.md
+    ├── ARCHITECTURE.md
+    └── roadmap.md
 ```
 
 This is a target structure, not a requirement to create every directory immediately.
@@ -675,10 +692,23 @@ Shared connection infrastructure belongs under:
 ```text
 src/shared/db/
 ├── client.ts
-└── index.ts
+├── index.ts
+└── schema.ts
 ```
 
-Use the appropriate Neon-supported connection strategy for the actual runtime and deployment environment.
+Use the Neon serverless WebSocket driver (`@neondatabase/serverless` with
+`drizzle-orm/neon-serverless`) so transactions remain available for domain
+operations. See `docs/architecture/decisions/ADR-003-database-selection.md`.
+
+Environment variables:
+
+- `DATABASE_URL`: pooled connection string for application runtime queries.
+- `DATABASE_URL_UNPOOLED`: optional direct connection string for Drizzle Kit migrations.
+- `JWT_SECRET`: server-only authentication secret, minimum 32 characters.
+- `NEXT_PUBLIC_APP_URL`: public application URL.
+
+Environment variables are validated on the server by
+`src/shared/config/env.ts`.
 
 Keep the database client server-only.
 
@@ -1083,7 +1113,7 @@ Examples:
 - A user cannot update tasks belonging to an inaccessible project.
 - A client cannot grant itself administrative privileges.
 
-Middleware can perform early navigation checks but must not be the only authorization layer.
+Proxy (the Next.js 16 successor to middleware, conventionally `proxy.ts`) can perform early navigation checks but must not be the only authorization layer.
 
 ---
 
@@ -1403,7 +1433,19 @@ The existing application enables:
 - `cacheComponents`.
 - `partialPrefetching`.
 
-Understand the behavior of these features before implementing data-fetching and caching strategies.
+`cacheComponents` enables Partial Prerendering and the `use cache` directive.
+`partialPrefetching` requires `cacheComponents` and limits prefetching to static
+route content. Both remain enabled in Phase 1.
+
+Caching policy:
+
+- Do not use `use cache` for data that depends on the authenticated user,
+  workspace membership, or resource permissions.
+- Keep authenticated reads dynamic through `cookies()` and server-side
+  authorization.
+- If a cached function is introduced later, include every isolation dimension
+  in its cache key or tags, and invalidate it after mutations.
+- Do not cache error, loading, or authentication responses.
 
 ## Cache Safety
 
@@ -1457,9 +1499,10 @@ Provide users with understandable error messages.
 
 # 17. Testing Architecture
 
-Testing tools are planned and must be installed and configured before use.
+Vitest is configured for unit and integration tests. React Testing Library and
+Playwright remain planned and must be installed and configured before use.
 
-Potential testing stack:
+Testing stack:
 
 | Tool | Purpose |
 |---|---|

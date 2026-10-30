@@ -2,8 +2,8 @@
 
 **Project:** SynapseHQ  
 **Architecture:** Modular Monolith  
-**Status:** Planning / Foundation  
-**Current Stage:** Phase 1 — Foundation  
+**Status:** Phase 1 complete / Phase 2 next
+**Current Stage:** Phase 2 — Authentication
 **Total Phases:** 5
 
 ---
@@ -81,68 +81,82 @@ Refer to `AGENTS.md` for mandatory development workflow and `ARCHITECTURE.md` fo
 
 ## 1.1 Repository Inspection
 
-- [ ] Inspect the existing repository.
-- [ ] Review `package.json`.
-- [ ] Review `tsconfig.json`.
-- [ ] Review `next.config.ts`.
-- [ ] Review existing `app/` structure.
-- [ ] Review `app/globals.css`.
-- [ ] Review `.env.sample`.
-- [ ] Verify current npm scripts.
-- [ ] Verify Git branch and working tree.
-- [ ] Identify existing functionality that must be preserved.
+- [x] Inspect the existing repository.
+- [x] Review `package.json`.
+- [x] Review `tsconfig.json`.
+- [x] Review `next.config.ts`.
+- [x] Review existing `app/` structure.
+- [x] Review `app/globals.css`.
+- [x] Review `.env.sample`.
+- [x] Verify current npm scripts.
+- [x] Verify Git branch and working tree.
+- [x] Identify existing functionality that must be preserved.
 
 ## 1.2 Project Structure
 
-- [ ] Finalize the modular monolith directory structure.
-- [ ] Create `src/modules/`.
-- [ ] Create `src/shared/`.
-- [ ] Establish module naming conventions.
-- [ ] Establish import conventions.
-- [ ] Establish public module interfaces.
-- [ ] Define shared infrastructure boundaries.
-- [ ] Preserve the root-level `app/` directory.
-- [ ] Verify the existing `@/*` alias.
-- [ ] Avoid unnecessary folder creation.
+- [x] Finalize the modular monolith directory structure.
+- [x] Create `src/modules/`.
+- [x] Create `src/shared/`.
+- [x] Establish module naming conventions.
+- [x] Establish import conventions.
+- [x] Establish public module interfaces.
+- [x] Define shared infrastructure boundaries.
+- [x] Preserve the root-level `app/` directory.
+- [x] Verify the existing `@/*` alias.
+- [x] Avoid unnecessary folder creation.
+
+Notes: module interfaces and shared boundaries are documented in
+`ARCHITECTURE.md` and ADR-005. `src/modules/` intentionally contains only a
+placeholder until Phase 2.
 
 ## 1.3 Database Infrastructure
 
-- [ ] Install required Neon PostgreSQL dependencies.
-- [ ] Install Drizzle ORM dependencies.
-- [ ] Configure Neon database connection.
-- [ ] Configure Drizzle ORM.
-- [ ] Configure Drizzle Kit.
-- [ ] Create shared database client.
-- [ ] Establish schema organization.
-- [ ] Configure migration workflow.
-- [ ] Configure environment variable validation.
-- [ ] Verify database connectivity.
-- [ ] Verify migration generation and application.
+- [x] Install required Neon PostgreSQL dependencies.
+- [x] Install Drizzle ORM dependencies.
+- [x] Configure Neon database connection.
+- [x] Configure Drizzle ORM.
+- [x] Configure Drizzle Kit.
+- [x] Create shared database client.
+- [x] Establish schema organization.
+- [x] Configure migration workflow.
+- [x] Configure environment variable validation.
+- [x] Verify database connectivity.
+- [x] Verify migration generation and application.
+
+Notes: Neon connectivity and the `system_health` smoke migration were verified
+against the configured Neon database. The temporary `system_health` table exists
+only to prove the migration and query workflow.
 
 ## 1.4 Application Foundation
 
-- [ ] Establish global application layout.
-- [ ] Configure root providers if required.
-- [ ] Define global typography.
-- [ ] Define theme variables.
-- [ ] Establish light and dark theme behavior if required.
-- [ ] Configure reusable layout components.
-- [ ] Establish consistent error and loading UI patterns.
-- [ ] Configure application metadata.
-- [ ] Establish shared UI primitives where justified.
+- [x] Establish global application layout.
+- [x] Configure root providers if required.
+- [x] Define global typography.
+- [x] Define theme variables.
+- [x] Establish light and dark theme behavior if required.
+- [x] Configure reusable layout components.
+- [x] Establish consistent error and loading UI patterns.
+- [x] Configure application metadata.
+- [x] Establish shared UI primitives where justified.
+
+Notes: no root providers are required yet. Shared UI primitives are not yet
+justified beyond the reusable `PageShell` layout component.
 
 ## 1.5 Development Standards
 
-- [ ] Verify ESLint.
-- [ ] Verify TypeScript strict mode.
-- [ ] Verify Tailwind CSS v4 integration.
-- [ ] Establish code formatting conventions.
-- [ ] Establish Git branch conventions.
-- [ ] Establish documentation conventions.
-- [ ] Verify development server.
-- [ ] Verify lint.
-- [ ] Verify type checking.
-- [ ] Verify production build.
+- [x] Verify ESLint.
+- [x] Verify TypeScript strict mode.
+- [x] Verify Tailwind CSS v4 integration.
+- [x] Establish code formatting conventions.
+- [x] Establish Git branch conventions.
+- [x] Establish documentation conventions.
+- [x] Verify development server.
+- [x] Verify lint.
+- [x] Verify type checking.
+- [x] Verify production build.
+
+Notes: `.editorconfig` and ESLint establish formatting conventions. Prettier and
+CI are deferred to Phase 5 by project decision.
 
 ### Phase 1 Completion Criteria
 
@@ -193,11 +207,11 @@ Phase 1 is complete only when:
 
 ## 2.3 Dependencies & Utilities
 
-- [ ] Install `zod`.
+- [ ] Verify `zod` installation (completed in Phase 1).
 - [ ] Install `bcryptjs`.
 - [ ] Install `jose`.
 - [ ] Install required TypeScript types.
-- [ ] Implement environment validation.
+- [ ] Extend environment validation for authentication-specific variables.
 - [ ] Implement password hashing utility.
 - [ ] Implement password verification utility.
 - [ ] Implement JWT signing utility.
@@ -495,16 +509,20 @@ Phase 1 is complete only when:
 
 ## 5.1 Testing Infrastructure
 
-- [ ] Select and configure Vitest.
+- [x] Select and configure Vitest. (completed in Phase 1)
 - [ ] Configure React Testing Library.
 - [ ] Configure Playwright where required.
-- [ ] Add test scripts to `package.json`.
-- [ ] Establish test organization.
+- [x] Add test scripts to `package.json`. (completed in Phase 1)
+- [x] Establish test organization. (completed in Phase 1)
 - [ ] Configure test database strategy.
 - [ ] Add unit tests.
 - [ ] Add integration tests.
 - [ ] Add end-to-end tests.
 - [ ] Test critical user workflows.
+
+Note: Vitest and the initial test organization were established in Phase 1 so
+that earlier phases can satisfy their testing requirements. Phase 5 extends
+coverage and adds component and browser testing.
 
 ## 5.2 Security Audit
 
@@ -603,7 +621,7 @@ Use this section to maintain the actual project status.
 
 | Phase | Status |
 |---|---|
-| Phase 1 — Foundation | Not started |
+| Phase 1 — Foundation | Completed |
 | Phase 2 — Authentication | Not started |
 | Phase 3 — Workspaces & Projects | Not started |
 | Phase 4 — Task Management | Not started |
@@ -621,32 +639,30 @@ Update statuses only when supported by actual implementation evidence.
 ## Overall Progress
 
 ```text
-[░░░░░░░░░░░░░░░░░░░░] 0%
+[████░░░░░░░░░░░░░░░░] 20% Complete | Phase 1/5 Done
 ```
 
-The progress bar is illustrative initial status. Recalculate it from completed checklist items as implementation progresses.
+The progress bar is updated from actual completed roadmap work. Phase 1 is complete; overall progress reflects one fully completed phase out of five.
 
 Do not calculate progress by simply counting the number of phases completed if substantial work within a phase remains.
 
 ## Phase Completion Record
 
-Maintain a record whenever a phase is completed.
-
 ```text
-Phase:
-Completion date:
-Feature branch:
-Implemented functionality:
-Files created:
-Files modified:
-Database changes:
-Dependencies added:
-Lint result:
-Typecheck result:
-Build result:
-Test result:
-Known limitations:
-Next phase:
+Phase: Phase 1 — Foundation & Modular Architecture
+Completion date: 2026-10-30
+Feature branch: feature/phase-1-foundation
+Implemented functionality: Modular foundation, Neon/Drizzle infrastructure, environment validation, application shell, metadata, theme tokens, loading/error/not-found UI, security headers, Vitest setup, and documentation synchronization.
+Files created: src/shared/config/env.ts, src/shared/config/env.schema.ts, src/shared/config/env.schema.test.ts, src/shared/db/client.ts, src/shared/db/index.ts, src/shared/db/schema.ts, src/shared/components/layout/page-shell.tsx, src/modules/.gitkeep, drizzle.config.ts, drizzle/0000_keen_ink.sql, drizzle/meta/*, vitest.config.mts, app/loading.tsx, app/error.tsx, app/not-found.tsx, .editorconfig, .nvmrc, docs/architecture/decisions/ADR-001-modular-monolith.md, docs/architecture/decisions/ADR-003-database-selection.md, docs/architecture/decisions/ADR-005-module-boundaries.md
+Files modified: package.json, package-lock.json, next.config.ts, app/layout.tsx, app/globals.css, app/page.tsx, .env.sample, .gitignore, README.md, .agents/AGENTS.md, .agents/ARCHITECTURE.md, .agents/roadmap.md
+Database changes: Created the temporary public.system_health table through migration 0000_keen_ink for smoke verification.
+Dependencies added: zod, drizzle-orm, @neondatabase/serverless, server-only, drizzle-kit, vitest; @types/node upgraded to v24.
+Lint result: Passed.
+Typecheck result: Passed.
+Build result: Passed.
+Test result: 5/5 Vitest tests passed.
+Known limitations: Authentication and domain modules are not implemented; system_health is a temporary smoke table; the configured DATABASE_URL is the direct/unpooled Neon URL; Drizzle Kit has dev-only transitive audit advisories; Prettier, CI, full CSP, React Testing Library, and Playwright are deferred to Phase 5. Neon connectivity from this environment required NODE_OPTIONS=--no-network-family-autoselection under Node 24.
+Next phase: Phase 2 — Authentication
 ```
 
 ---

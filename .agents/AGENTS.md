@@ -44,18 +44,18 @@ Do not prioritize generating code quickly over understanding the existing implem
 
 # 2. Repository Awareness — Critical
 
-The repository currently contains the **Create Next App starter**, not the complete product described in `README.md`.
+The repository has completed the **Phase 1 foundation**, but it does not yet contain the complete product described in `README.md`.
 
 The following functionality and technologies are planned, not necessarily installed or implemented:
 
 - Authentication
-- Neon PostgreSQL
-- Drizzle ORM
 - `jose`
 - `bcryptjs`
-- Zod-based validation
 - Custom session management
-- Modular `src/` architecture
+- Workspaces, projects, tasks, and notifications
+- React Testing Library and Playwright
+
+Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, and the initial modular `src/` foundation are installed and configured.
 
 **Always inspect `package.json` before importing or installing dependencies.**
 
@@ -66,9 +66,13 @@ Never assume a planned dependency, feature, file, or directory exists.
 The current repository has these characteristics:
 
 - Next.js App Router lives in the root-level `app/` directory.
-- The application does not currently use `src/app/`.
+- The application does not use `src/app/`.
 - The `@/*` alias maps to the repository root, according to `tsconfig.json`.
-- The `src/modules/` and `src/shared/` directories must be created before use.
+- `src/shared/` contains database, environment, and layout foundations.
+- `src/modules/` exists as a placeholder for future domain modules.
+- `drizzle/` contains generated migrations.
+- The canonical engineering documents live in `.agents/`.
+- Authentication and domain modules have not been implemented yet.
 
 Do not move the existing App Router into `src/app/` without explicitly planning, implementing, and validating the migration.
 
@@ -100,6 +104,9 @@ Current repository toolchain:
 - TypeScript strict mode
 - Tailwind CSS v4
 - Turbopack CSS integration
+- Neon PostgreSQL with Drizzle ORM
+- Zod
+- Vitest
 
 ## Tailwind CSS
 
@@ -146,19 +153,30 @@ npm run dev
 
 npm run lint
 
-npx tsc --noEmit
+npm run typecheck
+
+npm test
 
 npm run build
+
+npm run db:generate
+
+npm run db:migrate
+
+npm run db:check
+
+npm run db:studio
 ```
 
 Important repository facts:
 
 - `npm run lint` runs ESLint without additional arguments.
-- There is no `npm run typecheck` script.
-- There is currently no test script or configured test framework.
+- `npm run typecheck` runs `tsc --noEmit`.
+- `npm test` runs the Vitest suite.
+- Database commands use Drizzle Kit.
 - There is currently no CI configuration.
 
-Never assume `npm run test` works.
+Never assume an unconfigured command or test exists.
 
 ## Verification Rules
 
@@ -166,7 +184,8 @@ After modifying code, run:
 
 ```bash
 npm run lint
-npx tsc --noEmit
+npm run typecheck
+npm test
 ```
 
 For changes affecting routing, configuration, server rendering, or production behavior:
@@ -175,7 +194,7 @@ For changes affecting routing, configuration, server rendering, or production be
 npm run build
 ```
 
-Run configured tests when a test framework becomes available.
+Run the configured tests for affected functionality.
 
 If a command fails:
 
@@ -195,15 +214,18 @@ The repository contains `.env.sample`.
 
 The `.env` file is gitignored.
 
-Initial planned environment variables:
+Current environment variables:
 
 ```env
 DATABASE_URL=
+DATABASE_URL_UNPOOLED=
 JWT_SECRET=
 NEXT_PUBLIC_APP_URL=
 ```
 
-These are templates and are not currently consumed by the starter application.
+`DATABASE_URL`, `JWT_SECRET`, and `NEXT_PUBLIC_APP_URL` are validated by
+`src/shared/config/env.ts`. `DATABASE_URL_UNPOOLED` is optional and is used by
+Drizzle Kit migrations when present.
 
 Rules:
 
@@ -332,9 +354,9 @@ Clearly report commands that were skipped and why.
 
 Keep these project documents synchronized:
 
-- `AGENTS.md` — engineering rules and agent behavior.
-- `roadmap.md` — implementation progress.
-- `ARCHITECTURE.md` — technical architecture and design decisions.
+- `.agents/AGENTS.md` — engineering rules and agent behavior.
+- `.agents/roadmap.md` — implementation progress.
+- `.agents/ARCHITECTURE.md` — technical architecture and design decisions.
 
 Update `roadmap.md` only when the corresponding functionality is actually complete.
 
@@ -479,11 +501,11 @@ Never sacrifice correctness, security, or maintainability for premature optimiza
 
 Testing is required for critical application functionality.
 
-The repository currently has no configured test framework.
+Vitest is configured for unit and integration testing. React Testing Library and Playwright remain planned for later phases.
 
-When introducing testing infrastructure, select tools based on actual requirements.
+When extending testing infrastructure, select tools based on actual requirements.
 
-Potential tools:
+Current and planned tools:
 
 - Vitest — unit and integration testing.
 - React Testing Library — component behavior.
@@ -542,9 +564,9 @@ Use the following documents for their respective responsibilities:
 
 | Document | Responsibility |
 |---|---|
-| `AGENTS.md` | Agent behavior and engineering rules |
-| `roadmap.md` | Development phases and progress |
-| `ARCHITECTURE.md` | System architecture and technical decisions |
+| `.agents/AGENTS.md` | Agent behavior and engineering rules |
+| `.agents/roadmap.md` | Development phases and progress |
+| `.agents/ARCHITECTURE.md` | System architecture and technical decisions |
 
 If implementation and documentation disagree:
 

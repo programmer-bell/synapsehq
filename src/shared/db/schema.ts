@@ -1,0 +1,12 @@
+import { pgTable, serial, timestamp } from "drizzle-orm/pg-core";
+
+/**
+ * Infrastructure-only table used to verify the migration and query workflow.
+ * Domain schemas belong to their respective modules under src/modules.
+ */
+export const systemHealth = pgTable("system_health", {
+  id: serial("id").primaryKey(),
+  checkedAt: timestamp("checked_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
