@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { PageShell } from "@/src/shared/components/layout/page-shell";
 
 export default function Home() {
@@ -11,9 +13,23 @@ export default function Home() {
           Engineering workspace foundation
         </h1>
         <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-          Projects, tasks, and team collaboration will live here. The
-          application foundation is ready for authentication development.
+          Projects, tasks, and team collaboration will live here. Create an
+          account to access your secure workspace.
         </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link
+            href="/signup"
+            className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:opacity-90"
+          >
+            Create account
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-surface-muted"
+          >
+            Sign in
+          </Link>
+        </div>
       </div>
     </PageShell>
   );

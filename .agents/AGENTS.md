@@ -44,18 +44,23 @@ Do not prioritize generating code quickly over understanding the existing implem
 
 # 2. Repository Awareness — Critical
 
-The repository has completed the **Phase 1 foundation**, but it does not yet contain the complete product described in `README.md`.
+The repository has completed the **Phase 1 foundation** and implemented **Phase 2 authentication**, but it does not yet contain the complete product described in `README.md`.
 
-The following functionality and technologies are planned, not necessarily installed or implemented:
+The following functionality is implemented:
 
-- Authentication
-- `jose`
-- `bcryptjs`
-- Custom session management
-- Workspaces, projects, tasks, and notifications
-- React Testing Library and Playwright
+- Custom authentication with registration, login, logout, and session revocation.
+- `jose` JWT signing and verification.
+- `bcryptjs` password hashing and verification.
+- Persistent JWT-backed sessions and database-backed login throttling.
+- Protected dashboard routes and optimistic `proxy.ts` navigation checks.
 
-Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, and the initial modular `src/` foundation are installed and configured.
+The following functionality is planned, not yet implemented:
+
+- Workspace and project resource-level authorization.
+- Workspaces, projects, tasks, and notifications.
+- React Testing Library and Playwright.
+
+Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, and the modular `src/` foundation are installed and configured.
 
 **Always inspect `package.json` before importing or installing dependencies.**
 
@@ -69,10 +74,11 @@ The current repository has these characteristics:
 - The application does not use `src/app/`.
 - The `@/*` alias maps to the repository root, according to `tsconfig.json`.
 - `src/shared/` contains database, environment, and layout foundations.
-- `src/modules/` exists as a placeholder for future domain modules.
-- `drizzle/` contains generated migrations.
+- `src/modules/auth/` contains the implemented authentication module.
+- `src/modules/` contains placeholders for future domain modules.
+- `drizzle/` contains generated migrations, including the auth schema.
 - The canonical engineering documents live in `.agents/`.
-- Authentication and domain modules have not been implemented yet.
+- Workspace, project, and task domain modules have not been implemented yet.
 
 Do not move the existing App Router into `src/app/` without explicitly planning, implementing, and validating the migration.
 

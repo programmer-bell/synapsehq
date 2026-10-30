@@ -705,7 +705,9 @@ Environment variables:
 - `DATABASE_URL`: pooled connection string for application runtime queries.
 - `DATABASE_URL_UNPOOLED`: optional direct connection string for Drizzle Kit migrations.
 - `JWT_SECRET`: server-only authentication secret, minimum 32 characters.
+- `AUTH_SESSION_TTL_SECONDS`: optional absolute session lifetime, defaulting to seven days.
 - `NEXT_PUBLIC_APP_URL`: public application URL.
+- `TEST_DATABASE_URL`: optional isolated database for integration tests; tests map it to `DATABASE_URL`.
 
 Environment variables are validated on the server by
 `src/shared/config/env.ts`.
@@ -746,33 +748,40 @@ Actual columns, constraints, and relationships must be finalized before migratio
 
 Represents application accounts.
 
-Potential fields:
+Implemented fields:
 
-- id
-- name
-- email
-- passwordHash
-- accountStatus
-- createdAt
-- updatedAt
-
-Email must have appropriate uniqueness constraints.
+- `id`: UUID primary key.
+- `name`: display name.
+- `email`: normalized, case-insensitive application email with a unique index.
+- `passwordHash`: bcrypt hash with cost factor 12.
+- `status`: `ACTIVE` or `DISABLED`.
+- `createdAt`, `updatedAt`: timezone-aware timestamps.
 
 ### Sessions
 
 Represents persistent authenticated sessions.
 
-Potential fields:
+Implemented fields:
 
-- id
-- userId
-- tokenIdentifier or tokenHash
-- expiresAt
-- createdAt
+- `id`: UUID primary key, also used as the JWT `sid` claim.
+- `userId`: foreign key to `users`, cascading on user deletion.
+- `expiresAt`: absolute expiration, aligned with the JWT expiration.
+- `revokedAt`: nullable revocation timestamp.
+- `createdAt`: timezone-aware timestamp.
 
-Session storage and JWT claims must be designed together.
+The database stores only the session identifier, never the raw JWT. Session
+rows are indexed by user and expiration. See
+`docs/architecture/decisions/ADR-006-custom-jwt-sessions.md`.
 
-Never store raw sensitive authentication tokens unnecessarily.
+### Auth Login Attempts
+
+Stores shared rate-limit state for serverless deployments.
+
+- `key`: HMAC-SHA256 identifier for a normalized email or client IP.
+- `failedCount`: failures in the current window.
+- `windowStartedAt`: start of the current fixed window.
+- `blockedUntil`: nullable active lockout expiration.
+- `updatedAt`: last update timestamp.
 
 ### Workspaces
 
@@ -966,11 +975,8 @@ Rules:
 
 ## Authentication Strategy
 
-SynapseHQ will implement custom authentication.
-
-External authentication providers are not part of the initial architecture.
-
-Planned technologies:
+SynapseHQ implements custom authentication without an external identity
+provider. See `docs/architecture/decisions/ADR-006-custom-jwt-sessions.md`.
 
 | Technology | Responsibility |
 |---|---|
@@ -978,7 +984,11 @@ Planned technologies:
 | jose | JWT creation and verification |
 | Zod | Input validation |
 | HTTP-only cookies | Secure token transport |
-| PostgreSQL | Persistent user and session data |
+| PostgreSQL | Persistent users, sessions, and login throttling |
+
+Passwords are hashed with bcrypt at cost factor 12 and limited to 8–72 UTF-8
+bytes. Email addresses are trimmed and lowercased before validation, lookup,
+and persistence.
 
 ## Authentication Flow
 
@@ -1003,8 +1013,10 @@ Password Hashing
 Create User
     |
     v
-Safe Response
+Redirect to Login
 ```
+
+Registration does not create an authenticated session automatically.
 
 ### Login
 
@@ -1018,13 +1030,16 @@ Server Action
 Zod Validation
     |
     v
+Email and IP Throttle Check
+    |
+    v
 Find User
     |
     v
 Verify Password
     |
     v
-Create Session
+Create Session Row
     |
     v
 Issue JWT
@@ -1042,10 +1057,10 @@ Authenticated User
 Logout Request
     |
     v
-Resolve Session
+Verify JWT
     |
     v
-Revoke Session
+Revoke Session Row
     |
     v
 Clear Cookie
@@ -1056,41 +1071,68 @@ Unauthenticated User
 
 ## JWT Requirements
 
-Validate:
+Session tokens use HS256 with `JWT_SECRET`.
 
-- Signature.
-- Expiration.
-- Issuer where configured.
-- Audience where configured.
-- Expected claims.
-- Session association.
+Required claims:
 
-Do not trust a decoded JWT without verifying its signature.
+- `sub`: user ID.
+- `sid`: persistent session ID.
+- `iss`: `synapsehq`.
+- `aud`: `synapsehq-web`.
+- `iat`: issue time.
+- `exp`: absolute expiration.
+
+Verification checks the signature, algorithm, issuer, audience, expiration,
+claim types, session row, revocation state, and user status. A decoded JWT is
+never trusted without verification.
 
 ## Cookie Security
 
-Use:
+The `synapse_session` cookie uses:
 
 - HTTP-only.
 - Secure in production.
-- Appropriate SameSite policy.
-- Appropriate path.
-- Explicit expiration or max age.
+- `SameSite=Lax`.
+- `Path=/`.
+- An explicit expiration matching the session.
 
-Consider CSRF protection for cookie-authenticated mutation endpoints, including Server Actions and Route Handlers.
+Next.js Server Actions retain their built-in origin checks and the cookie policy
+provides additional CSRF mitigation.
 
 ## Session Management
 
-The application should support:
+Sessions have an absolute lifetime of seven days by default, configured through
+`AUTH_SESSION_TTL_SECONDS`. The lifetime is not extended on use.
+
+The application supports:
 
 - Session expiration.
-- Session revocation.
+- Immediate session revocation.
 - Logout.
-- Session verification.
-- Invalid session handling.
-- Multiple sessions where appropriate.
+- Session verification against PostgreSQL.
+- Disabled-account rejection.
+- Multiple concurrent sessions.
 
-JWT validity alone must not be treated as proof that a session remains active when the design requires revocation.
+JWT validity alone is not proof that a session remains active. Every protected
+page and sensitive server operation must resolve the persistent session.
+
+## Route Protection
+
+`proxy.ts` performs optimistic navigation checks for protected route prefixes.
+It may redirect unauthenticated navigation, but it is not an authorization
+boundary.
+
+The protected dashboard layout calls `requireUser()`, which verifies the JWT and
+the persistent session before rendering. Server Actions must use the same guard
+before sensitive operations. Resource-level authorization is added in Phase 3
+when workspaces and projects exist.
+
+## Login Throttling
+
+Login throttling is database-backed so it works across serverless instances.
+Failed attempts are tracked separately by HMAC-SHA256 hashes of the normalized
+email and the client IP. Five failures within fifteen minutes trigger a
+fifteen-minute block. Successful login clears both identifiers.
 
 ## Authorization
 
@@ -1102,18 +1144,12 @@ Authorization answers:
 
 "What is this user allowed to do?"
 
-These must remain separate responsibilities.
+These remain separate responsibilities.
 
-Enforce authorization at the resource level.
-
-Examples:
-
-- A user cannot access another user's private workspace.
-- A workspace member cannot automatically perform owner-only actions.
-- A user cannot update tasks belonging to an inaccessible project.
-- A client cannot grant itself administrative privileges.
-
-Proxy (the Next.js 16 successor to middleware, conventionally `proxy.ts`) can perform early navigation checks but must not be the only authorization layer.
+Phase 2 establishes identity, session validation, and reusable authentication
+guards. Explicit workspace and project permission checks are deferred to Phase 3
+because those resources do not exist yet. They must be enforced close to the
+corresponding database operations before those resources are exposed.
 
 ---
 

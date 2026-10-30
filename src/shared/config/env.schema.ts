@@ -15,6 +15,15 @@ export const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z
     .string()
     .url("NEXT_PUBLIC_APP_URL must be a valid URL"),
+  AUTH_SESSION_TTL_SECONDS: z.coerce
+    .number()
+    .int("AUTH_SESSION_TTL_SECONDS must be an integer")
+    .min(300, "AUTH_SESSION_TTL_SECONDS must be at least 300 seconds")
+    .max(
+      2_592_000,
+      "AUTH_SESSION_TTL_SECONDS must be no more than 30 days",
+    )
+    .default(604_800),
 });
 
 export type ServerEnv = z.infer<typeof envSchema>;
