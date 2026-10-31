@@ -42,6 +42,12 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               Back to {workspaceAccess.workspace.name}
             </Link>
           ) : null}
+          <Link
+            href={`/projects/${projectId}/tasks`}
+            className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+          >
+            View tasks
+          </Link>
         </div>
         {canManage ? (
           <form action={deleteProjectAction.bind(null, projectId)}>

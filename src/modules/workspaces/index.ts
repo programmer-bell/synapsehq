@@ -15,6 +15,8 @@ export {
   canDeleteProject,
 } from "./lib/permissions";
 
+export { listWorkspaceMembers } from "./repositories/workspace-repository";
+
 export type {
   Workspace,
   WorkspaceAccess,
