@@ -2,9 +2,9 @@
 
 **Project:** SynapseHQ  
 **Architecture:** Modular Monolith  
-**Status:** Phase 1 complete / Phases 2, 3, and 4 implemented and verified
-**Current Stage:** Phase 2 — Authentication
-**Total Phases:** 5
+**Status:** Phases 1–4 complete / Phase 5 implementation complete with production deployment pending / Phase 6 in progress
+**Current Stage:** Phase 6 — DevOps & Security Hardening
+**Total Phases:** 6
 
 ---
 
@@ -72,6 +72,7 @@ Refer to `AGENTS.md` for mandatory development workflow and `ARCHITECTURE.md` fo
 | 3     | Workspaces & Projects     | Workspace and project management                 |
 | 4     | Task Management           | Kanban and table-based task management           |
 | 5     | Polish & Deployment       | Testing, optimization, and production deployment |
+| 6     | DevOps & Security         | Containerization, orchestration, and hardened CI |
 
 ---
 
@@ -622,6 +623,67 @@ coverage and adds component and browser testing.
 
 ---
 
+# Phase 6 — DevOps & Security Hardening
+
+**Objective:** Add production-grade containerization, local service orchestration, and a hardened CI/CD pipeline.
+
+**Status:** In progress.
+
+## 6.1 Containerization
+
+- [x] Add a production multi-stage Dockerfile with dependency caching.
+- [x] Add `.dockerignore` to exclude secrets and build artifacts.
+- [x] Run the application container as a non-root user.
+- [x] Verify the container image builds successfully.
+- [x] Verify the container starts and serves the application.
+
+## 6.2 Local Orchestration
+
+- [x] Add `docker-compose.yml` with application and PostgreSQL services.
+- [x] Add a persistent PostgreSQL volume and healthcheck.
+- [x] Isolate services on a dedicated bridge network.
+- [x] Bind the database port to loopback only.
+- [x] Add local PostgreSQL credentials to `.env.sample`.
+- [x] Verify the Docker Compose configuration.
+
+## 6.3 CI/CD
+
+- [x] Add lint and formatting quality gates.
+- [x] Add typecheck, test, and production build gates.
+- [x] Configure end-to-end tests against the production build.
+- [x] Configure production container image publishing to GHCR on `main`.
+- [x] Add a guarded production deployment hook.
+- [x] Document required repository variables and secrets.
+
+## 6.4 Security Hardening
+
+- [x] Keep `.env` files out of the repository and container build context.
+- [x] Never bake secrets into images or Compose files.
+- [x] Run the application container as non-root.
+- [x] Apply `no-new-privileges` and drop unnecessary capabilities.
+- [x] Review container and CI supply-chain settings.
+
+## 6.5 Verification
+
+- [x] Docker image builds.
+- [x] Compose configuration validates.
+- [x] CI workflow validates.
+- [x] Lint, format, typecheck, tests, and build pass.
+- [x] Documentation is synchronized.
+
+### Phase 6 Completion Criteria
+
+- The application runs from a production container image.
+- Local Compose orchestration starts the application and PostgreSQL.
+- CI enforces all quality gates before publishing an image.
+- Production images publish only from `main`.
+- No secrets are committed or embedded in images.
+- Documentation reflects the container and CI workflow.
+
+**Expected deliverable:** A containerized, security-hardened SynapseHQ deployment workflow.
+
+---
+
 # 4. Progress Tracking
 
 Use this section to maintain the actual project status.
@@ -634,7 +696,8 @@ Use this section to maintain the actual project status.
 | Phase 2 — Authentication        | Completed   |
 | Phase 3 — Workspaces & Projects | Completed   |
 | Phase 4 — Task Management       | Completed   |
-| Phase 5 — Production Readiness  | Not started |
+| Phase 5 — Production Readiness  | In progress |
+| Phase 6 — DevOps & Security     | In progress |
 
 Allowed statuses:
 
@@ -648,10 +711,10 @@ Update statuses only when supported by actual implementation evidence.
 ## Overall Progress
 
 ```text
-[████████████████░░░░] 80% Complete | Phase 4/5 Done
+[█████████████████░░░] 85% Complete | Phase 5 deployment pending, Phase 6 in progress
 ```
 
-The progress bar is updated from actual completed roadmap work. Phase 1 is complete; overall progress reflects one fully completed phase out of five.
+The progress bar is updated from actual completed roadmap work. Phases 1–4 are complete, Phase 5 implementation is complete but production deployment remains pending, and Phase 6 is in progress.
 
 Do not calculate progress by simply counting the number of phases completed if substantial work within a phase remains.
 
@@ -688,6 +751,7 @@ feature/phase-2-auth
 feature/phase-3-workspaces-projects
 feature/phase-4-task-management
 feature/phase-5-production
+feature/phase-6-devops-security
 ```
 
 Before creating a branch:
