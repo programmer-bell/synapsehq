@@ -9,7 +9,10 @@ type CreateTaskDialogProps = {
   assignableUsers: { id: string; name: string; email: string }[];
 };
 
-export function CreateTaskDialog({ projectId, assignableUsers }: CreateTaskDialogProps) {
+export function CreateTaskDialog({
+  projectId,
+  assignableUsers,
+}: CreateTaskDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
@@ -36,7 +39,10 @@ export function CreateTaskDialog({ projectId, assignableUsers }: CreateTaskDialo
           </button>
         </div>
         <div className="mt-6">
-          <CreateTaskForm projectId={projectId} assignableUsers={assignableUsers} />
+          <CreateTaskForm
+            projectId={projectId}
+            assignableUsers={assignableUsers}
+          />
         </div>
       </dialog>
     </>

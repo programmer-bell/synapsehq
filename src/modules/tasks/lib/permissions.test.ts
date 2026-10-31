@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { canCreateTasks, canDeleteTask, canReadTasks, canUpdateTask } from "./permissions";
+import {
+  canCreateTasks,
+  canDeleteTask,
+  canReadTasks,
+  canUpdateTask,
+} from "./permissions";
 
 describe("task permissions", () => {
   it("allows readers to read and create tasks", () => {

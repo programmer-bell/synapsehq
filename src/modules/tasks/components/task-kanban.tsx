@@ -19,11 +19,19 @@ const columns: { status: Task["status"]; label: string }[] = [
   { status: "DONE", label: "Done" },
 ];
 
-export function TaskKanban({ tasks, projectId }: { tasks: Task[]; projectId: string }) {
+export function TaskKanban({
+  tasks,
+  projectId,
+}: {
+  tasks: Task[];
+  projectId: string;
+}) {
   return (
     <div className="grid gap-4 lg:grid-cols-4">
       {columns.map((column) => {
-        const columnTasks = tasks.filter((task) => task.status === column.status);
+        const columnTasks = tasks.filter(
+          (task) => task.status === column.status,
+        );
 
         return (
           <section
@@ -73,8 +81,16 @@ export function TaskKanban({ tasks, projectId }: { tasks: Task[]; projectId: str
                             key={target.status}
                             action={updateTaskStatusAction.bind(null, task.id)}
                           >
-                            <input type="hidden" name="projectId" value={projectId} />
-                            <input type="hidden" name="status" value={target.status} />
+                            <input
+                              type="hidden"
+                              name="projectId"
+                              value={projectId}
+                            />
+                            <input
+                              type="hidden"
+                              name="status"
+                              value={target.status}
+                            />
                             <button
                               type="submit"
                               className="rounded-md border border-border px-2 py-1 text-xs text-foreground transition hover:bg-surface-muted"

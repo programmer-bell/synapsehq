@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 
 import { requireUser } from "@/src/modules/auth";
 import { getProjectAccess } from "@/src/modules/projects";
-import { listAssignableUsers, listTasksForProject } from "@/src/modules/tasks/services/task-service";
+import {
+  listAssignableUsers,
+  listTasksForProject,
+} from "@/src/modules/tasks/services/task-service";
 import { taskFiltersSchema } from "@/src/modules/tasks/schemas/task";
 import { CreateTaskDialog } from "@/src/modules/tasks/components/create-task-dialog";
 import { TaskFilters } from "@/src/modules/tasks/components/task-filters";
@@ -19,7 +22,10 @@ function firstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default async function ProjectTasksPage({ params, searchParams }: TasksPageProps) {
+export default async function ProjectTasksPage({
+  params,
+  searchParams,
+}: TasksPageProps) {
   const { projectId } = await params;
   const rawSearchParams = await searchParams;
   const user = await requireUser();
@@ -42,8 +48,11 @@ export default async function ProjectTasksPage({ params, searchParams }: TasksPa
     pageSize: firstValue(rawSearchParams.pageSize),
   });
 
-  const filters = parsedFilters.success ? parsedFilters.data : taskFiltersSchema.parse({});
-  const view = firstValue(rawSearchParams.view) === "table" ? "table" : "kanban";
+  const filters = parsedFilters.success
+    ? parsedFilters.data
+    : taskFiltersSchema.parse({});
+  const view =
+    firstValue(rawSearchParams.view) === "table" ? "table" : "kanban";
 
   const [tasksResult, assignableResult] = await Promise.all([
     listTasksForProject(user.id, projectId, filters),
@@ -72,7 +81,10 @@ export default async function ProjectTasksPage({ params, searchParams }: TasksPa
           >
             Project details
           </Link>
-          <CreateTaskDialog projectId={projectId} assignableUsers={assignableUsers} />
+          <CreateTaskDialog
+            projectId={projectId}
+            assignableUsers={assignableUsers}
+          />
         </div>
       </div>
 

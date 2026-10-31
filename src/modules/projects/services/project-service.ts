@@ -16,9 +16,7 @@ import {
 } from "../repositories/project-repository";
 import type { Project } from "../types";
 
-type ServiceResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; code: string };
+type ServiceResult<T> = { ok: true; data: T } | { ok: false; code: string };
 
 function toProject(record: {
   id: string;
@@ -89,15 +87,12 @@ export async function listProjectsForWorkspace(
 export async function getProjectAccess(
   userId: string,
   projectId: string,
-): Promise<
-  | {
-      project: Project;
-      workspaceId: string;
-      role: "OWNER" | "ADMIN" | "MEMBER";
-      createdBy: string;
-    }
-  | null
-> {
+): Promise<{
+  project: Project;
+  workspaceId: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+  createdBy: string;
+} | null> {
   const project = await findProjectById(projectId);
 
   if (!project) {

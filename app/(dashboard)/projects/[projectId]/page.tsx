@@ -11,7 +11,9 @@ type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
 };
 
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+export default async function ProjectDetailPage({
+  params,
+}: ProjectDetailPageProps) {
   const { projectId } = await params;
   const user = await requireUser();
   const access = await getProjectAccess(user.id, projectId);
@@ -21,7 +23,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   }
 
   const workspaceAccess = await getWorkspaceAccess(user.id, access.workspaceId);
-  const canManage = access.role === "OWNER" || access.role === "ADMIN" || access.createdBy === user.id;
+  const canManage =
+    access.role === "OWNER" ||
+    access.role === "ADMIN" ||
+    access.createdBy === user.id;
 
   return (
     <div className="space-y-8">
@@ -62,7 +67,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       </div>
 
       <section className="rounded-2xl border border-border bg-surface p-6">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">Details</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          Details
+        </h2>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
           {access.project.description || "No description provided."}
         </p>
@@ -70,7 +77,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
       {canManage ? (
         <section className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Edit project</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Edit project
+          </h2>
           <div className="mt-4 max-w-2xl">
             <UpdateProjectForm
               projectId={projectId}

@@ -18,7 +18,9 @@ describe("slugifyWorkspaceName", () => {
   });
 
   it("truncates long slugs", () => {
-    expect(slugifyWorkspaceName("a".repeat(200)).length).toBeLessThanOrEqual(120);
+    expect(slugifyWorkspaceName("a".repeat(200)).length).toBeLessThanOrEqual(
+      120,
+    );
   });
 });
 
@@ -26,8 +28,9 @@ describe("createUniqueWorkspaceSlug", () => {
   it("appends a suffix when the slug exists", async () => {
     const existing = new Set(["engineering-platform"]);
 
-    const slug = await createUniqueWorkspaceSlug("Engineering Platform", async (candidate) =>
-      existing.has(candidate),
+    const slug = await createUniqueWorkspaceSlug(
+      "Engineering Platform",
+      async (candidate) => existing.has(candidate),
     );
 
     expect(slug).toBe("engineering-platform-2");

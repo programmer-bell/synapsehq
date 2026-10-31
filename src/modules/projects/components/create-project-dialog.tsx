@@ -25,7 +25,9 @@ export function CreateProjectDialog({ workspaceId }: CreateProjectDialogProps) {
         className="w-full max-w-lg rounded-2xl border border-border bg-surface p-6 text-foreground shadow-xl backdrop:bg-black/40"
       >
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Create project</h2>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Create project
+          </h2>
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}

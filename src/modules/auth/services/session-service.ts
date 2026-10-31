@@ -2,10 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
-import {
-  clearSessionCookie,
-  readSessionCookie,
-} from "../lib/cookies";
+import { clearSessionCookie, readSessionCookie } from "../lib/cookies";
 import { verifySessionToken } from "../lib/jwt";
 import { toAuthUser } from "../lib/user";
 import {

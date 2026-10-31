@@ -11,21 +11,27 @@ type CreateProjectFormProps = {
 };
 
 export function CreateProjectForm({ workspaceId }: CreateProjectFormProps) {
-  const [state, formAction, isPending] = useActionState<ProjectFormState, FormData>(
-    createProjectAction,
-    { status: "idle" },
-  );
+  const [state, formAction, isPending] = useActionState<
+    ProjectFormState,
+    FormData
+  >(createProjectAction, { status: "idle" });
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="workspaceId" value={workspaceId} />
       {state.message ? (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300"
+        >
           {state.message}
         </p>
       ) : null}
       <div className="space-y-2">
-        <label htmlFor="project-name" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="project-name"
+          className="block text-sm font-medium text-foreground"
+        >
           Project name
         </label>
         <input
@@ -38,11 +44,16 @@ export function CreateProjectForm({ workspaceId }: CreateProjectFormProps) {
           placeholder="API Gateway"
         />
         {state.fieldErrors?.name?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{state.fieldErrors.name[0]}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {state.fieldErrors.name[0]}
+          </p>
         ) : null}
       </div>
       <div className="space-y-2">
-        <label htmlFor="project-description" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="project-description"
+          className="block text-sm font-medium text-foreground"
+        >
           Description
         </label>
         <textarea
@@ -53,11 +64,16 @@ export function CreateProjectForm({ workspaceId }: CreateProjectFormProps) {
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         {state.fieldErrors?.description?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{state.fieldErrors.description[0]}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {state.fieldErrors.description[0]}
+          </p>
         ) : null}
       </div>
       <div className="space-y-2">
-        <label htmlFor="project-status" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="project-status"
+          className="block text-sm font-medium text-foreground"
+        >
           Status
         </label>
         <select

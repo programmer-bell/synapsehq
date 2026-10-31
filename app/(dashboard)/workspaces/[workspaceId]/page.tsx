@@ -2,18 +2,26 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { requireUser } from "@/src/modules/auth";
-import { getWorkspaceAccess, listWorkspaceMembersForUser } from "@/src/modules/workspaces/services/workspace-service";
+import {
+  getWorkspaceAccess,
+  listWorkspaceMembersForUser,
+} from "@/src/modules/workspaces/services/workspace-service";
 import { listProjectsForWorkspace } from "@/src/modules/projects/services/project-service";
 import { UpdateWorkspaceForm } from "@/src/modules/workspaces/components/update-workspace-form";
 import { AddWorkspaceMemberForm } from "@/src/modules/workspaces/components/add-workspace-member-form";
 import { CreateProjectDialog } from "@/src/modules/projects/components/create-project-dialog";
-import { deleteWorkspaceAction, removeWorkspaceMemberAction } from "@/src/modules/workspaces/actions/workspace-actions";
+import {
+  deleteWorkspaceAction,
+  removeWorkspaceMemberAction,
+} from "@/src/modules/workspaces/actions/workspace-actions";
 
 type WorkspaceDetailPageProps = {
   params: Promise<{ workspaceId: string }>;
 };
 
-export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPageProps) {
+export default async function WorkspaceDetailPage({
+  params,
+}: WorkspaceDetailPageProps) {
   const { workspaceId } = await params;
   const user = await requireUser();
   const access = await getWorkspaceAccess(user.id, workspaceId);
@@ -26,10 +34,14 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
   const projectsResult = await listProjectsForWorkspace(user.id, workspaceId);
   const members = membersResult.ok ? membersResult.data : [];
   const projects = projectsResult.ok ? projectsResult.data : [];
-  const canManageWorkspace = access.membership.role === "OWNER" || access.membership.role === "ADMIN";
+  const canManageWorkspace =
+    access.membership.role === "OWNER" || access.membership.role === "ADMIN";
   const canDeleteWorkspace = access.membership.role === "OWNER";
 
-  const removeMemberAction = removeWorkspaceMemberAction.bind(null, workspaceId);
+  const removeMemberAction = removeWorkspaceMemberAction.bind(
+    null,
+    workspaceId,
+  );
 
   return (
     <div className="space-y-8">
@@ -57,19 +69,28 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
 
       {canManageWorkspace ? (
         <section className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Workspace settings</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Workspace settings
+          </h2>
           <div className="mt-4 max-w-xl">
-            <UpdateWorkspaceForm workspaceId={workspaceId} initialName={access.workspace.name} />
+            <UpdateWorkspaceForm
+              workspaceId={workspaceId}
+              initialName={access.workspace.name}
+            />
           </div>
         </section>
       ) : null}
 
       <section className="rounded-2xl border border-border bg-surface p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Members</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Members
+          </h2>
         </div>
         <div className="mt-4">
-          {canManageWorkspace ? <AddWorkspaceMemberForm workspaceId={workspaceId} /> : null}
+          {canManageWorkspace ? (
+            <AddWorkspaceMemberForm workspaceId={workspaceId} />
+          ) : null}
         </div>
         <div className="mt-6 space-y-3">
           {members.map((member) => (
@@ -85,7 +106,8 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
                   {member.user?.email ?? member.userId} · {member.role}
                 </p>
               </div>
-              {canManageWorkspace && member.userId !== access.workspace.ownerId ? (
+              {canManageWorkspace &&
+              member.userId !== access.workspace.ownerId ? (
                 <form action={removeMemberAction}>
                   <input type="hidden" name="userId" value={member.userId} />
                   <button
@@ -103,7 +125,9 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
 
       <section className="space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Projects</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Projects
+          </h2>
           {hasProjectCreatePermission(access.membership.role) ? (
             <CreateProjectDialog workspaceId={workspaceId} />
           ) : null}
@@ -111,7 +135,9 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
 
         {projects.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface p-8">
-            <p className="text-sm font-medium text-foreground">No projects yet</p>
+            <p className="text-sm font-medium text-foreground">
+              No projects yet
+            </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Create a project to start tracking work in this workspace.
             </p>

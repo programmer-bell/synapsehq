@@ -16,11 +16,13 @@ permissions did not yet exist.
 Use explicit workspace membership roles and centralized permission checks.
 
 Workspace roles:
+
 - `OWNER`
 - `ADMIN`
 - `MEMBER`
 
 Permission model:
+
 - `OWNER` can read, update, and delete the workspace; manage members; and
   perform all project operations.
 - `ADMIN` can read and update the workspace; manage non-owner members; and
@@ -41,10 +43,12 @@ values, and made unique with a numeric suffix when necessary. Project names must
 be unique within a workspace.
 
 Statuses:
+
 - Workspaces do not have a status field in Phase 3.
 - Projects use `ACTIVE` or `ARCHIVED`.
 
 Deletion behavior:
+
 - Deleting a workspace cascades to its memberships and projects.
 - Deleting a user cascades to owned workspaces, memberships, and created
   projects.

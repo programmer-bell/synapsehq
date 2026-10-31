@@ -8,7 +8,7 @@ The project is designed around a **Modular Monolith architecture**, with clearly
 
 Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
 
-> **Project status:** Phases 1–4 are implemented. Authentication, workspaces, workspace membership, projects, and task management are available.
+> **Project status:** Phases 1–4 are implemented and Phase 5 is in progress. Testing, security, accessibility, and performance audits are complete; production deployment is pending.
 
 ---
 
@@ -86,12 +86,14 @@ Planned capabilities:
 A task management experience designed for both visual workflows and structured data management.
 
 **Kanban Board**
+
 - Organize tasks by status.
 - Move tasks between workflow columns.
 - Track task assignments and priorities.
 - View task progress within a project.
 
 **Data Table**
+
 - Display tasks in a structured table.
 - Filter and sort task records.
 - Search by relevant task information.
@@ -138,20 +140,20 @@ Planned capabilities:
 
 The project targets a modern Next.js and TypeScript ecosystem.
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Framework | Next.js 16+ | Full-stack React application |
-| UI Library | React 19 | Component-based interface |
-| Language | TypeScript | Strict type safety |
-| Styling | Tailwind CSS v4 | Utility-first styling |
-| Icons | Lucide React | Interface iconography |
-| Database | Neon PostgreSQL | Serverless relational database |
-| ORM | Drizzle ORM | Type-safe database queries |
-| Validation | Zod | Input and schema validation |
-| Authentication | jose | JWT creation and verification |
-| Password Security | bcryptjs | Password hashing |
-| Deployment | Vercel | Application hosting |
-| Database Hosting | Neon | PostgreSQL hosting |
+| Layer             | Technology      | Purpose                        |
+| ----------------- | --------------- | ------------------------------ |
+| Framework         | Next.js 16+     | Full-stack React application   |
+| UI Library        | React 19        | Component-based interface      |
+| Language          | TypeScript      | Strict type safety             |
+| Styling           | Tailwind CSS v4 | Utility-first styling          |
+| Icons             | Lucide React    | Interface iconography          |
+| Database          | Neon PostgreSQL | Serverless relational database |
+| ORM               | Drizzle ORM     | Type-safe database queries     |
+| Validation        | Zod             | Input and schema validation    |
+| Authentication    | jose            | JWT creation and verification  |
+| Password Security | bcryptjs        | Password hashing               |
+| Deployment        | Vercel          | Application hosting            |
+| Database Hosting  | Neon            | PostgreSQL hosting             |
 
 **Note:** The repository's installed dependencies are authoritative. Neon PostgreSQL, Drizzle ORM, Zod, Vitest, `jose`, and `bcryptjs` are installed. Lucide React, React Testing Library, and Playwright remain planned for later phases.
 
@@ -177,13 +179,13 @@ The project does not require microservices or distributed infrastructure at its 
 
 ### Planned Domain Modules
 
-| Module | Responsibility |
-|---|---|
-| Auth | Registration, login, sessions, and authorization |
-| Workspaces | Workspace creation and membership |
-| Projects | Project lifecycle and ownership |
-| Tasks | Task creation, assignment, and workflow |
-| Notifications | Future notification functionality |
+| Module        | Responsibility                                   |
+| ------------- | ------------------------------------------------ |
+| Auth          | Registration, login, sessions, and authorization |
+| Workspaces    | Workspace creation and membership                |
+| Projects      | Project lifecycle and ownership                  |
+| Tasks         | Task creation, assignment, and workflow          |
+| Notifications | Future notification functionality                |
 
 Each module should own its domain-specific schemas, validation, services, and components where appropriate.
 
@@ -331,16 +333,16 @@ Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM 
 
 ### Planned Core Entities
 
-| Entity | Purpose | Status |
-|---|---|---|
-| Users | User accounts and identity | Implemented |
-| Sessions | Persistent authentication sessions | Implemented |
-| AuthLoginAttempts | Shared login throttling state | Implemented |
-| Workspaces | Team workspaces | Implemented |
-| WorkspaceMembers | Workspace membership and roles | Implemented |
-| Projects | Projects belonging to workspaces | Implemented |
-| Tasks | Development tasks belonging to projects | Planned |
-| Notifications | Future user notifications | Planned |
+| Entity            | Purpose                                 | Status      |
+| ----------------- | --------------------------------------- | ----------- |
+| Users             | User accounts and identity              | Implemented |
+| Sessions          | Persistent authentication sessions      | Implemented |
+| AuthLoginAttempts | Shared login throttling state           | Implemented |
+| Workspaces        | Team workspaces                         | Implemented |
+| WorkspaceMembers  | Workspace membership and roles          | Implemented |
+| Projects          | Projects belonging to workspaces        | Implemented |
+| Tasks             | Development tasks belonging to projects | Planned     |
+| Notifications     | Future user notifications               | Planned     |
 
 ### Relationships
 
@@ -358,12 +360,12 @@ Schema changes are managed through version-controlled Drizzle migrations.
 
 Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.md).
 
-| Phase | Status | Focus | Main Deliverables |
-|---|---|---|---|
-| Phase 1 | Complete | Foundation & Architecture | Project structure, database foundation, development standards |
-| Phase 2 | Implemented | Custom Authentication | Registration, login, sessions, route protection |
-| Phase 3 | Implemented | Workspaces & Projects | Workspace membership and project management |
-| Phase 4 | Implemented | Task Management | Kanban, table views, filtering, and sorting |
+| Phase   | Status      | Focus                     | Main Deliverables                                             |
+| ------- | ----------- | ------------------------- | ------------------------------------------------------------- |
+| Phase 1 | Complete    | Foundation & Architecture | Project structure, database foundation, development standards |
+| Phase 2 | Implemented | Custom Authentication     | Registration, login, sessions, route protection               |
+| Phase 3 | Implemented | Workspaces & Projects     | Workspace membership and project management                   |
+| Phase 4 | Implemented | Task Management           | Kanban, table views, filtering, and sorting                   |
 
 | Phase 5 | Planned | Polish & Deployment | Testing, security, accessibility, and deployment |
 
@@ -441,18 +443,18 @@ http://localhost:3000
 
 ## Development Commands
 
-| Command | Description |
-|---|---|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Start the Next.js development server |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript type checking |
-| `npm test` | Run unit tests and DB integration tests when configured |
-| `npm run build` | Create a production build |
-| `npm run db:generate` | Generate Drizzle migrations |
-| `npm run db:migrate` | Apply Drizzle migrations |
-| `npm run db:check` | Check Drizzle migration consistency |
-| `npm run db:studio` | Open Drizzle Studio |
+| Command               | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `npm install`         | Install project dependencies                            |
+| `npm run dev`         | Start the Next.js development server                    |
+| `npm run lint`        | Run ESLint                                              |
+| `npm run typecheck`   | Run TypeScript type checking                            |
+| `npm test`            | Run unit tests and DB integration tests when configured |
+| `npm run build`       | Create a production build                               |
+| `npm run db:generate` | Generate Drizzle migrations                             |
+| `npm run db:migrate`  | Apply Drizzle migrations                                |
+| `npm run db:check`    | Check Drizzle migration consistency                     |
+| `npm run db:studio`   | Open Drizzle Studio                                     |
 
 Run linting, type checking, and tests after implementation changes. Run a production build when changes affect routing, configuration, or production rendering.
 
@@ -560,12 +562,12 @@ These are potential extensions, not commitments for the initial release.
 
 The repository maintains separate documents for product development and engineering decisions:
 
-| Document | Purpose |
-|---|---|
-| [`AGENTS.md`](./.agents/AGENTS.md) | Repository-specific instructions and development rules |
-| [`roadmap.md`](./.agents/roadmap.md) | Phased implementation roadmap and progress tracking |
+| Document                                       | Purpose                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| [`AGENTS.md`](./.agents/AGENTS.md)             | Repository-specific instructions and development rules              |
+| [`roadmap.md`](./.agents/roadmap.md)           | Phased implementation roadmap and progress tracking                 |
 | [`ARCHITECTURE.md`](./.agents/ARCHITECTURE.md) | Architectural boundaries, design decisions, and technical standards |
-| [`README.md`](./README.md) | Project overview, setup, features, and documentation entry point |
+| [`README.md`](./README.md)                     | Project overview, setup, features, and documentation entry point    |
 
 These documents should remain synchronized as the project evolves.
 

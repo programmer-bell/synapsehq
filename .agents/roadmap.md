@@ -26,19 +26,19 @@ The application will provide:
 
 ## Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 |
-| Frontend | React 19 |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4 |
-| Database | Neon PostgreSQL |
-| ORM | Drizzle ORM |
-| Validation | Zod |
-| Password hashing | bcryptjs |
-| JWT | jose |
-| Deployment | Vercel |
-| Testing | Vitest, React Testing Library, Playwright (planned) |
+| Layer            | Technology                                          |
+| ---------------- | --------------------------------------------------- |
+| Framework        | Next.js 16                                          |
+| Frontend         | React 19                                            |
+| Language         | TypeScript                                          |
+| Styling          | Tailwind CSS v4                                     |
+| Database         | Neon PostgreSQL                                     |
+| ORM              | Drizzle ORM                                         |
+| Validation       | Zod                                                 |
+| Password hashing | bcryptjs                                            |
+| JWT              | jose                                                |
+| Deployment       | Vercel                                              |
+| Testing          | Vitest, React Testing Library, Playwright (planned) |
 
 All dependencies must be verified in `package.json` before use.
 
@@ -65,13 +65,13 @@ Refer to `AGENTS.md` for mandatory development workflow and `ARCHITECTURE.md` fo
 
 # 3. Phase Overview
 
-| Phase | Name | Primary Outcome |
-|---|---|---|
-| 1 | Foundation & Architecture | Project infrastructure and modular structure |
-| 2 | Authentication | Secure custom authentication |
-| 3 | Workspaces & Projects | Workspace and project management |
-| 4 | Task Management | Kanban and table-based task management |
-| 5 | Polish & Deployment | Testing, optimization, and production deployment |
+| Phase | Name                      | Primary Outcome                                  |
+| ----- | ------------------------- | ------------------------------------------------ |
+| 1     | Foundation & Architecture | Project infrastructure and modular structure     |
+| 2     | Authentication            | Secure custom authentication                     |
+| 3     | Workspaces & Projects     | Workspace and project management                 |
+| 4     | Task Management           | Kanban and table-based task management           |
+| 5     | Polish & Deployment       | Testing, optimization, and production deployment |
 
 ---
 
@@ -519,15 +519,15 @@ deferred; membership is managed by adding existing users by email.
 ## 5.1 Testing Infrastructure
 
 - [x] Select and configure Vitest. (completed in Phase 1)
-- [ ] Configure React Testing Library.
-- [ ] Configure Playwright where required.
+- [x] Configure React Testing Library.
+- [x] Configure Playwright where required.
 - [x] Add test scripts to `package.json`. (completed in Phase 1)
 - [x] Establish test organization. (completed in Phase 1)
-- [ ] Configure test database strategy.
-- [ ] Add unit tests.
-- [ ] Add integration tests.
-- [ ] Add end-to-end tests.
-- [ ] Test critical user workflows.
+- [x] Configure test database strategy.
+- [x] Add unit tests.
+- [x] Add integration tests.
+- [x] Add end-to-end tests.
+- [x] Test critical user workflows.
 
 Note: Vitest and the initial test organization were established in Phase 1 so
 that earlier phases can satisfy their testing requirements. Phase 5 extends
@@ -535,53 +535,53 @@ coverage and adds component and browser testing.
 
 ## 5.2 Security Audit
 
-- [ ] Review authentication implementation.
-- [ ] Review session lifecycle.
-- [ ] Review cookie security.
-- [ ] Review password handling.
-- [ ] Review authorization boundaries.
-- [ ] Review workspace isolation.
-- [ ] Review project access.
-- [ ] Review task access.
-- [ ] Review Server Actions.
-- [ ] Review Route Handlers.
-- [ ] Review environment variable exposure.
-- [ ] Review error messages and logging.
-- [ ] Review rate limiting.
-- [ ] Review dependency vulnerabilities.
+- [x] Review authentication implementation.
+- [x] Review session lifecycle.
+- [x] Review cookie security.
+- [x] Review password handling.
+- [x] Review authorization boundaries.
+- [x] Review workspace isolation.
+- [x] Review project access.
+- [x] Review task access.
+- [x] Review Server Actions.
+- [x] Review Route Handlers.
+- [x] Review environment variable exposure.
+- [x] Review error messages and logging.
+- [x] Review rate limiting.
+- [x] Review dependency vulnerabilities.
 
 ## 5.3 UI & Accessibility Audit
 
-- [ ] Review mobile layouts.
-- [ ] Review tablet layouts.
-- [ ] Review desktop layouts.
-- [ ] Review widescreen layouts.
-- [ ] Review navigation.
-- [ ] Review forms.
-- [ ] Review modals.
-- [ ] Review Kanban responsiveness.
-- [ ] Review table responsiveness.
-- [ ] Review keyboard navigation.
-- [ ] Review focus indicators.
-- [ ] Review color contrast.
-- [ ] Review loading states.
-- [ ] Review empty states.
-- [ ] Review error states.
+- [x] Review mobile layouts.
+- [x] Review tablet layouts.
+- [x] Review desktop layouts.
+- [x] Review widescreen layouts.
+- [x] Review navigation.
+- [x] Review forms.
+- [x] Review modals.
+- [x] Review Kanban responsiveness.
+- [x] Review table responsiveness.
+- [x] Review keyboard navigation.
+- [x] Review focus indicators.
+- [x] Review color contrast.
+- [x] Review loading states.
+- [x] Review empty states.
+- [x] Review error states.
 
 ## 5.4 Performance Optimization
 
-- [ ] Review Client Component usage.
-- [ ] Review React re-renders.
-- [ ] Review bundle size.
-- [ ] Optimize image handling.
-- [ ] Optimize font loading.
-- [ ] Review database query performance.
-- [ ] Review N+1 query patterns.
-- [ ] Review indexes.
-- [ ] Review pagination.
-- [ ] Review caching behavior.
-- [ ] Review cache invalidation.
-- [ ] Validate user-specific data isolation.
+- [x] Review Client Component usage.
+- [x] Review React re-renders.
+- [x] Review bundle size.
+- [x] Optimize image handling.
+- [x] Optimize font loading.
+- [x] Review database query performance.
+- [x] Review N+1 query patterns.
+- [x] Review indexes.
+- [x] Review pagination.
+- [x] Review caching behavior.
+- [x] Review cache invalidation.
+- [x] Validate user-specific data isolation.
 
 ## 5.5 Production Configuration
 
@@ -599,12 +599,12 @@ coverage and adds component and browser testing.
 
 ## 5.6 Final Release
 
-- [ ] Review all roadmap phases.
-- [ ] Verify critical functionality.
-- [ ] Verify security requirements.
+- [x] Review all roadmap phases.
+- [x] Verify critical functionality.
+- [x] Verify security requirements.
 - [ ] Verify production database.
 - [ ] Verify deployment.
-- [ ] Review documentation.
+- [x] Review documentation.
 - [ ] Resolve release-blocking issues.
 - [ ] Prepare release notes.
 
@@ -628,13 +628,13 @@ Use this section to maintain the actual project status.
 
 ## Phase Status
 
-| Phase | Status |
-|---|---|
-| Phase 1 — Foundation | Completed |
-| Phase 2 — Authentication | Completed |
-| Phase 3 — Workspaces & Projects | Completed |
-| Phase 4 — Task Management | Completed |
-| Phase 5 — Production Readiness | Not started |
+| Phase                           | Status      |
+| ------------------------------- | ----------- |
+| Phase 1 — Foundation            | Completed   |
+| Phase 2 — Authentication        | Completed   |
+| Phase 3 — Workspaces & Projects | Completed   |
+| Phase 4 — Task Management       | Completed   |
+| Phase 5 — Production Readiness  | Not started |
 
 Allowed statuses:
 
@@ -648,7 +648,7 @@ Update statuses only when supported by actual implementation evidence.
 ## Overall Progress
 
 ```text
-[████░░░░░░░░░░░░░░░░] 20% Complete | Phase 1/5 Done
+[████████████████░░░░] 80% Complete | Phase 4/5 Done
 ```
 
 The progress bar is updated from actual completed roadmap work. Phase 1 is complete; overall progress reflects one fully completed phase out of five.

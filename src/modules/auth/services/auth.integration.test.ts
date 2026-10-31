@@ -11,10 +11,7 @@ import {
 import { findUserByEmail } from "../repositories/user-repository";
 import { loginUser } from "./login-service";
 import { registerUser } from "./registration-service";
-import {
-  resolveSessionToken,
-  revokeSessionByToken,
-} from "./session-service";
+import { resolveSessionToken, revokeSessionByToken } from "./session-service";
 
 const describeIntegration = process.env.TEST_DATABASE_URL
   ? describe

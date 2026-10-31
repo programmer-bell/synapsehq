@@ -4,11 +4,7 @@ import { jwtVerify, SignJWT } from "jose";
 
 import { getEnv } from "@/src/shared/config/env";
 
-import {
-  JWT_ALGORITHM,
-  JWT_AUDIENCE,
-  JWT_ISSUER,
-} from "../constants";
+import { JWT_ALGORITHM, JWT_AUDIENCE, JWT_ISSUER } from "../constants";
 
 export type SessionTokenPayload = {
   userId: string;

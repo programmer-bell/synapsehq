@@ -16,8 +16,7 @@ const passwordSchema = z
     `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
   )
   .refine(
-    (value) =>
-      new TextEncoder().encode(value).length <= PASSWORD_MAX_BYTES,
+    (value) => new TextEncoder().encode(value).length <= PASSWORD_MAX_BYTES,
     `Password must be ${PASSWORD_MAX_BYTES} bytes or fewer.`,
   );
 
@@ -43,8 +42,7 @@ export const loginSchema = z.object({
     .string()
     .min(1, "Password is required.")
     .refine(
-      (value) =>
-        new TextEncoder().encode(value).length <= PASSWORD_MAX_BYTES,
+      (value) => new TextEncoder().encode(value).length <= PASSWORD_MAX_BYTES,
       `Password must be ${PASSWORD_MAX_BYTES} bytes or fewer.`,
     ),
 });

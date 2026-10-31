@@ -59,19 +59,19 @@ Microservices should only be considered when genuine organizational, deployment,
 
 ## Application Stack
 
-| Layer | Technology | Responsibility |
-|---|---|---|
-| Application framework | Next.js 16 | Routing and application runtime |
-| UI | React 19 | User interface |
-| Language | TypeScript | Static typing |
-| Styling | Tailwind CSS v4 | Design system and responsive UI |
-| Validation | Zod | Runtime input validation |
-| Database | Neon PostgreSQL | Persistent relational data |
-| ORM | Drizzle ORM | Typed database operations |
-| Password security | bcryptjs | Password hashing and verification |
-| Token management | jose | JWT signing and verification |
-| Application interfaces | Server Actions / Route Handlers | Server-side operations |
-| Deployment | Vercel | Application hosting |
+| Layer                  | Technology                      | Responsibility                    |
+| ---------------------- | ------------------------------- | --------------------------------- |
+| Application framework  | Next.js 16                      | Routing and application runtime   |
+| UI                     | React 19                        | User interface                    |
+| Language               | TypeScript                      | Static typing                     |
+| Styling                | Tailwind CSS v4                 | Design system and responsive UI   |
+| Validation             | Zod                             | Runtime input validation          |
+| Database               | Neon PostgreSQL                 | Persistent relational data        |
+| ORM                    | Drizzle ORM                     | Typed database operations         |
+| Password security      | bcryptjs                        | Password hashing and verification |
+| Token management       | jose                            | JWT signing and verification      |
+| Application interfaces | Server Actions / Route Handlers | Server-side operations            |
+| Deployment             | Vercel                          | Application hosting               |
 
 Dependencies are planned until verified in the actual repository.
 
@@ -600,9 +600,7 @@ export const createTaskSchema = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
 });
 
-export type CreateTaskInput = z.infer<
-  typeof createTaskSchema
->;
+export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 ```
 
 The example illustrates the intended pattern. Actual task fields and enums must follow the finalized domain model.
@@ -975,13 +973,13 @@ Rules:
 SynapseHQ implements custom authentication without an external identity
 provider. See `docs/architecture/decisions/ADR-006-custom-jwt-sessions.md`.
 
-| Technology | Responsibility |
-|---|---|
-| bcryptjs | Password hashing and verification |
-| jose | JWT creation and verification |
-| Zod | Input validation |
-| HTTP-only cookies | Secure token transport |
-| PostgreSQL | Persistent users, sessions, and login throttling |
+| Technology        | Responsibility                                   |
+| ----------------- | ------------------------------------------------ |
+| bcryptjs          | Password hashing and verification                |
+| jose              | JWT creation and verification                    |
+| Zod               | Input validation                                 |
+| HTTP-only cookies | Secure token transport                           |
+| PostgreSQL        | Persistent users, sessions, and login throttling |
 
 Passwords are hashed with bcrypt at cost factor 12 and limited to 8–72 UTF-8
 bytes. Email addresses are trimmed and lowercased before validation, lookup,
@@ -1273,13 +1271,13 @@ Use the simplest state management approach that satisfies the requirement.
 
 ## State Strategy
 
-| Requirement | Preferred Approach |
-|---|---|
-| Initial server data | Server Components |
-| Local UI state | React useState |
-| Complex local state | useReducer where appropriate |
-| Shareable filters | URL search parameters |
-| Server mutations | Server Actions where appropriate |
+| Requirement             | Preferred Approach                            |
+| ----------------------- | --------------------------------------------- |
+| Initial server data     | Server Components                             |
+| Local UI state          | React useState                                |
+| Complex local state     | useReducer where appropriate                  |
+| Shareable filters       | URL search parameters                         |
+| Server mutations        | Server Actions where appropriate              |
 | Optimistic interactions | useOptimistic or an appropriate React pattern |
 
 Do not introduce a global state library without a genuine requirement.
@@ -1407,9 +1405,7 @@ Support:
 For complex tables:
 
 ```tsx
-<div className="overflow-x-auto">
-  {/* Responsive data table */}
-</div>
+<div className="overflow-x-auto">{/* Responsive data table */}</div>
 ```
 
 For responsive grids:
@@ -1540,11 +1536,11 @@ Playwright remain planned and must be installed and configured before use.
 
 Testing stack:
 
-| Tool | Purpose |
-|---|---|
-| Vitest | Unit and integration tests |
-| React Testing Library | Component testing |
-| Playwright | Browser end-to-end testing |
+| Tool                  | Purpose                    |
+| --------------------- | -------------------------- |
+| Vitest                | Unit and integration tests |
+| React Testing Library | Component testing          |
+| Playwright            | Browser end-to-end testing |
 
 ## Unit Testing
 
@@ -1655,21 +1651,27 @@ ADR-005-module-boundaries.md
 # ADR-XXX: Decision Title
 
 ## Status
+
 Proposed / Accepted / Superseded
 
 ## Context
+
 What problem are we solving?
 
 ## Decision
+
 What approach are we choosing?
 
 ## Alternatives
+
 What other approaches were considered?
 
 ## Trade-offs
+
 What are the benefits and disadvantages?
 
 ## Consequences
+
 What changes will this decision introduce?
 ```
 

@@ -56,7 +56,9 @@ export const createTaskSchema = z.object({
         `Description must be ${TASK_DESCRIPTION_MAX_LENGTH} characters or fewer.`,
       )
       .optional()
-      .transform((value) => (value === "" || value === undefined ? null : value)),
+      .transform((value) =>
+        value === "" || value === undefined ? null : value,
+      ),
   ),
   status: taskStatusSchema.default("TODO"),
   priority: taskPrioritySchema.default("MEDIUM"),
@@ -86,7 +88,9 @@ export const updateTaskSchema = z.object({
         `Description must be ${TASK_DESCRIPTION_MAX_LENGTH} characters or fewer.`,
       )
       .optional()
-      .transform((value) => (value === "" || value === undefined ? null : value)),
+      .transform((value) =>
+        value === "" || value === undefined ? null : value,
+      ),
   ),
   status: taskStatusSchema,
   priority: taskPrioritySchema,

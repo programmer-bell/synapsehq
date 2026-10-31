@@ -17,7 +17,11 @@ import {
   listWorkspacesForUser,
   updateWorkspaceRecord,
 } from "../repositories/workspace-repository";
-import { createWorkspaceSchema, updateWorkspaceSchema, addWorkspaceMemberSchema } from "../schemas/workspace";
+import {
+  createWorkspaceSchema,
+  updateWorkspaceSchema,
+  addWorkspaceMemberSchema,
+} from "../schemas/workspace";
 import type {
   Workspace,
   WorkspaceAccess,
@@ -26,9 +30,7 @@ import type {
   WorkspaceSummary,
 } from "../types";
 
-type ServiceResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; code: string };
+type ServiceResult<T> = { ok: true; data: T } | { ok: false; code: string };
 
 function toWorkspace(record: {
   id: string;
@@ -70,8 +72,9 @@ export async function createWorkspace(
   }
 
   try {
-    const slug = await createUniqueWorkspaceSlug(parsed.data.name, async (candidate) =>
-      Boolean(await findWorkspaceBySlug(candidate)),
+    const slug = await createUniqueWorkspaceSlug(
+      parsed.data.name,
+      async (candidate) => Boolean(await findWorkspaceBySlug(candidate)),
     );
 
     const workspace = await db.transaction(async (tx) => {
@@ -107,8 +110,8 @@ export async function listWorkspacesForUserWithSummary(
   return Promise.all(
     rows.map(async (row) => {
       const [projects, members] = await Promise.all([
-        import("@/src/modules/projects/repositories/project-repository").then((module) =>
-          module.listProjectsByWorkspace(row.workspace.id),
+        import("@/src/modules/projects/repositories/project-repository").then(
+          (module) => module.listProjectsByWorkspace(row.workspace.id),
         ),
         listWorkspaceMembers(row.workspace.id),
       ]);
@@ -235,7 +238,6 @@ export async function addWorkspaceMember(
     return { ok: false, code: "ALREADY_MEMBER" };
   }
 
-
   try {
     const membership = await createWorkspaceMembership({
       workspaceId,
@@ -270,7 +272,10 @@ export async function removeWorkspaceMember(
     return { ok: false, code: "FORBIDDEN" };
   }
 
-  const targetMembership = await findWorkspaceMembership(workspaceId, targetUserId);
+  const targetMembership = await findWorkspaceMembership(
+    workspaceId,
+    targetUserId,
+  );
 
   if (!targetMembership) {
     return { ok: false, code: "NOT_FOUND" };
@@ -305,4 +310,3 @@ export async function listWorkspaceMembersForUser(
   const members = await listWorkspaceMembers(workspaceId);
   return { ok: true, data: members.map(toMember) };
 }
-

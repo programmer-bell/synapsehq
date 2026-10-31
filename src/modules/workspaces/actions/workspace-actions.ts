@@ -5,14 +5,29 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireUser } from "@/src/modules/auth";
-import { createWorkspace, deleteWorkspace, updateWorkspace, addWorkspaceMember, removeWorkspaceMember } from "../services/workspace-service";
-import { createWorkspaceSchema, updateWorkspaceSchema, addWorkspaceMemberSchema } from "../schemas/workspace";
+import {
+  createWorkspace,
+  deleteWorkspace,
+  updateWorkspace,
+  addWorkspaceMember,
+  removeWorkspaceMember,
+} from "../services/workspace-service";
+import {
+  createWorkspaceSchema,
+  updateWorkspaceSchema,
+  addWorkspaceMemberSchema,
+} from "../schemas/workspace";
 import type { WorkspaceFormState, WorkspaceMemberActionState } from "../types";
 
 function toFieldErrors(error: z.ZodError) {
-  const fieldErrors = z.flattenError(error).fieldErrors as Record<string, string[] | undefined>;
+  const fieldErrors = z.flattenError(error).fieldErrors as Record<
+    string,
+    string[] | undefined
+  >;
   return Object.fromEntries(
-    Object.entries(fieldErrors).filter(([, messages]) => messages && messages.length > 0),
+    Object.entries(fieldErrors).filter(
+      ([, messages]) => messages && messages.length > 0,
+    ),
   );
 }
 
@@ -148,7 +163,11 @@ export async function removeWorkspaceMemberAction(
 ): Promise<void> {
   const user = await requireUser();
   const targetUserId = String(formData.get("userId") ?? "");
-  const result = await removeWorkspaceMember(user.id, workspaceId, targetUserId);
+  const result = await removeWorkspaceMember(
+    user.id,
+    workspaceId,
+    targetUserId,
+  );
 
   if (!result.ok) {
     return;
