@@ -44,7 +44,7 @@ Do not prioritize generating code quickly over understanding the existing implem
 
 # 2. Repository Awareness — Critical
 
-The repository has completed the **Phase 1 foundation**, implemented **Phases 2–4**, and is performing **Phase 5** testing, audit, and release-preparation work. Production deployment remains pending.
+The repository has completed **Phases 1–4**, completed the Phase 5 testing and audit work, and is implementing **Phase 6 — DevOps & Security Hardening**. Production deployment remains pending.
 
 The following functionality is implemented:
 
@@ -56,11 +56,10 @@ The following functionality is implemented:
 
 The following functionality is planned, not yet implemented:
 
-- Workspace and project resource-level authorization.
-- Notifications only.
-- React Testing Library and Playwright.
+- Notifications.
+- Production deployment and production database verification.
 
-Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, and the modular `src/` foundation are installed and configured.
+Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, React Testing Library, Playwright, Prettier, Docker, and GitHub Actions are installed or configured.
 
 **Always inspect `package.json` before importing or installing dependencies.**
 
@@ -181,7 +180,9 @@ Important repository facts:
 - `npm run typecheck` runs `tsc --noEmit`.
 - `npm test` runs the Vitest suite.
 - Database commands use Drizzle Kit.
-- There is currently no CI configuration.
+- CI runs through `.github/workflows/ci.yaml`.
+- Production container builds use the root `Dockerfile`.
+- Local orchestration uses `docker-compose.yml`.
 
 Never assume an unconfigured command or test exists.
 
@@ -228,11 +229,19 @@ DATABASE_URL=
 DATABASE_URL_UNPOOLED=
 JWT_SECRET=
 NEXT_PUBLIC_APP_URL=
+AUTH_SESSION_TTL_SECONDS=
+TEST_DATABASE_URL=
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
 ```
 
-`DATABASE_URL`, `JWT_SECRET`, and `NEXT_PUBLIC_APP_URL` are validated by
-`src/shared/config/env.ts`. `DATABASE_URL_UNPOOLED` is optional and is used by
-Drizzle Kit migrations when present.
+`DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL`, and
+`AUTH_SESSION_TTL_SECONDS` are validated by `src/shared/config/env.ts`.
+`DATABASE_URL_UNPOOLED` is optional and is used by Drizzle Kit migrations when
+present. `TEST_DATABASE_URL` is used only by integration tests.
+`POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` configure the local
+Docker Compose database.
 
 Rules:
 
@@ -508,7 +517,7 @@ Never sacrifice correctness, security, or maintainability for premature optimiza
 
 Testing is required for critical application functionality.
 
-Vitest is configured for unit and integration testing. React Testing Library and Playwright remain planned for later phases.
+Vitest is configured for unit and integration testing. React Testing Library is configured for component tests. Playwright is configured for end-to-end tests.
 
 When extending testing infrastructure, select tools based on actual requirements.
 

@@ -458,7 +458,35 @@ http://localhost:3000
 
 Run linting, type checking, and tests after implementation changes. Run a production build when changes affect routing, configuration, or production rendering.
 
-React Testing Library and Playwright remain planned for later phases.
+Vitest covers unit and integration tests, React Testing Library covers component tests, and Playwright covers end-to-end smoke tests. CI runs the full quality gate through `.github/workflows/ci.yaml`.
+
+### Containerized Deployment
+
+Build the production image:
+
+```bash
+docker build --target production -t synapsehq:local .
+```
+
+Run the application and a local PostgreSQL instance:
+
+```bash
+docker compose up --build
+```
+
+Set `POSTGRES_PASSWORD` and `JWT_SECRET` in `.env` before starting Compose. The
+Compose database is bound to loopback only and communicates with the application
+over the `synapsehq_net` network. Apply migrations against the Compose database
+before using the application:
+
+```bash
+DATABASE_URL="postgresql://synapsehq:<password>@localhost:5432/synapsehq?sslmode=disable" npm run db:migrate
+```
+
+Production image publishing is restricted to `main` in CI. Configure the
+`NEXT_PUBLIC_APP_URL` repository variable and, when automatic deployment is
+enabled, the `ENABLE_PRODUCTION_DEPLOY` repository variable and
+`VERCEL_DEPLOY_HOOK_URL` secret.
 
 ### Authentication Integration Tests
 
