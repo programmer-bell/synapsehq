@@ -36,8 +36,10 @@ export function getDb(): NeonDatabase<typeof schema> {
 
 /** @deprecated Use `getDb()` instead – kept temporarily for migration convenience. */
 export const db = new Proxy({} as NeonDatabase<typeof schema>, {
-  get(_target, prop, receiver) {
-    return Reflect.get(getDb(), prop, receiver);
+  get(_target, prop) {
+    const target = getDb();
+    const value = Reflect.get(target, prop);
+    return typeof value === "function" ? value.bind(target) : value;
   },
 });
 

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--no-network-family-autoselection' next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_OPTIONS='--no-network-family-autoselection' next start",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -14,9 +14,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "NODE_OPTIONS='--no-network-family-autoselection' drizzle-kit migrate",
     "db:check": "drizzle-kit check",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "NODE_OPTIONS='--no-network-family-autoselection' drizzle-kit studio"
   },
   "engines": {
     "node": ">=20.9.0"

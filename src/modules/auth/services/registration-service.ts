@@ -30,6 +30,7 @@ export async function registerUser(
       return { ok: false, code: "EMAIL_TAKEN" };
     }
 
+    console.error("[registerUser] Registration failed unexpectedly:", error);
     return { ok: false, code: "UNKNOWN" };
   }
 }

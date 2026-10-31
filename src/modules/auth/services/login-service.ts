@@ -76,7 +76,8 @@ export async function loginUser(
       token,
       expiresAt,
     };
-  } catch {
+  } catch (error) {
+    console.error("[loginUser] Login failed unexpectedly:", error);
     return { ok: false, code: "UNKNOWN" };
   }
 }
