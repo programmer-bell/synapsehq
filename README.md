@@ -519,8 +519,11 @@ DATABASE_URL="postgresql://synapsehq:<password>@localhost:5432/synapsehq?sslmode
 
 Production image publishing is restricted to `main` in CI. Configure the
 `NEXT_PUBLIC_APP_URL` repository variable and, when automatic deployment is
-enabled, the `ENABLE_PRODUCTION_DEPLOY` repository variable and
-`VERCEL_DEPLOY_HOOK_URL` secret.
+enabled, the `ENABLE_PRODUCTION_DEPLOY` repository variable,
+`VERCEL_DEPLOY_HOOK_URL` secret, and the `PRODUCTION_DATABASE_URL_UNPOOLED`
+secret in the `production` environment. CI applies pending production database
+migrations before triggering the deployment; deployment is stopped if the
+migration URL is missing or migrations fail.
 
 ### Database Integration Tests and Authenticated E2E
 
@@ -554,6 +557,13 @@ NODE_OPTIONS=--no-network-family-autoselection npm run db:migrate
 ```
 
 This was required for the Phase 1 smoke verification.
+
+If the application reports PostgreSQL error `42P01` (`relation does not exist`),
+the configured runtime database is missing a migration. Verify that
+`DATABASE_URL` targets the intended application database, then apply its
+pending migrations with `npm run db:migrate`. Do not point that command at the
+development database when you intend to migrate production, or at
+`TEST_DATABASE_URL` unless you are preparing the isolated test database.
 
 ---
 

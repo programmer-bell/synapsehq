@@ -235,6 +235,28 @@ jobs:
       name: production
       url: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://synapsehq.app' }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply production database migrations
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.PRODUCTION_DATABASE_URL_UNPOOLED || '' }}
+        run: |
+          if [ -z "$DATABASE_URL_UNPOOLED" ]; then
+            echo "::error::Set the PRODUCTION_DATABASE_URL_UNPOOLED secret before enabling production deployment."
+            exit 1
+          fi
+          npm run db:migrate
+
       - name: Trigger production deployment
         env:
           DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL || '' }}
