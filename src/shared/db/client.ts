@@ -1,11 +1,23 @@
 import "server-only";
 
+import dns from "node:dns";
+import net from "node:net";
+
 import { Pool } from "@neondatabase/serverless";
 import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
 
 import { getEnv } from "@/src/shared/config/env";
 
 import * as schema from "./schema";
+
+// Disable Node 20+ Happy Eyeballs autoselection and prefer IPv4 to prevent WebSocket
+// connection failures (ErrorEvent) when connecting to Neon serverless across IPv4-only networks.
+if (typeof net.setDefaultAutoSelectFamily === "function") {
+  net.setDefaultAutoSelectFamily(false);
+}
+if (typeof dns.setDefaultResultOrder === "function") {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 const globalForDb = globalThis as unknown as {
   neonPool?: Pool;
