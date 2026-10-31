@@ -44,7 +44,7 @@ Do not prioritize generating code quickly over understanding the existing implem
 
 # 2. Repository Awareness — Critical
 
-The repository has completed the **Phase 1 foundation** and implemented **Phase 2 authentication** and **Phase 3 workspaces and projects**, but it does not yet contain the complete product described in `README.md`.
+The repository has completed the **Phase 1 foundation** and implemented **Phase 2 authentication**, **Phase 3 workspaces and projects**, and **Phase 4 task management**, but it does not yet contain the complete product described in `README.md`.
 
 The following functionality is implemented:
 
@@ -57,7 +57,7 @@ The following functionality is implemented:
 The following functionality is planned, not yet implemented:
 
 - Workspace and project resource-level authorization.
-- Tasks and notifications.
+- Notifications only.
 - React Testing Library and Playwright.
 
 Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, and the modular `src/` foundation are installed and configured.
@@ -79,7 +79,7 @@ The current repository has these characteristics:
 - `src/modules/` contains placeholders for future domain modules.
 - `drizzle/` contains generated migrations, including the auth schema.
 - The canonical engineering documents live in `.agents/`.
-- The tasks domain module has not been implemented yet.
+- The tasks domain module is implemented; notifications remain planned.
 
 Do not move the existing App Router into `src/app/` without explicitly planning, implementing, and validating the migration.
 

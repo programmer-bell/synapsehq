@@ -8,7 +8,7 @@ The project is designed around a **Modular Monolith architecture**, with clearly
 
 Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
 
-> **Project status:** Phases 1–3 are implemented. Authentication, workspaces, workspace membership, and projects are available. Tasks remain planned for Phase 4.
+> **Project status:** Phases 1–4 are implemented. Authentication, workspaces, workspace membership, projects, and task management are available.
 
 ---
 
@@ -363,8 +363,8 @@ Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.m
 | Phase 1 | Complete | Foundation & Architecture | Project structure, database foundation, development standards |
 | Phase 2 | Implemented | Custom Authentication | Registration, login, sessions, route protection |
 | Phase 3 | Implemented | Workspaces & Projects | Workspace membership and project management |
+| Phase 4 | Implemented | Task Management | Kanban, table views, filtering, and sorting |
 
-| Phase 4 | Planned | Task Management | Task lifecycle, Kanban board, and data tables |
 | Phase 5 | Planned | Polish & Deployment | Testing, security, accessibility, and deployment |
 
 Each phase has its own implementation tasks and completion criteria.

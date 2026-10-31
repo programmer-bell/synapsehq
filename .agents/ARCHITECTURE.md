@@ -412,6 +412,7 @@ Responsibilities:
 - Task status transitions.
 - Due dates.
 - Task filtering and sorting.
+- Kanban and table presentation support.
 
 Tasks belong to projects.
 
@@ -828,24 +829,23 @@ Projects must belong to a valid workspace.
 
 ### Tasks
 
-Represents actionable work within projects.
+Represents actionable work within projects. Implemented in Phase 4.
 
-Potential fields:
+Fields:
 
-- id
-- projectId
-- title
-- description
-- status
-- priority
-- assigneeId
-- dueDate
-- createdAt
-- updatedAt
+- `id`: UUID primary key.
+- `projectId`: foreign key to `projects`, cascading on project deletion.
+- `title`: task title.
+- `description`: optional task description.
+- `status`: `TODO`, `IN_PROGRESS`, `IN_REVIEW`, or `DONE`.
+- `priority`: `LOW`, `MEDIUM`, `HIGH`, or `URGENT`.
+- `assigneeId`: nullable foreign key to `users`, set null on user deletion.
+- `dueDate`: optional timezone-aware due date.
+- `createdBy`: foreign key to `users`, cascading on user deletion.
+- `createdAt`, `updatedAt`: timezone-aware timestamps.
 
-Tasks must belong to valid projects.
-
-Assignments must respect workspace membership and permissions.
+Tasks must belong to valid projects. Assignments must respect workspace
+membership and permissions.
 
 ### Notifications
 

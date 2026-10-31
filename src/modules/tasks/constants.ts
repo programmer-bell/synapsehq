@@ -1,0 +1,3 @@
+export const TASK_TITLE_MIN_LENGTH = 2;
+export const TASK_TITLE_MAX_LENGTH = 160;
+export const TASK_DESCRIPTION_MAX_LENGTH = 4000;
