@@ -119,7 +119,7 @@ export function TaskTable({ tasks, projectId, filters }: TaskTableProps) {
             >
               <td className="px-4 py-3 font-medium text-foreground">
                 <Link
-                  href={`/projects/${projectId}/tasks/${task.id}/edit`}
+                  href={`/projects/${projectId}/tasks/${task.id}`}
                   className="transition-colors hover:text-accent"
                 >
                   {task.title}
@@ -150,7 +150,7 @@ export function TaskTable({ tasks, projectId, filters }: TaskTableProps) {
               </td>
               <td className="px-4 py-3 text-right">
                 <Link
-                  href={`/projects/${projectId}/tasks/${task.id}/edit`}
+                  href={`/projects/${projectId}/tasks/${task.id}`}
                   className="rounded px-2 py-1 text-xs font-medium text-accent transition-colors hover:bg-accent/10"
                 >
                   Open

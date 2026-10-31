@@ -10,8 +10,27 @@ import {
 import { projects } from "@/src/modules/projects/db/schema";
 import { tasks } from "@/src/modules/tasks/db/schema";
 import { registerUser } from "@/src/modules/auth/services/registration-service";
-import { createWorkspace } from "@/src/modules/workspaces/services/workspace-service";
-import { createProject } from "@/src/modules/projects/services/project-service";
+import {
+  countProjectsForWorkspaces,
+  createProject,
+  listProjectsForWorkspaces,
+} from "@/src/modules/projects";
+import {
+  createWorkspace,
+  getMemberCountsByWorkspaceIds,
+} from "@/src/modules/workspaces";
+import {
+  getNotifications,
+  markNotificationAsRead,
+} from "@/src/modules/notifications";
+import {
+  addTaskComment,
+  createTaskSubtask,
+  getTaskAttachmentForUser,
+  getTaskDetails,
+  removeTaskAttachment,
+  uploadTaskAttachment,
+} from "@/src/modules/tasks";
 import {
   createTask,
   deleteTask,
@@ -134,6 +153,93 @@ describeIntegration("task database integration", () => {
     expect(await getTaskAccess(owner.user.id, created.data.id)).toBeNull();
   });
 
+  it("batches project and member summaries for workspaces", async () => {
+    const { workspace, project } = await setup();
+    const workspaceIds = [workspace.data.id];
+
+    await expect(countProjectsForWorkspaces(workspaceIds)).resolves.toEqual({
+      [workspace.data.id]: 1,
+    });
+    await expect(getMemberCountsByWorkspaceIds(workspaceIds)).resolves.toEqual({
+      [workspace.data.id]: 1,
+    });
+    await expect(
+      listProjectsForWorkspaces(workspaceIds),
+    ).resolves.toMatchObject([
+      { id: project.data.id, workspaceId: workspace.data.id },
+    ]);
+  });
+
+  it("supports subtasks, comments, activity, and persisted attachments", async () => {
+    const { owner, project } = await setup();
+    const created = await createTask(owner.user.id, {
+      projectId: project.data.id,
+      title: "Parent task",
+      description: "Track the release",
+      status: "TODO",
+      priority: "HIGH",
+      assigneeId: null,
+      dueDate: "",
+    });
+    if (!created.ok) throw new Error("task creation failed");
+
+    expect(
+      await createTaskSubtask(owner.user.id, created.data.id, "Write tests"),
+    ).toMatchObject({ ok: true });
+    const nested = await getTaskDetails(owner.user.id, created.data.id);
+    const subtaskId = nested?.subtasks[0]?.id;
+    expect(subtaskId).toBeDefined();
+    if (!subtaskId) throw new Error("subtask was not created");
+    expect(
+      await createTaskSubtask(owner.user.id, subtaskId, "Nested task"),
+    ).toMatchObject({ ok: false, code: "NESTED_SUBTASK" });
+
+    expect(
+      await addTaskComment(owner.user.id, created.data.id, "Ready for review"),
+    ).toMatchObject({ ok: true });
+
+    const file = new File(["release notes"], "release-notes.txt", {
+      type: "text/plain",
+    });
+    expect(
+      await uploadTaskAttachment(owner.user.id, created.data.id, file),
+    ).toMatchObject({ ok: true });
+
+    const details = await getTaskDetails(owner.user.id, created.data.id);
+    expect(details?.comments).toMatchObject([
+      { body: "Ready for review", authorName: "Task Owner" },
+    ]);
+    expect(details?.attachments).toMatchObject([
+      { fileName: "release-notes.txt", sizeBytes: 13 },
+    ]);
+    expect(details?.activity.length).toBeGreaterThanOrEqual(4);
+    const attachment = details?.attachments[0];
+    if (!attachment) throw new Error("attachment was not listed");
+    const storedAttachment = await getTaskAttachmentForUser(
+      owner.user.id,
+      created.data.id,
+      attachment.id,
+    );
+    expect(storedAttachment).toMatchObject({ fileName: "release-notes.txt" });
+    if (!storedAttachment) throw new Error("attachment was not accessible");
+    expect(Buffer.from(storedAttachment.data).toString()).toBe("release notes");
+
+    const outsider = await registerUser(outsiderInput);
+    if (!outsider.ok) throw new Error("outsider registration failed");
+    expect(await getTaskDetails(outsider.user.id, created.data.id)).toBeNull();
+    expect(
+      await getTaskAttachmentForUser(
+        outsider.user.id,
+        created.data.id,
+        attachment.id,
+      ),
+    ).toBeNull();
+
+    expect(
+      await removeTaskAttachment(owner.user.id, created.data.id, attachment.id),
+    ).toMatchObject({ ok: true });
+  });
+
   it("assigns tasks only to workspace members", async () => {
     const { owner, project } = await setup();
     const member = await registerUser(memberInput);
@@ -156,9 +262,21 @@ describeIntegration("task database integration", () => {
       dueDate: null,
     });
     expect(assigned.ok).toBe(true);
+    const notificationRows = await getNotifications(member.user.id);
+    expect(notificationRows).toMatchObject([
+      { title: "Assigned a task", body: "Assigned task", readAt: null },
+    ]);
+    expect(await getNotifications(owner.user.id)).toEqual([]);
+    const notification = notificationRows[0];
 
     const outsider = await registerUser(outsiderInput);
     if (!outsider.ok) throw new Error("outsider registration failed");
+    expect(
+      await markNotificationAsRead(outsider.user.id, notification.id),
+    ).toBe(false);
+    expect(await markNotificationAsRead(member.user.id, notification.id)).toBe(
+      true,
+    );
 
     const invalid = await createTask(owner.user.id, {
       projectId: project.data.id,

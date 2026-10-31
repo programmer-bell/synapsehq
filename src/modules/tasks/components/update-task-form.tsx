@@ -14,7 +14,9 @@ type UpdateTaskFormProps = {
   initialPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   initialAssigneeId: string | null;
   initialDueDate: string | null;
+  initialMilestoneId: string | null;
   assignableUsers: { id: string; name: string; email: string }[];
+  milestones: { id: string; name: string }[];
 };
 
 export function UpdateTaskForm({
@@ -26,7 +28,9 @@ export function UpdateTaskForm({
   initialPriority,
   initialAssigneeId,
   initialDueDate,
+  initialMilestoneId,
   assignableUsers,
+  milestones,
 }: UpdateTaskFormProps) {
   const action = updateTaskAction.bind(null, taskId);
   const [state, formAction, isPending] = useActionState<
@@ -101,6 +105,27 @@ export function UpdateTaskForm({
             <option value="IN_PROGRESS">In progress</option>
             <option value="IN_REVIEW">In review</option>
             <option value="DONE">Done</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="task-update-milestone"
+            className="block text-sm font-medium text-foreground"
+          >
+            Milestone
+          </label>
+          <select
+            id="task-update-milestone"
+            name="milestoneId"
+            defaultValue={initialMilestoneId ?? ""}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+          >
+            <option value="">No milestone</option>
+            {milestones.map((milestone) => (
+              <option key={milestone.id} value={milestone.id}>
+                {milestone.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="space-y-2">

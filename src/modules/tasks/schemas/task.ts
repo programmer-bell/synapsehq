@@ -33,6 +33,8 @@ const optionalDate = z.preprocess(
     }),
 );
 
+const optionalMilestoneId = optionalUuid.default(null);
+
 export const createTaskSchema = z.object({
   projectId: z.string().uuid("Select a valid project."),
   title: z
@@ -63,6 +65,7 @@ export const createTaskSchema = z.object({
   status: taskStatusSchema.default("TODO"),
   priority: taskPrioritySchema.default("MEDIUM"),
   assigneeId: optionalUuid,
+  milestoneId: optionalMilestoneId,
   dueDate: optionalDate,
 });
 
@@ -95,6 +98,7 @@ export const updateTaskSchema = z.object({
   status: taskStatusSchema,
   priority: taskPrioritySchema,
   assigneeId: optionalUuid,
+  milestoneId: optionalMilestoneId,
   dueDate: optionalDate,
 });
 

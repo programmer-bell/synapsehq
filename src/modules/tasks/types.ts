@@ -5,6 +5,8 @@ export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export type Task = {
   id: string;
   projectId: string;
+  parentTaskId: string | null;
+  milestoneId: string | null;
   title: string;
   description: string | null;
   status: TaskStatus;
@@ -17,7 +19,13 @@ export type Task = {
 };
 
 export type TaskField =
-  "title" | "description" | "status" | "priority" | "assigneeId" | "dueDate";
+  | "title"
+  | "description"
+  | "status"
+  | "priority"
+  | "assigneeId"
+  | "milestoneId"
+  | "dueDate";
 
 export type TaskFormState = {
   status: "idle" | "error" | "success";

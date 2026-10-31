@@ -3,9 +3,9 @@ import { Suspense } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { TopHeader } from "@/components/layout/top-header";
-import { requireUser } from "@/src/modules/auth/services/session-service";
-import { listProjectsForWorkspace } from "@/src/modules/projects/services/project-service";
-import { listWorkspacesForUserWithSummary } from "@/src/modules/workspaces/services/workspace-service";
+import { requireUser } from "@/src/modules/auth";
+import { getNotifications } from "@/src/modules/notifications";
+import { getDashboardData } from "@/src/shared/lib/dashboard-data";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
@@ -17,15 +17,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
 async function DashboardShell({ children }: { children: ReactNode }) {
   const user = await requireUser();
-  const workspaces = await listWorkspacesForUserWithSummary(user.id);
-  const projectGroups = await Promise.all(
-    workspaces.map((workspace) =>
-      listProjectsForWorkspace(user.id, workspace.id),
-    ),
-  );
-  const projects = projectGroups.flatMap((result) =>
-    result.ok ? result.data : [],
-  );
+  const [{ workspaces, projects }, notifications] = await Promise.all([
+    getDashboardData(user.id),
+    getNotifications(user.id),
+  ]);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -36,7 +31,10 @@ async function DashboardShell({ children }: { children: ReactNode }) {
         projects={projects.map(({ id, name }) => ({ id, name }))}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopHeader projects={projects.map(({ id, name }) => ({ id, name }))} />
+        <TopHeader
+          projects={projects.map(({ id, name }) => ({ id, name }))}
+          notifications={notifications}
+        />
         <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           {children}
         </main>

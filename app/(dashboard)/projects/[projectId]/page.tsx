@@ -2,10 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { requireUser } from "@/src/modules/auth";
-import { getProjectAccess } from "@/src/modules/projects/services/project-service";
+import {
+  getProjectAccess,
+  getProjectMilestones,
+  getProjectTeam,
+} from "@/src/modules/projects";
 import { getWorkspaceAccess } from "@/src/modules/workspaces/services/workspace-service";
 import { UpdateProjectForm } from "@/src/modules/projects/components/update-project-form";
 import { deleteProjectAction } from "@/src/modules/projects/actions/project-actions";
+import { ProjectTeamPanel } from "@/src/modules/projects/components/project-team-panel";
 
 type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
@@ -22,7 +27,11 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  const workspaceAccess = await getWorkspaceAccess(user.id, access.workspaceId);
+  const [workspaceAccess, team, progress] = await Promise.all([
+    getWorkspaceAccess(user.id, access.workspaceId),
+    getProjectTeam(user.id, projectId),
+    getProjectMilestones(user.id, projectId),
+  ]);
   const canManage =
     access.role === "OWNER" ||
     access.role === "ADMIN" ||
@@ -74,6 +83,68 @@ export default async function ProjectDetailPage({
           {access.project.description || "No description provided."}
         </p>
       </section>
+
+      {team ? (
+        <ProjectTeamPanel
+          projectId={projectId}
+          members={team.members}
+          candidates={team.candidates}
+          canManage={team.canManage}
+        />
+      ) : null}
+
+      {progress ? (
+        <section className="rounded-md border border-border bg-surface p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Project progress
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {progress.taskProgress.completed} of{" "}
+                {progress.taskProgress.total} top-level tasks complete
+              </p>
+            </div>
+            <Link
+              href={`/projects/${projectId}/milestones`}
+              className="text-sm font-medium text-accent hover:underline"
+            >
+              Milestones
+            </Link>
+          </div>
+          <div
+            className="mt-3 h-2 overflow-hidden rounded bg-surface-muted"
+            role="progressbar"
+            aria-label="Project task completion"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={
+              progress.taskProgress.total
+                ? Math.round(
+                    (progress.taskProgress.completed /
+                      progress.taskProgress.total) *
+                      100,
+                  )
+                : 0
+            }
+          >
+            <div
+              className="h-full rounded bg-accent transition-[width]"
+              style={{
+                width: `${
+                  progress.taskProgress.total
+                    ? Math.round(
+                        (progress.taskProgress.completed /
+                          progress.taskProgress.total) *
+                          100,
+                      )
+                    : 0
+                }%`,
+              }}
+            />
+          </div>
+        </section>
+      ) : null}
 
       {canManage ? (
         <section className="rounded-md border border-border bg-surface p-4">

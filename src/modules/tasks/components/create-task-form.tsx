@@ -14,11 +14,13 @@ type AssignableUser = {
 type CreateTaskFormProps = {
   projectId: string;
   assignableUsers: AssignableUser[];
+  milestones: { id: string; name: string }[];
 };
 
 export function CreateTaskForm({
   projectId,
   assignableUsers,
+  milestones,
 }: CreateTaskFormProps) {
   const [state, formAction, isPending] = useActionState<
     TaskFormState,
@@ -90,6 +92,27 @@ export function CreateTaskForm({
             <option value="IN_PROGRESS">In progress</option>
             <option value="IN_REVIEW">In review</option>
             <option value="DONE">Done</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="task-milestone"
+            className="block text-sm font-medium text-foreground"
+          >
+            Milestone
+          </label>
+          <select
+            id="task-milestone"
+            name="milestoneId"
+            defaultValue=""
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+          >
+            <option value="">No milestone</option>
+            {milestones.map((milestone) => (
+              <option key={milestone.id} value={milestone.id}>
+                {milestone.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="space-y-2">

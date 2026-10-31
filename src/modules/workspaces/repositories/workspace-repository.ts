@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/src/shared/db";
 
@@ -141,4 +141,29 @@ export async function listWorkspacesForUser(
     .where(eq(workspaceMembers.userId, userId));
 
   return rows;
+}
+
+export async function countMembersByWorkspaceIds(
+  workspaceIds: string[],
+): Promise<Record<string, number>> {
+  if (workspaceIds.length === 0) {
+    return {};
+  }
+  const rows = await db
+    .select({
+      workspaceId: workspaceMembers.workspaceId,
+      count: count(),
+    })
+    .from(workspaceMembers)
+    .where(inArray(workspaceMembers.workspaceId, workspaceIds))
+    .groupBy(workspaceMembers.workspaceId);
+
+  const result: Record<string, number> = {};
+  for (const id of workspaceIds) {
+    result[id] = 0;
+  }
+  for (const row of rows) {
+    result[row.workspaceId] = Number(row.count);
+  }
+  return result;
 }

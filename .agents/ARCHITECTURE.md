@@ -4,7 +4,7 @@
 **Project:** SynapseHQ  
 **Architecture Style:** Modular Monolith  
 **Application Type:** SaaS Engineering Workspace  
-**Status:** Proposed Architecture  
+**Status:** Active System Architecture
 **Primary Framework:** Next.js App Router
 
 ---
@@ -66,14 +66,17 @@ Microservices should only be considered when genuine organizational, deployment,
 | Language               | TypeScript                      | Static typing                     |
 | Styling                | Tailwind CSS v4                 | Design system and responsive UI   |
 | Validation             | Zod                             | Runtime input validation          |
+| Theme                  | next-themes                     | Class-based light/dark mode       |
 | Database               | Neon PostgreSQL                 | Persistent relational data        |
 | ORM                    | Drizzle ORM                     | Typed database operations         |
 | Password security      | bcryptjs                        | Password hashing and verification |
 | Token management       | jose                            | JWT signing and verification      |
 | Application interfaces | Server Actions / Route Handlers | Server-side operations            |
-| Deployment             | Vercel                          | Application hosting               |
+| Container              | Docker                          | Production application image      |
+| Testing                | Vitest / Playwright             | Unit, integration, and E2E tests  |
 
-Dependencies are planned until verified in the actual repository.
+The installed dependency manifest (`package.json`) is authoritative. Production
+deployment has not been verified.
 
 ## High-Level Architecture
 
@@ -420,15 +423,15 @@ Task operations must respect the associated project's workspace permissions.
 
 ## Notifications Module
 
-Potential responsibilities:
+Implemented responsibilities:
 
 - Notification creation.
-- Notification listing.
+- User-scoped notification listing.
 - Read/unread status.
-- Notification preferences.
-- Notification delivery.
+- In-app delivery for task assignments, task status changes, comments,
+  milestones, and project team changes.
 
-Implement this module when its product requirements are established.
+Email, push delivery, and notification preferences are not implemented.
 
 ---
 
@@ -737,11 +740,10 @@ The shared database configuration can discover and combine these schema definiti
 
 Avoid a single enormous schema file that mixes unrelated business domains.
 
-## Planned Core Entities
+## Core Entities
 
-The following is the conceptual data model.
-
-Actual columns, constraints, and relationships must be finalized before migrations are generated.
+The current Drizzle schemas and version-controlled migrations are authoritative.
+This section summarizes the primary domain entities.
 
 ### Users
 
@@ -833,6 +835,8 @@ Fields:
 
 - `id`: UUID primary key.
 - `projectId`: foreign key to `projects`, cascading on project deletion.
+- `parentTaskId`: optional self-reference for one-level subtasks.
+- `milestoneId`: optional project milestone association.
 - `title`: task title.
 - `description`: optional task description.
 - `status`: `TODO`, `IN_PROGRESS`, `IN_REVIEW`, or `DONE`.
@@ -845,21 +849,19 @@ Fields:
 Tasks must belong to valid projects. Assignments must respect workspace
 membership and permissions.
 
+Task comments, activity records, and size-limited PostgreSQL-backed attachments
+support task collaboration. Attachment downloads require task access.
+
+### Project Members & Milestones
+
+Projects can have allocated workspace members and dated milestones. Project
+team changes are restricted to project managers/creators. Milestone progress
+is derived from linked tasks; project progress is derived from top-level tasks.
+
 ### Notifications
 
-Potential future entity for user notifications.
-
-Potential fields:
-
-- id
-- userId
-- type
-- title
-- message
-- readAt
-- createdAt
-
-Implement only when notification requirements are established.
+Notifications are persisted for an individual user and support a read timestamp
+and in-app destination. Access is scoped to the owning user.
 
 ## Relationships
 
@@ -1143,10 +1145,10 @@ Authorization answers:
 
 These remain separate responsibilities.
 
-Phase 2 establishes identity, session validation, and reusable authentication
-guards. Explicit workspace and project permission checks are deferred to Phase 3
-because those resources do not exist yet. They must be enforced close to the
-corresponding database operations before those resources are exposed.
+Authentication guards establish identity and validate persistent sessions.
+Workspace, project, and task services enforce resource-level permissions close
+to the corresponding data operations. Server Actions and page visibility are
+not substitutes for these service-level checks.
 
 ---
 
@@ -1154,12 +1156,14 @@ corresponding database operations before those resources are exposed.
 
 Use explicit workspace and resource permissions.
 
-Phase 3 implements the initial workspace role model:
+The implemented workspace role model is:
 
 - `OWNER`: full workspace control, member management, and all project operations.
 - `ADMIN`: workspace updates, member management, and all project operations.
 - `MEMBER`: workspace and project read access, plus project creation.
 - Project creators can update or archive their own projects.
+- Task permissions are checked against the member's role, task creator, and
+  assignee relationship.
 
 Centralized authorization policies live in
 `src/modules/workspaces/lib/permissions.ts` and are reused by the projects
@@ -1531,8 +1535,8 @@ Provide users with understandable error messages.
 
 # 17. Testing Architecture
 
-Vitest is configured for unit and integration tests. React Testing Library and
-Playwright remain planned and must be installed and configured before use.
+Vitest and Playwright are configured for unit, integration, and browser tests.
+React Testing Library is installed and used by component tests.
 
 Testing stack:
 

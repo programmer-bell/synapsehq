@@ -1,22 +1,19 @@
 import Link from "next/link";
 
 import { requireUser } from "@/src/modules/auth";
-import { listWorkspacesForUserWithSummary } from "@/src/modules/workspaces/services/workspace-service";
-import { listProjectsForWorkspace } from "@/src/modules/projects/services/project-service";
+import { getDashboardData } from "@/src/shared/lib/dashboard-data";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const workspaces = await listWorkspacesForUserWithSummary(user.id);
-
-  const projectGroups = await Promise.all(
-    workspaces.map(async (workspace) => {
-      const result = await listProjectsForWorkspace(user.id, workspace.id);
-      return result.ok
-        ? result.data.map((project) => ({ ...project, workspace }))
-        : [];
-    }),
+  const { workspaces, projects: projectRecords } = await getDashboardData(
+    user.id,
   );
-  const projects = projectGroups.flat();
+
+  const workspaceMap = new Map(workspaces.map((w) => [w.id, w]));
+  const projects = projectRecords.map((project) => ({
+    ...project,
+    workspace: workspaceMap.get(project.workspaceId)!,
+  }));
 
   return (
     <div className="space-y-8">

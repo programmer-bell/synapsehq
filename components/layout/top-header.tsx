@@ -6,9 +6,19 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { logoutAction } from "@/src/modules/auth/actions/logout";
+import { markNotificationReadAction } from "@/src/modules/notifications/actions/notification-actions";
 
 type TopHeaderProps = {
   projects: { id: string; name: string }[];
+  notifications: {
+    id: string;
+    title: string;
+    body: string;
+    href: string;
+    readAt: Date | null;
+    createdAt: Date;
+    actorName: string | null;
+  }[];
 };
 
 const destinations = [
@@ -16,7 +26,7 @@ const destinations = [
   { label: "Workspaces", href: "/workspaces" },
 ];
 
-export function TopHeader({ projects }: TopHeaderProps) {
+export function TopHeader({ projects, notifications }: TopHeaderProps) {
   const pathname = usePathname();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -54,6 +64,9 @@ export function TopHeader({ projects }: TopHeaderProps) {
   const taskHref = projects[0]
     ? `/projects/${projects[0].id}/tasks`
     : "/workspaces";
+  const unreadCount = notifications.filter(
+    (notification) => !notification.readAt,
+  ).length;
 
   const breadcrumb = pathname
     .split("/")
@@ -174,7 +187,7 @@ export function TopHeader({ projects }: TopHeaderProps) {
               type="button"
               onClick={() => setNotificationsOpen((open) => !open)}
               aria-expanded={notificationsOpen}
-              aria-label="Notifications"
+              aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
               className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-surface-muted hover:text-foreground"
             >
               <svg
@@ -190,18 +203,69 @@ export function TopHeader({ projects }: TopHeaderProps) {
                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
                 <path d="M10 21h4" />
               </svg>
+              {unreadCount ? (
+                <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-accent-foreground">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              ) : null}
             </button>
             {notificationsOpen ? (
-              <div
-                role="status"
-                className="absolute right-0 top-11 z-30 w-64 rounded-md border border-border bg-surface p-4 shadow-lg"
-              >
-                <p className="text-sm font-medium text-foreground">
-                  You&apos;re all caught up
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  New activity will appear here.
-                </p>
+              <div className="absolute right-0 top-11 z-30 w-80 overflow-hidden rounded-md border border-border bg-surface shadow-lg">
+                <div className="border-b border-border px-3 py-2.5">
+                  <p className="text-sm font-semibold text-foreground">
+                    Notifications
+                  </p>
+                </div>
+                {notifications.length ? (
+                  <ul className="max-h-80 overflow-y-auto divide-y divide-border">
+                    {notifications.map((notification) => (
+                      <li
+                        key={notification.id}
+                        className={`px-3 py-3 ${notification.readAt ? "" : "bg-accent/5"}`}
+                      >
+                        <Link
+                          href={notification.href}
+                          onClick={() => setNotificationsOpen(false)}
+                          className="block text-left"
+                        >
+                          <span className="flex items-start gap-2">
+                            {!notification.readAt ? (
+                              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent" />
+                            ) : null}
+                            <span>
+                              <span className="block text-xs font-semibold text-foreground">
+                                {notification.title}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                {notification.body}
+                              </span>
+                            </span>
+                          </span>
+                        </Link>
+                        {!notification.readAt ? (
+                          <form
+                            action={markNotificationReadAction.bind(
+                              null,
+                              notification.id,
+                            )}
+                            className="mt-1 pl-3.5"
+                          >
+                            <button
+                              type="submit"
+                              className="text-[10px] font-medium text-accent hover:underline"
+                            >
+                              Mark as read
+                            </button>
+                          </form>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="px-3 py-4 text-xs text-muted-foreground">
+                    You&apos;re all caught up.
+                  </p>
+                )}
               </div>
             ) : null}
           </div>

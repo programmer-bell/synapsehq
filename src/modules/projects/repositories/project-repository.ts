@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/src/shared/db";
 
@@ -23,6 +23,44 @@ export async function listProjectsByWorkspace(
     .from(projects)
     .where(eq(projects.workspaceId, workspaceId))
     .orderBy(projects.createdAt);
+}
+
+export async function listProjectsByWorkspaceIds(
+  workspaceIds: string[],
+): Promise<ProjectRecord[]> {
+  if (workspaceIds.length === 0) {
+    return [];
+  }
+  return db
+    .select()
+    .from(projects)
+    .where(inArray(projects.workspaceId, workspaceIds))
+    .orderBy(projects.name);
+}
+
+export async function countProjectsByWorkspaceIds(
+  workspaceIds: string[],
+): Promise<Record<string, number>> {
+  if (workspaceIds.length === 0) {
+    return {};
+  }
+  const rows = await db
+    .select({
+      workspaceId: projects.workspaceId,
+      count: count(),
+    })
+    .from(projects)
+    .where(inArray(projects.workspaceId, workspaceIds))
+    .groupBy(projects.workspaceId);
+
+  const result: Record<string, number> = {};
+  for (const id of workspaceIds) {
+    result[id] = 0;
+  }
+  for (const row of rows) {
+    result[row.workspaceId] = Number(row.count);
+  }
+  return result;
 }
 
 export async function createProjectRecord(input: {

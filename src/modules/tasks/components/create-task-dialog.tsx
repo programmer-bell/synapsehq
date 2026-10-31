@@ -7,11 +7,13 @@ import { CreateTaskForm } from "./create-task-form";
 type CreateTaskDialogProps = {
   projectId: string;
   assignableUsers: { id: string; name: string; email: string }[];
+  milestones: { id: string; name: string }[];
 };
 
 export function CreateTaskDialog({
   projectId,
   assignableUsers,
+  milestones,
 }: CreateTaskDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -42,6 +44,7 @@ export function CreateTaskDialog({
           <CreateTaskForm
             projectId={projectId}
             assignableUsers={assignableUsers}
+            milestones={milestones}
           />
         </div>
       </dialog>
