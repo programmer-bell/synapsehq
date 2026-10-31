@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { requireUser } from "@/src/modules/auth";
 import {
@@ -16,9 +17,15 @@ type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
 };
 
-export default async function ProjectDetailPage({
-  params,
-}: ProjectDetailPageProps) {
+export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+  return (
+    <Suspense fallback={<ProjectDetailPageFallback />}>
+      <ProjectDetailContent params={params} />
+    </Suspense>
+  );
+}
+
+async function ProjectDetailContent({ params }: ProjectDetailPageProps) {
   const { projectId } = await params;
   const user = await requireUser();
   const access = await getProjectAccess(user.id, projectId);
@@ -161,6 +168,34 @@ export default async function ProjectDetailPage({
           </div>
         </section>
       ) : null}
+    </div>
+  );
+}
+
+function ProjectDetailPageFallback() {
+  return (
+    <div className="space-y-6" aria-label="Loading project details">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-2">
+          <div className="h-3 w-16 rounded bg-surface-muted" />
+          <div className="h-7 w-56 rounded bg-surface-muted" />
+          <div className="h-4 w-48 rounded bg-surface-muted/70" />
+        </div>
+        <div className="h-9 w-32 rounded-md border border-border bg-surface" />
+      </div>
+      <section className="space-y-4 rounded-md border border-border bg-surface p-4">
+        <div className="h-5 w-20 rounded bg-surface-muted" />
+        <div className="h-4 w-full rounded bg-surface-muted/70" />
+        <div className="h-4 w-2/3 rounded bg-surface-muted/70" />
+      </section>
+      <section className="space-y-4 rounded-md border border-border bg-surface p-4">
+        <div className="h-5 w-28 rounded bg-surface-muted" />
+        <div className="h-16 rounded bg-surface-muted/50" />
+      </section>
+      <section className="space-y-4 rounded-md border border-border bg-surface p-4">
+        <div className="h-5 w-32 rounded bg-surface-muted" />
+        <div className="h-2 rounded bg-surface-muted" />
+      </section>
     </div>
   );
 }

@@ -1,9 +1,18 @@
+import { Suspense } from "react";
 import Link from "next/link";
 
 import { requireUser } from "@/src/modules/auth";
 import { getDashboardData } from "@/src/shared/lib/dashboard-data";
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardPageFallback />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+async function DashboardContent() {
   const user = await requireUser();
   const { workspaces, projects: projectRecords } = await getDashboardData(
     user.id,
@@ -154,6 +163,51 @@ export default async function DashboardPage() {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function DashboardPageFallback() {
+  return (
+    <div className="space-y-8" aria-label="Loading workspace overview">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="space-y-2">
+          <div className="h-3 w-28 rounded bg-surface-muted" />
+          <div className="h-7 w-48 rounded bg-surface-muted" />
+          <div className="h-4 w-64 rounded bg-surface-muted/70" />
+        </div>
+        <div className="h-9 w-36 rounded-md bg-surface-muted" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        {["workspaces", "projects", "role"].map((item) => (
+          <div
+            key={item}
+            className="h-24 rounded-md border border-border bg-surface"
+          />
+        ))}
+      </div>
+      <div className="space-y-3">
+        <div className="h-5 w-28 rounded bg-surface-muted" />
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {["workspace-1", "workspace-2", "workspace-3"].map((item) => (
+            <div
+              key={item}
+              className="h-20 rounded-md border border-border bg-surface"
+            />
+          ))}
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="h-5 w-32 rounded bg-surface-muted" />
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {["project-1", "project-2", "project-3"].map((item) => (
+            <div
+              key={item}
+              className="h-20 rounded-md border border-border bg-surface"
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
