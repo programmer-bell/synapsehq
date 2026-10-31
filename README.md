@@ -10,7 +10,7 @@ The project is designed around a **Modular Monolith architecture**, with clearly
 
 Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
 
-> **Project status:** Phases 1–4 are implemented and Phase 5 is in progress. Testing, security, accessibility, and performance audits are complete; production deployment is pending.
+> **Project status:** Authentication, workspace/project management, task collaboration, milestones, team allocation, and in-app notifications are implemented. Hardening and release verification are in progress; production deployment has not been verified.
 
 ---
 
@@ -28,7 +28,7 @@ Its goal is to demonstrate practical full-stack engineering skills through a pro
 - [Development Commands](#development-commands)
 - [Environment Configuration](#environment-configuration)
 - [Engineering Principles](#engineering-principles)
-- [Future Improvements](#future-improvements)
+- [Remaining Work](#remaining-work)
 
 ---
 
@@ -51,7 +51,7 @@ The application follows a server-first approach using Next.js App Router, Server
 
 ## Core Features
 
-The following features represent the planned product scope.
+The repository currently implements the following product capabilities.
 
 ### 1. Custom Authentication
 
@@ -66,7 +66,7 @@ Implemented capabilities:
 - Logout and session lifecycle management.
 - Protected application routes.
 - Database-backed login throttling.
-- Role-based and resource-level authorization are implemented for workspaces and projects.
+- Role-based, resource-level authorization for workspace, project, and task operations.
 
 Technologies: `jose`, `bcryptjs`, and secure cookies.
 
@@ -74,18 +74,25 @@ Technologies: `jose`, `bcryptjs`, and secure cookies.
 
 Organize engineering work into dedicated workspaces and projects.
 
-Planned capabilities:
+Implemented capabilities:
 
 - Create and manage workspaces.
 - Add and manage workspace members.
 - Assign workspace roles.
 - Create and update projects.
-- Manage project ownership and membership.
+- Track project creators and manage project lifecycle.
 - Control project access based on workspace membership.
+
+Workspaces provide owner/admin/member roles. Projects inherit workspace access;
+project creators can manage their own projects.
 
 ### 3. Hybrid Task Management
 
 A task management experience designed for both visual workflows and structured data management.
+
+Implemented capabilities include database-backed task creation, assignment to
+workspace members, status and priority updates, due dates, filtering, sorting,
+pagination, and access checks.
 
 **Kanban Board**
 
@@ -101,46 +108,62 @@ A task management experience designed for both visual workflows and structured d
 - Search by relevant task information.
 - Manage task assignments and status transitions.
 
-### 4. Milestone & Progress Tracking
+### 4. Task Details & Collaboration
+
+Task detail pages support a focused workflow for coordinating implementation.
+
+Implemented capabilities:
+
+- Create one-level subtasks and associate tasks with project milestones.
+- Add comments and review task activity history.
+- Upload and download authorized task attachments (up to 3 MB; selected MIME
+  types only), stored in PostgreSQL.
+- Validate project/workspace access before task collaboration operations.
+
+### 5. Milestone & Progress Tracking
 
 Provide project-level visibility into engineering progress.
 
-Planned capabilities:
+Implemented capabilities:
 
 - Define project milestones.
 - Associate tasks with project goals.
 - Monitor milestone completion.
-- Display project progress indicators.
-- Track project activity and development status.
+- Display project and milestone completion progress.
 
-### 5. Team Allocation
+### 6. Team Allocation
 
 Give project managers and team members visibility into responsibilities.
 
-Planned capabilities:
+Workspace membership and task assignment are implemented, along with project
+team allocation:
 
-- View workspace members.
-- Assign members to projects.
-- Track task ownership.
-- Display team allocation information.
-- Provide visibility into individual responsibilities.
+- Allocate workspace members to projects with an allocation percentage.
+- View project team membership and allocation values.
+- Enforce manager/creator permissions for allocation changes.
 
-### 6. Engineering Documentation
+### 7. In-App Notifications
 
-A centralized documentation area for project-specific technical knowledge.
+Notifications provide an in-product record of relevant task and project events.
 
-Planned capabilities:
+Implemented capabilities:
 
-- Create and edit project documentation.
-- Write documentation using Markdown.
-- Organize technical notes and project information.
-- Maintain documentation within project boundaries.
+- Notify users of task assignments, status changes, comments, milestone creation,
+  and project team changes.
+- View and mark notifications as read from the application header.
+- Restrict notification access to the owning user.
+
+Notifications are in-app only; email and push delivery are not implemented.
+
+### 8. Engineering Documentation
+
+Project-scoped Markdown documentation remains a planned capability.
 
 ---
 
 ## Technology Stack
 
-The project targets a modern Next.js and TypeScript ecosystem.
+The project uses the following installed stack.
 
 | Layer             | Technology      | Purpose                        |
 | ----------------- | --------------- | ------------------------------ |
@@ -148,16 +171,19 @@ The project targets a modern Next.js and TypeScript ecosystem.
 | UI Library        | React 19        | Component-based interface      |
 | Language          | TypeScript      | Strict type safety             |
 | Styling           | Tailwind CSS v4 | Utility-first styling          |
-| Icons             | Lucide React    | Interface iconography          |
+| Theme             | next-themes     | Class-based light/dark mode    |
 | Database          | Neon PostgreSQL | Serverless relational database |
 | ORM               | Drizzle ORM     | Type-safe database queries     |
 | Validation        | Zod             | Input and schema validation    |
 | Authentication    | jose            | JWT creation and verification  |
 | Password Security | bcryptjs        | Password hashing               |
-| Deployment        | Vercel          | Application hosting            |
+| Container         | Docker          | Production application image   |
 | Database Hosting  | Neon            | PostgreSQL hosting             |
 
-**Note:** The repository's installed dependencies are authoritative. Neon PostgreSQL, Drizzle ORM, Zod, Vitest, `jose`, and `bcryptjs` are installed. Lucide React, React Testing Library, and Playwright remain planned for later phases.
+**Testing:** Vitest and Playwright are installed. Database integration tests run
+when `TEST_DATABASE_URL` is configured; browser smoke tests use Playwright.
+React Testing Library is installed, but component-level coverage is not yet a
+maintained part of the test suite.
 
 ---
 
@@ -167,7 +193,8 @@ The project targets a modern Next.js and TypeScript ecosystem.
 
 SynapseHQ follows a Modular Monolith architecture.
 
-The application will run as one deployable application while organizing business logic into independent domain modules.
+The application runs as one deployable application while organizing business
+logic into independent domain modules.
 
 This approach provides:
 
@@ -179,7 +206,7 @@ This approach provides:
 
 The project does not require microservices or distributed infrastructure at its initial stage.
 
-### Planned Domain Modules
+### Domain Modules
 
 | Module        | Responsibility                                   |
 | ------------- | ------------------------------------------------ |
@@ -187,7 +214,7 @@ The project does not require microservices or distributed infrastructure at its 
 | Workspaces    | Workspace creation and membership                |
 | Projects      | Project lifecycle and ownership                  |
 | Tasks         | Task creation, assignment, and workflow          |
-| Notifications | Future notification functionality                |
+| Notifications | In-app notifications and read state              |
 
 Each module should own its domain-specific schemas, validation, services, and components where appropriate.
 
@@ -343,8 +370,12 @@ Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM 
 | Workspaces        | Team workspaces                         | Implemented |
 | WorkspaceMembers  | Workspace membership and roles          | Implemented |
 | Projects          | Projects belonging to workspaces        | Implemented |
-| Tasks             | Development tasks belonging to projects | Planned     |
-| Notifications     | Future user notifications               | Planned     |
+| Tasks             | Development tasks belonging to projects | Implemented |
+| Notifications     | In-app user notifications               | Implemented |
+| ProjectMembers    | Project team allocation                 | Implemented |
+| Milestones        | Project milestones and task progress    | Implemented |
+| TaskComments      | Task collaboration and discussion       | Implemented |
+| TaskAttachments   | Authorized task file attachments        | Implemented |
 
 ### Relationships
 
@@ -352,7 +383,7 @@ Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM 
 - A user can have multiple active sessions.
 - Login attempts are keyed by hashed email or IP identifiers.
 - Users can belong to multiple workspaces.
-- Workspaces will contain projects, and projects will contain tasks.
+- Workspaces contain projects, and projects contain tasks.
 
 Schema changes are managed through version-controlled Drizzle migrations.
 
@@ -368,8 +399,8 @@ Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.m
 | Phase 2 | Implemented | Custom Authentication     | Registration, login, sessions, route protection               |
 | Phase 3 | Implemented | Workspaces & Projects     | Workspace membership and project management                   |
 | Phase 4 | Implemented | Task Management           | Kanban, table views, filtering, and sorting                   |
-
-| Phase 5 | Planned | Polish & Deployment | Testing, security, accessibility, and deployment |
+| Phase 5 | In progress | Polish & Deployment       | Hardening, verification, and production deployment            |
+| Phase 6 | In progress | DevOps & Security         | Containerization, CI/CD, and security hardening               |
 
 Each phase has its own implementation tasks and completion criteria.
 
@@ -452,6 +483,7 @@ http://localhost:3000
 | `npm run lint`        | Run ESLint                                              |
 | `npm run typecheck`   | Run TypeScript type checking                            |
 | `npm test`            | Run unit tests and DB integration tests when configured |
+| `npm run test:e2e`    | Run Playwright browser smoke tests                      |
 | `npm run build`       | Create a production build                               |
 | `npm run db:generate` | Generate Drizzle migrations                             |
 | `npm run db:migrate`  | Apply Drizzle migrations                                |
@@ -490,18 +522,27 @@ Production image publishing is restricted to `main` in CI. Configure the
 enabled, the `ENABLE_PRODUCTION_DEPLOY` repository variable and
 `VERCEL_DEPLOY_HOOK_URL` secret.
 
-### Authentication Integration Tests
+### Database Integration Tests and Authenticated E2E
 
-Auth integration tests are skipped unless `TEST_DATABASE_URL` is set. Point it
-to an isolated Neon branch or database, apply migrations there, then run:
+Database integration tests and authenticated browser workflows are skipped
+unless `TEST_DATABASE_URL` is set. Point it to an isolated Neon branch or
+database, map both runtime and migration URLs to that test database, apply
+migrations there, then run:
 
 ```bash
-NODE_OPTIONS=--no-network-family-autoselection TEST_DATABASE_URL="postgresql://..." npm test
+export TEST_DATABASE_URL="postgresql://..."
+export DATABASE_URL="$TEST_DATABASE_URL"
+export DATABASE_URL_UNPOOLED="$TEST_DATABASE_URL"
+NODE_OPTIONS=--no-network-family-autoselection npm run db:migrate
+npm test
+npm run test:e2e
 ```
 
-The test setup maps `TEST_DATABASE_URL` to `DATABASE_URL` for the test process.
-Use a direct test connection string when applying migrations so the development
-database is not modified.
+The test setup maps `TEST_DATABASE_URL` to `DATABASE_URL` for Vitest. Keep both
+database variables pointed at the isolated test database when applying
+migrations to avoid modifying development data. CI applies migrations and runs
+database-backed checks only when the `TEST_DATABASE_URL` repository secret is
+configured.
 
 ### Neon Connectivity Troubleshooting
 
@@ -569,22 +610,15 @@ The goal is to prioritize clarity, usability, and information density over unnec
 
 ---
 
-## Future Improvements
+## Remaining Work
 
-The initial development scope focuses on authentication, workspaces, projects, and task management.
+These features are not implemented or have not yet been verified for production:
 
-Potential future extensions include:
-
-- Real-time task updates.
-- Workspace invitations.
-- Advanced permission management.
-- Notifications and activity feeds.
-- File attachments.
-- Project analytics and velocity reporting.
-- Sprint planning and reporting.
-- More advanced team allocation insights.
-
-These are potential extensions, not commitments for the initial release.
+- Project-scoped Markdown documentation.
+- Real-time task updates and external email/push notification delivery.
+- Workspace invitations and advanced permission administration.
+- Project analytics, velocity reporting, and sprint planning.
+- Production deployment, live health checks, and release smoke tests.
 
 ---
 

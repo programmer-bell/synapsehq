@@ -6,7 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",
@@ -22,5 +22,11 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: process.env.TEST_DATABASE_URL
+      ? {
+          DATABASE_URL: process.env.TEST_DATABASE_URL,
+          DATABASE_URL_UNPOOLED: process.env.TEST_DATABASE_URL,
+        }
+      : {},
   },
 });

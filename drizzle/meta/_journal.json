@@ -29,6 +29,13 @@
       "when": 1793410934559,
       "tag": "0003_robust_network",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793466474468,
+      "tag": "0004_bizarre_thanos",
+      "breakpoints": true
     }
   ]
 }

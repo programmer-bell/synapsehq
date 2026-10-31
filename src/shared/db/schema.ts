@@ -4,6 +4,7 @@ export * from "@/src/modules/auth/db/schema";
 export * from "@/src/modules/workspaces/db/schema";
 export * from "@/src/modules/projects/db/schema";
 export * from "@/src/modules/tasks/db/schema";
+export * from "@/src/modules/notifications/db/schema";
 
 /**
  * Infrastructure-only table used to verify the migration and query workflow.

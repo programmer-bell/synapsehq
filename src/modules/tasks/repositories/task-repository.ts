@@ -34,7 +34,10 @@ export async function listTasksByProject(
   projectId: string,
   filters: TaskListFilters = {},
 ): Promise<TaskRecord[]> {
-  const conditions = [eq(tasks.projectId, projectId)];
+  const conditions = [
+    eq(tasks.projectId, projectId),
+    isNull(tasks.parentTaskId),
+  ];
 
   if (filters.status && filters.status !== "ALL") {
     conditions.push(eq(tasks.status, filters.status));
@@ -93,6 +96,8 @@ export async function listTasksByProject(
 
 export async function createTaskRecord(input: {
   projectId: string;
+  parentTaskId?: string | null;
+  milestoneId?: string | null;
   title: string;
   description: string | null;
   status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
@@ -113,6 +118,7 @@ export async function updateTaskRecord(
     status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
     priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
     assigneeId: string | null;
+    milestoneId: string | null;
     dueDate: Date | null;
   },
 ): Promise<TaskRecord> {

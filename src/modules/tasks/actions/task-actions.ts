@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { requireUser } from "@/src/modules/auth";
+import { logServerError } from "@/src/shared/lib/log-server-error";
 import {
   createTask,
   deleteTask,
@@ -37,6 +39,7 @@ export async function createTaskAction(
     status: String(formData.get("status") ?? "TODO"),
     priority: String(formData.get("priority") ?? "MEDIUM"),
     assigneeId: String(formData.get("assigneeId") ?? ""),
+    milestoneId: String(formData.get("milestoneId") ?? ""),
     dueDate: String(formData.get("dueDate") ?? ""),
   });
 
@@ -60,7 +63,9 @@ export async function createTaskAction(
             ? "Project not found."
             : result.code === "INVALID_ASSIGNEE"
               ? "Assignee must be a workspace member."
-              : "We could not create the task. Please try again.",
+              : result.code === "INVALID_MILESTONE"
+                ? "Select a milestone from this project."
+                : "We could not create the task. Please try again.",
     };
   }
 
@@ -83,6 +88,7 @@ export async function updateTaskAction(
     status: String(formData.get("status") ?? "TODO"),
     priority: String(formData.get("priority") ?? "MEDIUM"),
     assigneeId: String(formData.get("assigneeId") ?? ""),
+    milestoneId: String(formData.get("milestoneId") ?? ""),
     dueDate: String(formData.get("dueDate") ?? ""),
   });
 
@@ -106,7 +112,9 @@ export async function updateTaskAction(
             ? "Task not found."
             : result.code === "INVALID_ASSIGNEE"
               ? "Assignee must be a workspace member."
-              : "We could not update the task. Please try again.",
+              : result.code === "INVALID_MILESTONE"
+                ? "Select a milestone from this project."
+                : "We could not update the task. Please try again.",
     };
   }
 
@@ -122,18 +130,25 @@ export async function updateTaskStatusAction(
 ): Promise<void> {
   const user = await requireUser();
   const projectId = String(formData.get("projectId") ?? "");
-  const result = await updateTaskStatus(
-    user.id,
-    taskId,
-    String(formData.get("status") ?? ""),
-  );
+  const status = String(formData.get("status") ?? "");
+  const result = await updateTaskStatus(user.id, taskId, status);
 
   if (!result.ok) {
-    return;
+    if (result.code === "UNKNOWN") {
+      logServerError("updateTaskStatusAction failed", new Error(result.code), {
+        userId: user.id,
+        taskId,
+      });
+    }
+    if (!z.string().uuid().safeParse(projectId).success) {
+      throw new Error("Failed to update task status.");
+    }
+    redirect(`/projects/${projectId}/tasks?actionError=task-status-update`);
   }
 
-  revalidatePath(`/projects/${projectId}/tasks`);
-  revalidatePath(`/projects/${projectId}`);
+  const updatedProjectId = result.data.projectId;
+  revalidatePath(`/projects/${updatedProjectId}/tasks`);
+  revalidatePath(`/projects/${updatedProjectId}`);
 }
 
 export async function deleteTaskAction(
@@ -141,13 +156,25 @@ export async function deleteTaskAction(
   formData: FormData,
 ): Promise<void> {
   const user = await requireUser();
-  const projectId = String(formData.get("projectId") ?? "");
   const result = await deleteTask(user.id, taskId);
+  const projectId = result.ok
+    ? result.data.projectId
+    : String(formData.get("projectId") ?? "");
 
   if (!result.ok) {
-    return;
+    if (result.code === "UNKNOWN") {
+      logServerError("deleteTaskAction failed", new Error(result.code), {
+        userId: user.id,
+        taskId,
+      });
+    }
+    if (!z.string().uuid().safeParse(projectId).success) {
+      throw new Error("Failed to delete task.");
+    }
+    redirect(`/projects/${projectId}/tasks?actionError=task-delete`);
   }
 
   revalidatePath(`/projects/${projectId}/tasks`);
   revalidatePath(`/projects/${projectId}`);
+  redirect(`/projects/${projectId}/tasks`);
 }

@@ -7,6 +7,14 @@ export {
   updateTask,
   updateTaskStatus,
 } from "./services/task-service";
+export {
+  addTaskComment,
+  createTaskSubtask,
+  getTaskDetails,
+  getTaskAttachmentForUser,
+  removeTaskAttachment,
+  uploadTaskAttachment,
+} from "./services/task-collaboration-service";
 
 export {
   canCreateTasks,

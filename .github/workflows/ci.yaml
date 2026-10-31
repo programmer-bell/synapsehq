@@ -70,6 +70,8 @@ jobs:
     env:
       NODE_OPTIONS: --no-network-family-autoselection
       TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL || '' }}
+      DATABASE_URL: ${{ secrets.TEST_DATABASE_URL || 'postgresql://localhost:5432/synapsehq_test' }}
+      DATABASE_URL_UNPOOLED: ${{ secrets.TEST_DATABASE_URL || 'postgresql://localhost:5432/synapsehq_test' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -82,6 +84,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Apply test database migrations
+        if: env.TEST_DATABASE_URL != ''
+        run: npm run db:migrate
 
       - name: Run tests
         run: npm test
@@ -126,6 +132,8 @@ jobs:
     needs: build
     env:
       NODE_OPTIONS: --no-network-family-autoselection
+      TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL || '' }}
+      DATABASE_URL_UNPOOLED: ${{ secrets.TEST_DATABASE_URL || 'postgresql://localhost:5432/synapsehq_test' }}
       DATABASE_URL: ${{ secrets.TEST_DATABASE_URL || 'postgresql://user:password@localhost:5432/synapsehq_test' }}
       JWT_SECRET: ci-e2e-secret-that-is-at-least-32-characters
       NEXT_PUBLIC_APP_URL: http://localhost:3000

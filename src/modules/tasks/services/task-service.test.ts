@@ -39,6 +39,8 @@ describe("task service", () => {
     vi.mocked(findTaskById).mockResolvedValue({
       id: "task-1",
       projectId: "project-1",
+      parentTaskId: null,
+      milestoneId: null,
       title: "Task",
       description: null,
       status: "TODO",
@@ -58,6 +60,8 @@ describe("task service", () => {
     vi.mocked(findTaskById).mockResolvedValue({
       id: "task-1",
       projectId: "project-1",
+      parentTaskId: null,
+      milestoneId: null,
       title: "Task",
       description: null,
       status: "TODO",

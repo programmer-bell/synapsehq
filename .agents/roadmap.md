@@ -2,8 +2,8 @@
 
 **Project:** SynapseHQ  
 **Architecture:** Modular Monolith  
-**Status:** Phases 1–4 complete / Phase 5 implementation complete with production deployment pending / Phase 6 in progress
-**Current Stage:** Phase 6 — DevOps & Security Hardening
+**Status:** Phases 1–4 complete / Phase 5 hardening and production readiness in progress / Phase 6 in progress
+**Current Stage:** Phase 5 — Polish & Production Readiness
 **Total Phases:** 6
 
 ---
@@ -26,19 +26,19 @@ The application will provide:
 
 ## Technology Stack
 
-| Layer            | Technology                                          |
-| ---------------- | --------------------------------------------------- |
-| Framework        | Next.js 16                                          |
-| Frontend         | React 19                                            |
-| Language         | TypeScript                                          |
-| Styling          | Tailwind CSS v4                                     |
-| Database         | Neon PostgreSQL                                     |
-| ORM              | Drizzle ORM                                         |
-| Validation       | Zod                                                 |
-| Password hashing | bcryptjs                                            |
-| JWT              | jose                                                |
-| Deployment       | Vercel                                              |
-| Testing          | Vitest, React Testing Library, Playwright (planned) |
+| Layer            | Technology                                |
+| ---------------- | ----------------------------------------- |
+| Framework        | Next.js 16                                |
+| Frontend         | React 19                                  |
+| Language         | TypeScript                                |
+| Styling          | Tailwind CSS v4                           |
+| Database         | Neon PostgreSQL                           |
+| ORM              | Drizzle ORM                               |
+| Validation       | Zod                                       |
+| Password hashing | bcryptjs                                  |
+| JWT              | jose                                      |
+| Deployment       | Vercel                                    |
+| Testing          | Vitest, React Testing Library, Playwright |
 
 All dependencies must be verified in `package.json` before use.
 
@@ -156,8 +156,8 @@ justified beyond the reusable `PageShell` layout component.
 - [x] Verify type checking.
 - [x] Verify production build.
 
-Notes: `.editorconfig` and ESLint establish formatting conventions. Prettier and
-CI are deferred to Phase 5 by project decision.
+Historical note: Prettier and CI were deferred when Phase 1 was completed; both
+have since been added to the repository.
 
 ### Phase 1 Completion Criteria
 
@@ -181,9 +181,9 @@ Phase 1 is complete only when:
 
 **Objective:** Implement secure authentication without depending on external authentication platforms.
 
-**Status:** Implementation complete. Database integration tests are written but
-require an isolated `TEST_DATABASE_URL`. Resource-level workspace and project
-authorization is deferred to Phase 3 by project decision.
+**Status:** Implemented. Database integration tests require an isolated
+`TEST_DATABASE_URL`. Resource-level workspace and project authorization, which
+was deferred at this phase, was implemented in Phase 3.
 
 ## 2.1 Authentication Architecture
 
@@ -265,13 +265,13 @@ authorization is deferred to Phase 3 by project decision.
 
 - [x] Protect dashboard routes.
 - [x] Implement authentication checks.
-- [ ] Implement role-based authorization where required (deferred until roles exist).
-- [ ] Implement resource-level authorization (deferred to Phase 3).
-- [ ] Protect project access (deferred to Phase 3).
-- [ ] Protect workspace access (deferred to Phase 3).
+- [x] Implement role-based authorization where required (completed in Phase 3).
+- [x] Implement resource-level authorization (completed in Phase 3).
+- [x] Protect project access (completed in Phase 3).
+- [x] Protect workspace access (completed in Phase 3).
 - [x] Protect sensitive Server Actions.
-- [ ] Protect Route Handlers (no Route Handlers exist yet).
-- [ ] Validate permissions close to database operations (deferred to Phase 3).
+- [x] Confirm no protected project/workspace/task Route Handlers are exposed.
+- [x] Validate permissions close to database operations (completed in Phase 3).
 
 ## 2.8 Authentication Testing
 
@@ -284,7 +284,7 @@ authorization is deferred to Phase 3 by project decision.
 - [x] Test expired sessions (database integration test).
 - [x] Test revoked sessions (database integration test).
 - [x] Test unauthenticated access (manual route smoke test).
-- [ ] Test unauthorized resource access (deferred to Phase 3).
+- [x] Test unauthorized resource access (workspace/project/task integration tests).
 - [x] Test login throttling (database integration test).
 
 ### Phase 2 Completion Criteria
@@ -295,7 +295,7 @@ authorization is deferred to Phase 3 by project decision.
 - [x] Passwords are securely hashed.
 - [x] Session lifecycle is implemented.
 - [x] Protected routes work.
-- [ ] Resource-level authorization works (deferred to Phase 3).
+- [x] Resource-level authorization works (implemented and tested in Phase 3).
 - [x] Sensitive actions use authentication guards.
 - [x] Critical authentication integration tests pass with an isolated `TEST_DATABASE_URL`.
 
@@ -711,16 +711,20 @@ Update statuses only when supported by actual implementation evidence.
 ## Overall Progress
 
 ```text
-[█████████████████░░░] 85% Complete | Phase 5 deployment pending, Phase 6 in progress
+Authentication, workspaces, projects, task workflows, task collaboration,
+milestones, project allocations, and in-app notifications are implemented.
+Phase 5 readiness and Phase 6 DevOps work remain in progress; production
+deployment has not been verified.
 ```
 
-The progress bar is updated from actual completed roadmap work. Phases 1–4 are complete, Phase 5 implementation is complete but production deployment remains pending, and Phase 6 is in progress.
+Do not use a percentage until the remaining work has a measurable denominator.
 
 Do not calculate progress by simply counting the number of phases completed if substantial work within a phase remains.
 
 ## Phase Completion Record
 
 ```text
+Historical Phase 1 completion snapshot (not a statement of current repository status):
 Phase: Phase 1 — Foundation & Modular Architecture
 Completion date: 2026-10-30
 Feature branch: feature/phase-1-foundation
@@ -806,13 +810,12 @@ Additional functionality should be introduced through new roadmap items or phase
 
 Potential future capabilities may include:
 
-- Notifications
-- Activity history
+- Project-scoped Markdown documentation
 - Workspace invitations
-- Advanced permissions
+- Email/push notification delivery and preferences
 - Real-time collaboration
-- File attachments
-- Analytics
+- Analytics and velocity reporting
+- Sprint planning
 - Search improvements
 
 These are potential extensions, not committed implementation requirements.

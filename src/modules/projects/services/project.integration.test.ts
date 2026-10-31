@@ -9,14 +9,24 @@ import {
 } from "@/src/modules/workspaces/db/schema";
 import { projects } from "@/src/modules/projects/db/schema";
 import { registerUser } from "@/src/modules/auth/services/registration-service";
-import { createWorkspace } from "@/src/modules/workspaces/services/workspace-service";
 import {
+  addWorkspaceMember,
+  createWorkspace,
+} from "@/src/modules/workspaces/services/workspace-service";
+import {
+  addProjectTeamMember,
   createProject,
+  createProjectMilestone,
   deleteProject,
   getProjectAccess,
+  getProjectMilestones,
+  getProjectTeam,
   listProjectsForWorkspace,
+  removeProjectTeamMember,
+  updateProjectMilestoneStatus,
   updateProject,
-} from "./project-service";
+} from "@/src/modules/projects";
+import { createTask } from "@/src/modules/tasks";
 
 const describeIntegration = process.env.TEST_DATABASE_URL
   ? describe
@@ -175,5 +185,88 @@ describeIntegration("project database integration", () => {
       status: "ACTIVE",
     });
     expect(second.ok).toBe(false);
+  });
+
+  it("allocates workspace members to projects and reports milestone progress", async () => {
+    const { owner, workspace } = await setupWorkspace();
+    const member = await registerUser(memberInput);
+    if (!member.ok) throw new Error("member registration failed");
+    await addWorkspaceMember(owner.user.id, workspace.data.id, {
+      email: member.user.email,
+      role: "MEMBER",
+    });
+
+    const project = await createProject(owner.user.id, {
+      workspaceId: workspace.data.id,
+      name: "Release platform",
+      description: null,
+      status: "ACTIVE",
+    });
+    if (!project.ok) throw new Error("project creation failed");
+
+    const assigned = await addProjectTeamMember(
+      owner.user.id,
+      project.data.id,
+      {
+        userId: member.user.id,
+        allocationPercent: 60,
+      },
+    );
+    expect(assigned).toMatchObject({ ok: true });
+
+    const team = await getProjectTeam(owner.user.id, project.data.id);
+    expect(team?.members).toMatchObject([
+      { userId: member.user.id, allocationPercent: 60 },
+    ]);
+
+    const milestone = await createProjectMilestone(owner.user.id, {
+      projectId: project.data.id,
+      name: "Beta",
+      description: "Ship the beta release",
+      dueDate: "",
+    });
+    expect(milestone.ok).toBe(true);
+    if (!milestone.ok) return;
+
+    const task = await createTask(owner.user.id, {
+      projectId: project.data.id,
+      title: "Complete beta",
+      description: null,
+      status: "DONE",
+      priority: "MEDIUM",
+      assigneeId: member.user.id,
+      milestoneId: milestone.data.id,
+      dueDate: "",
+    });
+    expect(task.ok).toBe(true);
+
+    const summary = await getProjectMilestones(owner.user.id, project.data.id);
+    expect(summary?.taskProgress).toEqual({ total: 1, completed: 1 });
+    expect(summary?.milestones).toMatchObject([
+      { id: milestone.data.id, taskCount: 1, completedTaskCount: 1 },
+    ]);
+
+    const updated = await updateProjectMilestoneStatus(owner.user.id, {
+      milestoneId: milestone.data.id,
+      status: "COMPLETED",
+    });
+    expect(updated).toMatchObject({
+      ok: true,
+      data: { projectId: project.data.id },
+    });
+
+    await expect(
+      addProjectTeamMember(member.user.id, project.data.id, {
+        userId: owner.user.id,
+        allocationPercent: 100,
+      }),
+    ).resolves.toMatchObject({ ok: false, code: "FORBIDDEN" });
+    expect(
+      await removeProjectTeamMember(
+        owner.user.id,
+        project.data.id,
+        member.user.id,
+      ),
+    ).toMatchObject({ ok: true });
   });
 });

@@ -1,6 +1,7 @@
 import "server-only";
 
-import { getProjectAccess } from "@/src/modules/projects";
+import { getProjectAccess, isProjectMilestone } from "@/src/modules/projects";
+import { notifyUser } from "@/src/modules/notifications";
 import {
   getWorkspaceAccess,
   listWorkspaceMembers,
@@ -25,13 +26,17 @@ import {
   updateTaskRecord,
   updateTaskStatusRecord,
 } from "../repositories/task-repository";
+import { createTaskActivity } from "../repositories/task-collaboration-repository";
 import type { Task, TaskFilters } from "../types";
+import { logServerError } from "@/src/shared/lib/log-server-error";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; code: string };
 
 function toTask(record: {
   id: string;
   projectId: string;
+  parentTaskId: string | null;
+  milestoneId: string | null;
   title: string;
   description: string | null;
   status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
@@ -77,6 +82,10 @@ export async function createTask(
     return { ok: false, code: "FORBIDDEN" };
   }
 
+  if (!(await isProjectMilestone(access.project.id, parsed.data.milestoneId))) {
+    return { ok: false, code: "INVALID_MILESTONE" };
+  }
+
   const assigneeValid = await validateAssignee(
     parsed.data.assigneeId,
     access.workspaceId,
@@ -89,6 +98,8 @@ export async function createTask(
   try {
     const task = await createTaskRecord({
       projectId: parsed.data.projectId,
+      parentTaskId: null,
+      milestoneId: parsed.data.milestoneId,
       title: parsed.data.title,
       description: parsed.data.description,
       status: parsed.data.status,
@@ -98,8 +109,31 @@ export async function createTask(
       createdBy: userId,
     });
 
+    try {
+      await createTaskActivity({
+        taskId: task.id,
+        actorId: userId,
+        eventType: "TASK_CREATED",
+        summary: "Created the task.",
+      });
+    } catch (error) {
+      logServerError("task activity recording failed", error, {
+        userId,
+        taskId: task.id,
+      });
+    }
+    if (task.assigneeId && task.assigneeId !== userId) {
+      await notifyUser({
+        userId: task.assigneeId,
+        actorId: userId,
+        title: "Assigned a task",
+        body: task.title,
+        href: `/projects/${task.projectId}/tasks/${task.id}`,
+      });
+    }
     return { ok: true, data: toTask(task) };
-  } catch {
+  } catch (error) {
+    logServerError("createTask failed", error, { userId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -119,20 +153,25 @@ export async function listTasksForProject(
     return { ok: false, code: "FORBIDDEN" };
   }
 
-  const tasks = await listTasksByProject(projectId, {
-    status: filters.status,
-    priority: filters.priority,
-    assigneeId: filters.assigneeId,
-    search: filters.search,
-    dueBefore: filters.dueBefore ? new Date(filters.dueBefore) : null,
-    dueAfter: filters.dueAfter ? new Date(filters.dueAfter) : null,
-    sortBy: filters.sortBy,
-    sortDirection: filters.sortDirection,
-    limit: filters.pageSize ?? 25,
-    offset: ((filters.page ?? 1) - 1) * (filters.pageSize ?? 25),
-  });
+  try {
+    const tasks = await listTasksByProject(projectId, {
+      status: filters.status,
+      priority: filters.priority,
+      assigneeId: filters.assigneeId,
+      search: filters.search,
+      dueBefore: filters.dueBefore ? new Date(filters.dueBefore) : null,
+      dueAfter: filters.dueAfter ? new Date(filters.dueAfter) : null,
+      sortBy: filters.sortBy,
+      sortDirection: filters.sortDirection,
+      limit: filters.pageSize ?? 25,
+      offset: ((filters.page ?? 1) - 1) * (filters.pageSize ?? 25),
+    });
 
-  return { ok: true, data: tasks.map(toTask) };
+    return { ok: true, data: tasks.map(toTask) };
+  } catch (error) {
+    logServerError("listTasksForProject failed", error, { userId, projectId });
+    return { ok: false, code: "UNKNOWN" };
+  }
 }
 
 export async function getTaskAccess(
@@ -146,30 +185,35 @@ export async function getTaskAccess(
   createdBy: string;
   assigneeId: string | null;
 } | null> {
-  const record = await findTaskById(taskId);
+  try {
+    const record = await findTaskById(taskId);
 
-  if (!record) {
-    return null;
+    if (!record) {
+      return null;
+    }
+
+    const access = await getProjectAccess(userId, record.projectId);
+
+    if (!access) {
+      return null;
+    }
+
+    if (!canReadTasks(access.role)) {
+      return null;
+    }
+
+    return {
+      task: toTask(record),
+      projectId: record.projectId,
+      workspaceId: access.workspaceId,
+      role: access.role,
+      createdBy: record.createdBy,
+      assigneeId: record.assigneeId,
+    };
+  } catch (error) {
+    logServerError("getTaskAccess failed", error, { userId, taskId });
+    throw error;
   }
-
-  const access = await getProjectAccess(userId, record.projectId);
-
-  if (!access) {
-    return null;
-  }
-
-  if (!canReadTasks(access.role)) {
-    return null;
-  }
-
-  return {
-    task: toTask(record),
-    projectId: record.projectId,
-    workspaceId: access.workspaceId,
-    role: access.role,
-    createdBy: record.createdBy,
-    assigneeId: record.assigneeId,
-  };
 }
 
 export async function updateTask(
@@ -195,6 +239,10 @@ export async function updateTask(
     return { ok: false, code: "INVALID_INPUT" };
   }
 
+  if (!(await isProjectMilestone(access.projectId, parsed.data.milestoneId))) {
+    return { ok: false, code: "INVALID_MILESTONE" };
+  }
+
   const assigneeValid = await validateAssignee(
     parsed.data.assigneeId,
     access.workspaceId,
@@ -211,11 +259,39 @@ export async function updateTask(
       status: parsed.data.status,
       priority: parsed.data.priority,
       assigneeId: parsed.data.assigneeId,
+      milestoneId: parsed.data.milestoneId,
       dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
     });
 
+    try {
+      await createTaskActivity({
+        taskId,
+        actorId: userId,
+        eventType: "TASK_UPDATED",
+        summary: "Updated task details.",
+      });
+    } catch (error) {
+      logServerError("task activity recording failed", error, {
+        userId,
+        taskId,
+      });
+    }
+    if (
+      task.assigneeId &&
+      task.assigneeId !== userId &&
+      task.assigneeId !== access.assigneeId
+    ) {
+      await notifyUser({
+        userId: task.assigneeId,
+        actorId: userId,
+        title: "Assigned a task",
+        body: task.title,
+        href: `/projects/${task.projectId}/tasks/${task.id}`,
+      });
+    }
     return { ok: true, data: toTask(task) };
-  } catch {
+  } catch (error) {
+    logServerError("updateTask failed", error, { userId, taskId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -245,8 +321,31 @@ export async function updateTaskStatus(
 
   try {
     const task = await updateTaskStatusRecord(taskId, parsed.data.status);
+    try {
+      await createTaskActivity({
+        taskId,
+        actorId: userId,
+        eventType: "STATUS_CHANGED",
+        summary: `Changed status to ${parsed.data.status.replaceAll("_", " ").toLowerCase()}.`,
+      });
+    } catch (error) {
+      logServerError("task activity recording failed", error, {
+        userId,
+        taskId,
+      });
+    }
+    if (task.assigneeId && task.assigneeId !== userId) {
+      await notifyUser({
+        userId: task.assigneeId,
+        actorId: userId,
+        title: "Task status changed",
+        body: `${task.title}: ${parsed.data.status.replaceAll("_", " ").toLowerCase()}.`,
+        href: `/projects/${task.projectId}/tasks/${task.id}`,
+      });
+    }
     return { ok: true, data: toTask(task) };
-  } catch {
+  } catch (error) {
+    logServerError("updateTaskStatus failed", error, { userId, taskId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -254,7 +353,7 @@ export async function updateTaskStatus(
 export async function deleteTask(
   userId: string,
   taskId: string,
-): Promise<ServiceResult<void>> {
+): Promise<ServiceResult<{ projectId: string }>> {
   const access = await getTaskAccess(userId, taskId);
 
   if (!access) {
@@ -267,8 +366,9 @@ export async function deleteTask(
 
   try {
     await deleteTaskRecord(taskId);
-    return { ok: true, data: undefined };
-  } catch {
+    return { ok: true, data: { projectId: access.projectId } };
+  } catch (error) {
+    logServerError("deleteTask failed", error, { userId, taskId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -287,14 +387,19 @@ export async function listAssignableUsers(
     return { ok: false, code: "FORBIDDEN" };
   }
 
-  const members = await listWorkspaceMembers(access.workspaceId);
+  try {
+    const members = await listWorkspaceMembers(access.workspaceId);
 
-  return {
-    ok: true,
-    data: members.map((member) => ({
-      id: member.userId,
-      name: member.user?.name ?? "Unknown user",
-      email: member.user?.email ?? "",
-    })),
-  };
+    return {
+      ok: true,
+      data: members.map((member) => ({
+        id: member.userId,
+        name: member.user?.name ?? "Unknown user",
+        email: member.user?.email ?? "",
+      })),
+    };
+  } catch (error) {
+    logServerError("listAssignableUsers failed", error, { userId, projectId });
+    return { ok: false, code: "UNKNOWN" };
+  }
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { requireUser } from "@/src/modules/auth";
-import { getProjectAccess } from "@/src/modules/projects";
+import { getProjectAccess, getProjectMilestones } from "@/src/modules/projects";
 import {
   listAssignableUsers,
   listTasksForProject,
@@ -53,10 +53,12 @@ export default async function ProjectTasksPage({
     : taskFiltersSchema.parse({});
   const view =
     firstValue(rawSearchParams.view) === "table" ? "table" : "kanban";
+  const actionError = firstValue(rawSearchParams.actionError);
 
-  const [tasksResult, assignableResult] = await Promise.all([
+  const [tasksResult, assignableResult, projectMilestones] = await Promise.all([
     listTasksForProject(user.id, projectId, filters),
     listAssignableUsers(user.id, projectId),
+    getProjectMilestones(user.id, projectId),
   ]);
 
   const tasks = tasksResult.ok ? tasksResult.data : [];
@@ -86,6 +88,12 @@ export default async function ProjectTasksPage({
           <CreateTaskDialog
             projectId={projectId}
             assignableUsers={assignableUsers}
+            milestones={
+              projectMilestones?.milestones.map(({ id, name }) => ({
+                id,
+                name,
+              })) ?? []
+            }
           />
         </div>
       </div>
@@ -96,6 +104,33 @@ export default async function ProjectTasksPage({
         view={view}
         assignableUsers={assignableUsers}
       />
+
+      {actionError === "task-status-update" || actionError === "task-delete" ? (
+        <div
+          role="alert"
+          className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
+        >
+          {actionError === "task-status-update"
+            ? "We couldn’t update the task status. Please try again."
+            : "We couldn’t delete the task. Please try again."}{" "}
+          <Link
+            href={`/projects/${projectId}/tasks?view=${view}`}
+            className="font-medium underline underline-offset-2"
+          >
+            Dismiss
+          </Link>
+        </div>
+      ) : null}
+
+      {!assignableResult.ok ? (
+        <p
+          role="alert"
+          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+        >
+          Assignee options are temporarily unavailable. You can still create
+          unassigned tasks.
+        </p>
+      ) : null}
 
       <div className="flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-5">
@@ -113,11 +148,31 @@ export default async function ProjectTasksPage({
           </Link>
         </div>
         <span className="pb-2.5 text-xs text-muted-foreground">
-          {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+          {tasksResult.ok
+            ? `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"}`
+            : "Tasks unavailable"}
         </span>
       </div>
 
-      {tasks.length === 0 ? (
+      {!tasksResult.ok ? (
+        <div
+          role="alert"
+          className="rounded-md border border-rose-200 bg-rose-50 px-4 py-4 dark:border-rose-900/60 dark:bg-rose-950/40"
+        >
+          <p className="text-sm font-medium text-rose-800 dark:text-rose-200">
+            Tasks couldn’t be loaded.
+          </p>
+          <p className="mt-1 text-sm text-rose-700 dark:text-rose-300">
+            Your tasks have not been changed. Try again in a moment.
+          </p>
+          <Link
+            href={`/projects/${projectId}/tasks?view=${view}`}
+            className="mt-2 inline-block text-sm font-medium text-rose-800 underline underline-offset-2 dark:text-rose-200"
+          >
+            Retry
+          </Link>
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="rounded-md border border-dashed border-border bg-surface px-5 py-10 text-center">
           <p className="text-sm font-medium text-foreground">No tasks yet</p>
           <p className="mt-1 text-sm text-muted-foreground">

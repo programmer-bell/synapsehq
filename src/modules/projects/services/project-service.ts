@@ -6,12 +6,15 @@ import {
   canManageProject,
   canDeleteProject,
 } from "@/src/modules/workspaces";
+import { logServerError } from "@/src/shared/lib/log-server-error";
 import { createProjectSchema, updateProjectSchema } from "../schemas/project";
 import {
   createProjectRecord,
   deleteProjectRecord,
   findProjectById,
   listProjectsByWorkspace,
+  listProjectsByWorkspaceIds,
+  countProjectsByWorkspaceIds,
   updateProjectRecord,
 } from "../repositories/project-repository";
 import type { Project } from "../types";
@@ -61,7 +64,8 @@ export async function createProject(
     });
 
     return { ok: true, data: toProject(project) };
-  } catch {
+  } catch (error) {
+    logServerError("createProject failed", error, { userId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -80,8 +84,43 @@ export async function listProjectsForWorkspace(
     return { ok: false, code: "FORBIDDEN" };
   }
 
-  const projects = await listProjectsByWorkspace(workspaceId);
-  return { ok: true, data: projects.map(toProject) };
+  try {
+    const projects = await listProjectsByWorkspace(workspaceId);
+    return { ok: true, data: projects.map(toProject) };
+  } catch (error) {
+    logServerError("listProjectsForWorkspace failed", error, {
+      userId,
+      workspaceId,
+    });
+    return { ok: false, code: "UNKNOWN" };
+  }
+}
+
+export async function countProjectsForWorkspaces(
+  workspaceIds: string[],
+): Promise<Record<string, number>> {
+  try {
+    return await countProjectsByWorkspaceIds(workspaceIds);
+  } catch (error) {
+    logServerError("countProjectsForWorkspaces failed", error, {
+      workspaceCount: workspaceIds.length,
+    });
+    throw error;
+  }
+}
+
+export async function listProjectsForWorkspaces(
+  workspaceIds: string[],
+): Promise<Project[]> {
+  try {
+    const records = await listProjectsByWorkspaceIds(workspaceIds);
+    return records.map(toProject);
+  } catch (error) {
+    logServerError("listProjectsForWorkspaces failed", error, {
+      workspaceCount: workspaceIds.length,
+    });
+    throw error;
+  }
 }
 
 export async function getProjectAccess(
@@ -93,28 +132,33 @@ export async function getProjectAccess(
   role: "OWNER" | "ADMIN" | "MEMBER";
   createdBy: string;
 } | null> {
-  const project = await findProjectById(projectId);
+  try {
+    const project = await findProjectById(projectId);
 
-  if (!project) {
-    return null;
+    if (!project) {
+      return null;
+    }
+
+    const access = await getWorkspaceAccess(userId, project.workspaceId);
+
+    if (!access) {
+      return null;
+    }
+
+    if (!hasWorkspacePermission(access.membership.role, "projects:read")) {
+      return null;
+    }
+
+    return {
+      project: toProject(project),
+      workspaceId: project.workspaceId,
+      role: access.membership.role,
+      createdBy: project.createdBy,
+    };
+  } catch (error) {
+    logServerError("getProjectAccess failed", error, { userId, projectId });
+    throw error;
   }
-
-  const access = await getWorkspaceAccess(userId, project.workspaceId);
-
-  if (!access) {
-    return null;
-  }
-
-  if (!hasWorkspacePermission(access.membership.role, "projects:read")) {
-    return null;
-  }
-
-  return {
-    project: toProject(project),
-    workspaceId: project.workspaceId,
-    role: access.membership.role,
-    createdBy: project.createdBy,
-  };
 }
 
 export async function updateProject(
@@ -141,7 +185,8 @@ export async function updateProject(
   try {
     const project = await updateProjectRecord(projectId, parsed.data);
     return { ok: true, data: toProject(project) };
-  } catch {
+  } catch (error) {
+    logServerError("updateProject failed", error, { userId, projectId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -163,7 +208,8 @@ export async function deleteProject(
   try {
     await deleteProjectRecord(projectId);
     return { ok: true, data: undefined };
-  } catch {
+  } catch (error) {
+    logServerError("deleteProject failed", error, { userId, projectId });
     return { ok: false, code: "UNKNOWN" };
   }
 }

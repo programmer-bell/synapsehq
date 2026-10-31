@@ -1,8 +1,10 @@
 export {
   createWorkspace,
   deleteWorkspace,
+  getMemberCountsByWorkspaceIds,
   getWorkspaceAccess,
   listWorkspaceMembersForUser,
+  listWorkspacesForNavigation,
   listWorkspacesForUserWithSummary,
   updateWorkspace,
   addWorkspaceMember,

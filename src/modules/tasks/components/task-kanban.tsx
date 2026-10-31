@@ -59,7 +59,7 @@ export function TaskKanban({
                   >
                     <div className="flex items-start justify-between gap-2">
                       <Link
-                        href={`/projects/${projectId}/tasks/${task.id}/edit`}
+                        href={`/projects/${projectId}/tasks/${task.id}`}
                         className="text-sm font-medium text-foreground hover:text-accent"
                       >
                         {task.title}

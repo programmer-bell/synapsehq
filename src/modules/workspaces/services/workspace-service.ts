@@ -1,12 +1,15 @@
 import "server-only";
 
 import { db } from "@/src/shared/db";
+import { logServerError } from "@/src/shared/lib/log-server-error";
 
 import { workspaces, workspaceMembers } from "../db/schema";
 import { getUserByEmail } from "@/src/modules/auth";
+import { countProjectsForWorkspaces } from "@/src/modules/projects";
 import { createUniqueWorkspaceSlug } from "../lib/slug";
 import { hasWorkspacePermission } from "../lib/permissions";
 import {
+  countMembersByWorkspaceIds,
   createWorkspaceMembership,
   deleteWorkspaceMembership,
   deleteWorkspaceRecord,
@@ -97,7 +100,8 @@ export async function createWorkspace(
     });
 
     return { ok: true, data: toWorkspace(workspace) };
-  } catch {
+  } catch (error) {
+    logServerError("createWorkspace failed", error, { userId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -105,47 +109,91 @@ export async function createWorkspace(
 export async function listWorkspacesForUserWithSummary(
   userId: string,
 ): Promise<WorkspaceSummary[]> {
-  const rows = await listWorkspacesForUser(userId);
+  let rows: Awaited<ReturnType<typeof listWorkspacesForUser>>;
+  try {
+    rows = await listWorkspacesForUser(userId);
+  } catch (error) {
+    logServerError("listWorkspacesForUserWithSummary failed", error, {
+      userId,
+    });
+    throw error;
+  }
 
-  return Promise.all(
-    rows.map(async (row) => {
-      const [projects, members] = await Promise.all([
-        import("@/src/modules/projects/repositories/project-repository").then(
-          (module) => module.listProjectsByWorkspace(row.workspace.id),
-        ),
-        listWorkspaceMembers(row.workspace.id),
-      ]);
+  if (rows.length === 0) {
+    return [];
+  }
 
-      return {
-        ...toWorkspace(row.workspace),
-        role: row.role,
-        projectCount: projects.length,
-        memberCount: members.length,
-      };
-    }),
-  );
+  const workspaceIds = rows.map((r) => r.workspace.id);
+  const [projectCounts, memberCounts] = await Promise.all([
+    countProjectsForWorkspaces(workspaceIds),
+    getMemberCountsByWorkspaceIds(workspaceIds),
+  ]);
+
+  return rows.map((row) => ({
+    ...toWorkspace(row.workspace),
+    role: row.role,
+    projectCount: projectCounts[row.workspace.id] ?? 0,
+    memberCount: memberCounts[row.workspace.id] ?? 0,
+  }));
+}
+
+export async function getMemberCountsByWorkspaceIds(
+  workspaceIds: string[],
+): Promise<Record<string, number>> {
+  try {
+    return await countMembersByWorkspaceIds(workspaceIds);
+  } catch (error) {
+    logServerError("getMemberCountsByWorkspaceIds failed", error, {
+      workspaceCount: workspaceIds.length,
+    });
+    throw error;
+  }
+}
+
+export async function listWorkspacesForNavigation(
+  userId: string,
+): Promise<
+  Array<{ id: string; name: string; slug: string; role: WorkspaceRole }>
+> {
+  try {
+    const rows = await listWorkspacesForUser(userId);
+    return rows.map((row) => ({
+      id: row.workspace.id,
+      name: row.workspace.name,
+      slug: row.workspace.slug,
+      role: row.role,
+    }));
+  } catch (error) {
+    logServerError("listWorkspacesForNavigation failed", error, { userId });
+    throw error;
+  }
 }
 
 export async function getWorkspaceAccess(
   userId: string,
   workspaceId: string,
 ): Promise<WorkspaceAccess | null> {
-  const workspace = await findWorkspaceById(workspaceId);
+  try {
+    const workspace = await findWorkspaceById(workspaceId);
 
-  if (!workspace) {
-    return null;
+    if (!workspace) {
+      return null;
+    }
+
+    const membership = await findWorkspaceMembership(workspaceId, userId);
+
+    if (!membership) {
+      return null;
+    }
+
+    return {
+      workspace: toWorkspace(workspace),
+      membership: toMember(membership),
+    };
+  } catch (error) {
+    logServerError("getWorkspaceAccess failed", error, { userId, workspaceId });
+    throw error;
   }
-
-  const membership = await findWorkspaceMembership(workspaceId, userId);
-
-  if (!membership) {
-    return null;
-  }
-
-  return {
-    workspace: toWorkspace(workspace),
-    membership: toMember(membership),
-  };
 }
 
 export async function updateWorkspace(
@@ -175,7 +223,8 @@ export async function updateWorkspace(
     });
 
     return { ok: true, data: toWorkspace(updated) };
-  } catch {
+  } catch (error) {
+    logServerError("updateWorkspace failed", error, { userId, workspaceId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -197,7 +246,8 @@ export async function deleteWorkspace(
   try {
     await deleteWorkspaceRecord(workspaceId);
     return { ok: true, data: undefined };
-  } catch {
+  } catch (error) {
+    logServerError("deleteWorkspace failed", error, { userId, workspaceId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -223,22 +273,22 @@ export async function addWorkspaceMember(
     return { ok: false, code: "INVALID_INPUT" };
   }
 
-  const targetUser = await getUserByEmail(parsed.data.email);
-
-  if (!targetUser) {
-    return { ok: false, code: "USER_NOT_FOUND" };
-  }
-
-  const existingMembership = await findWorkspaceMembership(
-    workspaceId,
-    targetUser.id,
-  );
-
-  if (existingMembership) {
-    return { ok: false, code: "ALREADY_MEMBER" };
-  }
-
   try {
+    const targetUser = await getUserByEmail(parsed.data.email);
+
+    if (!targetUser) {
+      return { ok: false, code: "USER_NOT_FOUND" };
+    }
+
+    const existingMembership = await findWorkspaceMembership(
+      workspaceId,
+      targetUser.id,
+    );
+
+    if (existingMembership) {
+      return { ok: false, code: "ALREADY_MEMBER" };
+    }
+
     const membership = await createWorkspaceMembership({
       workspaceId,
       userId: targetUser.id,
@@ -252,7 +302,8 @@ export async function addWorkspaceMember(
       ok: true,
       data: toMember(created ?? { ...membership, user: targetUser }),
     };
-  } catch {
+  } catch (error) {
+    logServerError("addWorkspaceMember failed", error, { userId, workspaceId });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -272,23 +323,28 @@ export async function removeWorkspaceMember(
     return { ok: false, code: "FORBIDDEN" };
   }
 
-  const targetMembership = await findWorkspaceMembership(
-    workspaceId,
-    targetUserId,
-  );
-
-  if (!targetMembership) {
-    return { ok: false, code: "NOT_FOUND" };
-  }
-
-  if (targetMembership.userId === access.workspace.ownerId) {
-    return { ok: false, code: "FORBIDDEN" };
-  }
-
   try {
+    const targetMembership = await findWorkspaceMembership(
+      workspaceId,
+      targetUserId,
+    );
+
+    if (!targetMembership) {
+      return { ok: false, code: "NOT_FOUND" };
+    }
+
+    if (targetMembership.userId === access.workspace.ownerId) {
+      return { ok: false, code: "FORBIDDEN" };
+    }
+
     await deleteWorkspaceMembership(workspaceId, targetUserId);
     return { ok: true, data: undefined };
-  } catch {
+  } catch (error) {
+    logServerError("removeWorkspaceMember failed", error, {
+      userId,
+      workspaceId,
+      targetUserId,
+    });
     return { ok: false, code: "UNKNOWN" };
   }
 }
@@ -307,6 +363,14 @@ export async function listWorkspaceMembersForUser(
     return { ok: false, code: "FORBIDDEN" };
   }
 
-  const members = await listWorkspaceMembers(workspaceId);
-  return { ok: true, data: members.map(toMember) };
+  try {
+    const members = await listWorkspaceMembers(workspaceId);
+    return { ok: true, data: members.map(toMember) };
+  } catch (error) {
+    logServerError("listWorkspaceMembersForUser failed", error, {
+      userId,
+      workspaceId,
+    });
+    return { ok: false, code: "UNKNOWN" };
+  }
 }

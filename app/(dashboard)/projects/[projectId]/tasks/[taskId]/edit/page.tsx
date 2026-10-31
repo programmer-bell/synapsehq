@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { requireUser } from "@/src/modules/auth";
 import { getProjectAccess } from "@/src/modules/projects";
+import { getProjectMilestones } from "@/src/modules/projects";
 import {
   getTaskAccess,
   listAssignableUsers,
@@ -24,8 +25,13 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
     notFound();
   }
 
-  const assignableResult = await listAssignableUsers(user.id, projectId);
+  const [assignableResult, milestoneResult] = await Promise.all([
+    listAssignableUsers(user.id, projectId),
+    getProjectMilestones(user.id, projectId),
+  ]);
   const assignableUsers = assignableResult.ok ? assignableResult.data : [];
+  const milestones =
+    milestoneResult?.milestones.map(({ id, name }) => ({ id, name })) ?? [];
 
   return (
     <div className="space-y-6">
@@ -63,7 +69,9 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
           initialPriority={taskAccess.task.priority}
           initialAssigneeId={taskAccess.task.assigneeId}
           initialDueDate={taskAccess.task.dueDate?.toISOString() ?? null}
+          initialMilestoneId={taskAccess.task.milestoneId}
           assignableUsers={assignableUsers}
+          milestones={milestones}
         />
       </section>
     </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireUser } from "@/src/modules/auth";
-import { listWorkspacesForUserWithSummary } from "@/src/modules/workspaces/services/workspace-service";
+import { listWorkspacesForUserWithSummary } from "@/src/modules/workspaces";
 import { CreateWorkspaceForm } from "@/src/modules/workspaces/components/create-workspace-form";
 
 export default async function WorkspacesPage() {
