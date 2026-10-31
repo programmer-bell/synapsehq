@@ -29,14 +29,14 @@ export default async function ProjectDetailPage({
     access.createdBy === user.id;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-accent">Project</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+          <p className="text-xs font-medium text-muted-foreground">Project</p>
+          <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
             {access.project.name}
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {access.project.status} · Created in workspace
           </p>
           {workspaceAccess ? (
@@ -58,7 +58,7 @@ export default async function ProjectDetailPage({
           <form action={deleteProjectAction.bind(null, projectId)}>
             <button
               type="submit"
-              className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/40"
+              className="rounded-md border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/40"
             >
               Delete project
             </button>
@@ -66,8 +66,8 @@ export default async function ProjectDetailPage({
         ) : null}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-6">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+      <section className="rounded-md border border-border bg-surface p-4">
+        <h2 className="text-base font-semibold tracking-tight text-foreground">
           Details
         </h2>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
@@ -76,8 +76,8 @@ export default async function ProjectDetailPage({
       </section>
 
       {canManage ? (
-        <section className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+        <section className="rounded-md border border-border bg-surface p-4">
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
             Edit project
           </h2>
           <div className="mt-4 max-w-2xl">

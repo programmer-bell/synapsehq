@@ -36,7 +36,7 @@ export function TaskFilters({
     <form
       method="get"
       action={`/projects/${projectId}/tasks`}
-      className="rounded-2xl border border-border bg-surface p-4"
+      className="rounded-md border border-border bg-surface p-3"
     >
       <input type="hidden" name="view" value={view} />
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -44,12 +44,12 @@ export function TaskFilters({
           name="search"
           defaultValue={filters.search}
           placeholder="Search tasks"
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <select
           name="status"
           defaultValue={filters.status}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         >
           <option value="ALL">All statuses</option>
           <option value="TODO">To do</option>
@@ -60,7 +60,7 @@ export function TaskFilters({
         <select
           name="priority"
           defaultValue={filters.priority}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         >
           <option value="ALL">All priorities</option>
           <option value="LOW">Low</option>
@@ -71,7 +71,7 @@ export function TaskFilters({
         <select
           name="assigneeId"
           defaultValue={filters.assigneeId}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         >
           <option value="ALL">All assignees</option>
           <option value="UNASSIGNED">Unassigned</option>
@@ -85,18 +85,18 @@ export function TaskFilters({
           name="dueBefore"
           type="date"
           defaultValue={filters.dueBefore}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <input
           name="dueAfter"
           type="date"
           defaultValue={filters.dueAfter}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <select
           name="sortBy"
           defaultValue={filters.sortBy}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         >
           <option value="createdAt">Created</option>
           <option value="dueDate">Due date</option>
@@ -107,7 +107,7 @@ export function TaskFilters({
         <select
           name="sortDirection"
           defaultValue={filters.sortDirection}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         >
           <option value="desc">Descending</option>
           <option value="asc">Ascending</option>
@@ -116,13 +116,13 @@ export function TaskFilters({
       <div className="mt-3 flex gap-3">
         <button
           type="submit"
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition hover:opacity-90"
+          className="h-9 rounded-md bg-accent px-3.5 text-sm font-medium text-accent-foreground transition-colors duration-150 hover:bg-accent/90"
         >
           Apply filters
         </button>
         <Link
           href={`/projects/${projectId}/tasks?view=${view}`}
-          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-muted"
+          className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-muted"
         >
           Reset
         </Link>

@@ -1,5 +1,7 @@
 # SynapseHQ — Engineering Task & Velocity Workspace
 
+![SynapseHQ logo](./public/logo.png)
+
 **A modular project management workspace designed for software engineering teams.**
 
 SynapseHQ is a full-stack workspace application concept focused on helping engineering teams organize projects, manage tasks, track milestones, and monitor team progress through a structured, data-dense interface.

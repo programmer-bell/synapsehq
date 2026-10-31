@@ -36,26 +36,26 @@ export function TaskKanban({
         return (
           <section
             key={column.status}
-            className="rounded-2xl border border-border bg-surface p-4"
+            className="rounded-md border border-border bg-surface p-3"
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold tracking-tight text-foreground">
                 {column.label}
               </h2>
-              <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+              <span className="rounded border border-border px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground">
                 {columnTasks.length}
               </span>
             </div>
             <div className="mt-4 space-y-3">
               {columnTasks.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-border bg-background px-3 py-6 text-center text-xs text-muted-foreground">
+                <p className="rounded-md border border-dashed border-border bg-background px-3 py-6 text-center text-xs text-muted-foreground">
                   No tasks
                 </p>
               ) : (
                 columnTasks.map((task) => (
                   <article
                     key={task.id}
-                    className="rounded-xl border border-border bg-background p-4"
+                    className="rounded-md border border-border bg-background p-3.5 transition-colors duration-150 hover:border-accent/40"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <Link
@@ -64,7 +64,7 @@ export function TaskKanban({
                       >
                         {task.title}
                       </Link>
-                      <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+                      <span className="shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                         {task.priority}
                       </span>
                     </div>
@@ -93,7 +93,7 @@ export function TaskKanban({
                             />
                             <button
                               type="submit"
-                              className="rounded-md border border-border px-2 py-1 text-xs text-foreground transition hover:bg-surface-muted"
+                              className="rounded border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground transition-colors duration-150 hover:bg-surface-muted hover:text-foreground"
                             >
                               {target.label}
                             </button>

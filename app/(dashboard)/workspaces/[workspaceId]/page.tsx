@@ -44,14 +44,14 @@ export default async function WorkspaceDetailPage({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-accent">Workspace</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+          <p className="text-xs font-medium text-muted-foreground">Workspace</p>
+          <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
             {access.workspace.name}
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             /{access.workspace.slug} · {access.membership.role}
           </p>
         </div>
@@ -59,7 +59,7 @@ export default async function WorkspaceDetailPage({
           <form action={deleteWorkspaceAction.bind(null, workspaceId)}>
             <button
               type="submit"
-              className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/40"
+              className="rounded-md border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/40"
             >
               Delete workspace
             </button>
@@ -68,8 +68,8 @@ export default async function WorkspaceDetailPage({
       </div>
 
       {canManageWorkspace ? (
-        <section className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+        <section className="rounded-md border border-border bg-surface p-4">
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
             Workspace settings
           </h2>
           <div className="mt-4 max-w-xl">
@@ -81,9 +81,9 @@ export default async function WorkspaceDetailPage({
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-border bg-surface p-6">
+      <section className="rounded-md border border-border bg-surface p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
             Members
           </h2>
         </div>
@@ -96,7 +96,7 @@ export default async function WorkspaceDetailPage({
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-md border border-border bg-background px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="text-sm font-medium text-foreground">
@@ -112,7 +112,7 @@ export default async function WorkspaceDetailPage({
                   <input type="hidden" name="userId" value={member.userId} />
                   <button
                     type="submit"
-                    className="rounded-lg border border-border px-3 py-1.5 text-sm text-foreground transition hover:bg-surface-muted"
+                    className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground transition-colors duration-150 hover:bg-surface-muted"
                   >
                     Remove
                   </button>
@@ -123,9 +123,9 @@ export default async function WorkspaceDetailPage({
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section className="space-y-3">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
             Projects
           </h2>
           {hasProjectCreatePermission(access.membership.role) ? (
@@ -134,29 +134,31 @@ export default async function WorkspaceDetailPage({
         </div>
 
         {projects.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-surface p-8">
+          <div className="rounded-md border border-dashed border-border bg-surface px-5 py-8">
             <p className="text-sm font-medium text-foreground">
               No projects yet
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               Create a project to start tracking work in this workspace.
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {projects.map((project) => (
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="rounded-2xl border border-border bg-surface p-6 transition hover:border-accent/40 hover:shadow-sm"
+                className="rounded-md border border-border bg-surface p-4 transition-colors duration-150 hover:border-accent/50 hover:bg-surface-muted/50"
               >
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {project.status}
-                </p>
-                <h3 className="mt-3 text-lg font-semibold tracking-tight text-foreground">
-                  {project.name}
-                </h3>
-                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="truncate text-sm font-semibold tracking-tight text-foreground">
+                    {project.name}
+                  </h3>
+                  <span className="shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    {project.status}
+                  </span>
+                </div>
+                <p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">
                   {project.description || "No description provided."}
                 </p>
               </Link>

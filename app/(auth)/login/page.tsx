@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { AuthCard } from "@/src/modules/auth/components/auth-card";
 import { LoginForm } from "@/src/modules/auth/components/login-form";
@@ -15,7 +16,20 @@ type LoginPageProps = {
   }>;
 };
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  return (
+    <AuthCard
+      title="Welcome back"
+      description="Sign in to continue to your engineering workspace."
+    >
+      <Suspense fallback={<LoginForm />}>
+        <LoginContent searchParams={searchParams} />
+      </Suspense>
+    </AuthCard>
+  );
+}
+
+async function LoginContent({ searchParams }: LoginPageProps) {
   const user = await getCurrentUser();
 
   if (user) {
@@ -25,10 +39,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
 
   return (
-    <AuthCard
-      title="Welcome back"
-      description="Sign in to continue to your engineering workspace."
-    >
+    <>
       {params.registered === "1" ? (
         <p
           role="status"
@@ -38,6 +49,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
       ) : null}
       <LoginForm />
-    </AuthCard>
+    </>
   );
 }

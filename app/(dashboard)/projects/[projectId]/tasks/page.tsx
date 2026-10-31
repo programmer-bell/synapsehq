@@ -63,23 +63,25 @@ export default async function ProjectTasksPage({
   const assignableUsers = assignableResult.ok ? assignableResult.data : [];
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-accent">Tasks</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-            Task board
+          <p className="text-xs font-medium text-muted-foreground">
+            {access.project.name}
+          </p>
+          <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
+            Tasks
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Manage work for this project across Kanban and table views.
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Keep the team aligned and work moving forward.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href={`/projects/${projectId}`}
-            className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-surface-muted"
+            className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-muted"
           >
-            Project details
+            Project settings
           </Link>
           <CreateTaskDialog
             projectId={projectId}
@@ -95,25 +97,30 @@ export default async function ProjectTasksPage({
         assignableUsers={assignableUsers}
       />
 
-      <div className="flex gap-2">
-        <Link
-          href={`/projects/${projectId}/tasks?${new URLSearchParams({ ...Object.fromEntries(Object.entries(filters).map(([key, value]) => [key, String(value)])), view: "kanban" }).toString()}`}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${view === "kanban" ? "bg-accent text-accent-foreground" : "border border-border text-foreground hover:bg-surface-muted"}`}
-        >
-          Kanban
-        </Link>
-        <Link
-          href={`/projects/${projectId}/tasks?${new URLSearchParams({ ...Object.fromEntries(Object.entries(filters).map(([key, value]) => [key, String(value)])), view: "table" }).toString()}`}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${view === "table" ? "bg-accent text-accent-foreground" : "border border-border text-foreground hover:bg-surface-muted"}`}
-        >
-          Table
-        </Link>
+      <div className="flex items-center justify-between border-b border-border">
+        <div className="flex items-center gap-5">
+          <Link
+            href={`/projects/${projectId}/tasks?${new URLSearchParams({ ...Object.fromEntries(Object.entries(filters).map(([key, value]) => [key, String(value)])), view: "kanban" }).toString()}`}
+            className={`border-b-2 px-1 py-2.5 text-sm font-medium transition-colors duration-150 ${view === "kanban" ? "border-accent text-accent" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            Kanban
+          </Link>
+          <Link
+            href={`/projects/${projectId}/tasks?${new URLSearchParams({ ...Object.fromEntries(Object.entries(filters).map(([key, value]) => [key, String(value)])), view: "table" }).toString()}`}
+            className={`border-b-2 px-1 py-2.5 text-sm font-medium transition-colors duration-150 ${view === "table" ? "border-accent text-accent" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            Table
+          </Link>
+        </div>
+        <span className="pb-2.5 text-xs text-muted-foreground">
+          {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+        </span>
       </div>
 
       {tasks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-surface p-8">
+        <div className="rounded-md border border-dashed border-border bg-surface px-5 py-10 text-center">
           <p className="text-sm font-medium text-foreground">No tasks yet</p>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Create a task to start tracking work in this project.
           </p>
         </div>

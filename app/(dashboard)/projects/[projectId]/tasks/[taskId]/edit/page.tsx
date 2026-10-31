@@ -28,16 +28,16 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   const assignableUsers = assignableResult.ok ? assignableResult.data : [];
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-accent">Task</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+          <p className="text-xs font-medium text-muted-foreground">Task</p>
+          <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
             Edit task
           </h1>
           <Link
             href={`/projects/${projectId}/tasks`}
-            className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
+            className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
           >
             Back to tasks
           </Link>
@@ -46,14 +46,14 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
           <input type="hidden" name="projectId" value={projectId} />
           <button
             type="submit"
-            className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/40"
+            className="rounded-md border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/40"
           >
             Delete task
           </button>
         </form>
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-6">
+      <section className="rounded-md border border-border bg-surface p-4">
         <UpdateTaskForm
           taskId={taskId}
           projectId={projectId}
