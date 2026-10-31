@@ -29,21 +29,27 @@ export function UpdateTaskForm({
   assignableUsers,
 }: UpdateTaskFormProps) {
   const action = updateTaskAction.bind(null, taskId);
-  const [state, formAction, isPending] = useActionState<TaskFormState, FormData>(
-    action,
-    { status: "idle" },
-  );
+  const [state, formAction, isPending] = useActionState<
+    TaskFormState,
+    FormData
+  >(action, { status: "idle" });
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="projectId" value={projectId} />
       {state.message ? (
-        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+        <p
+          role="status"
+          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+        >
           {state.message}
         </p>
       ) : null}
       <div className="space-y-2">
-        <label htmlFor="task-update-title" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="task-update-title"
+          className="block text-sm font-medium text-foreground"
+        >
           Title
         </label>
         <input
@@ -56,11 +62,16 @@ export function UpdateTaskForm({
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         {state.fieldErrors?.title?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{state.fieldErrors.title[0]}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {state.fieldErrors.title[0]}
+          </p>
         ) : null}
       </div>
       <div className="space-y-2">
-        <label htmlFor="task-update-description" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="task-update-description"
+          className="block text-sm font-medium text-foreground"
+        >
           Description
         </label>
         <textarea
@@ -74,7 +85,10 @@ export function UpdateTaskForm({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="task-update-status" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-update-status"
+            className="block text-sm font-medium text-foreground"
+          >
             Status
           </label>
           <select
@@ -90,7 +104,10 @@ export function UpdateTaskForm({
           </select>
         </div>
         <div className="space-y-2">
-          <label htmlFor="task-update-priority" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-update-priority"
+            className="block text-sm font-medium text-foreground"
+          >
             Priority
           </label>
           <select
@@ -108,7 +125,10 @@ export function UpdateTaskForm({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="task-update-assignee" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-update-assignee"
+            className="block text-sm font-medium text-foreground"
+          >
             Assignee
           </label>
           <select
@@ -126,7 +146,10 @@ export function UpdateTaskForm({
           </select>
         </div>
         <div className="space-y-2">
-          <label htmlFor="task-update-due-date" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-update-due-date"
+            className="block text-sm font-medium text-foreground"
+          >
             Due date
           </label>
           <input

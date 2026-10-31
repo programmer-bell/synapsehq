@@ -3,10 +3,7 @@ import "server-only";
 import { isUniqueViolation } from "../lib/db-errors";
 import { hashPassword } from "../lib/password";
 import { toAuthUser } from "../lib/user";
-import {
-  createUser,
-  findUserByEmail,
-} from "../repositories/user-repository";
+import { createUser, findUserByEmail } from "../repositories/user-repository";
 import type { SignupInput } from "../schemas/auth";
 import type { RegistrationResult } from "../types";
 

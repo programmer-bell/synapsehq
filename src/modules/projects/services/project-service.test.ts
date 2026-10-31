@@ -18,7 +18,10 @@ vi.mock("../repositories/project-repository", () => ({
 }));
 
 import { findProjectById } from "../repositories/project-repository";
-import { getWorkspaceAccess, hasWorkspacePermission } from "@/src/modules/workspaces";
+import {
+  getWorkspaceAccess,
+  hasWorkspacePermission,
+} from "@/src/modules/workspaces";
 
 describe("project service", () => {
   beforeEach(() => {
@@ -77,7 +80,9 @@ describe("project service", () => {
     });
     vi.mocked(hasWorkspacePermission).mockReturnValue(true);
 
-    await expect(getProjectAccess("user-1", "project-1")).resolves.toMatchObject({
+    await expect(
+      getProjectAccess("user-1", "project-1"),
+    ).resolves.toMatchObject({
       project: { id: "project-1" },
       role: "MEMBER",
     });

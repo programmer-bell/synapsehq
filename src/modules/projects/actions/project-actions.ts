@@ -14,9 +14,14 @@ import { createProjectSchema, updateProjectSchema } from "../schemas/project";
 import type { ProjectFormState } from "../types";
 
 function toFieldErrors(error: z.ZodError) {
-  const fieldErrors = z.flattenError(error).fieldErrors as Record<string, string[] | undefined>;
+  const fieldErrors = z.flattenError(error).fieldErrors as Record<
+    string,
+    string[] | undefined
+  >;
   return Object.fromEntries(
-    Object.entries(fieldErrors).filter(([, messages]) => messages && messages.length > 0),
+    Object.entries(fieldErrors).filter(
+      ([, messages]) => messages && messages.length > 0,
+    ),
   );
 }
 

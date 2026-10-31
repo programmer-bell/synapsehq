@@ -4,11 +4,7 @@ export type AuthUser = {
   email: string;
 };
 
-export type AuthField =
-  | "name"
-  | "email"
-  | "password"
-  | "confirmPassword";
+export type AuthField = "name" | "email" | "password" | "confirmPassword";
 
 export type AuthFieldErrors = Partial<Record<AuthField, string[]>>;
 
@@ -19,8 +15,7 @@ export type AuthFormState = {
 };
 
 export type RegistrationResult =
-  | { ok: true; user: AuthUser }
-  | { ok: false; code: "EMAIL_TAKEN" | "UNKNOWN" };
+  { ok: true; user: AuthUser } | { ok: false; code: "EMAIL_TAKEN" | "UNKNOWN" };
 
 export type LoginResult =
   | {

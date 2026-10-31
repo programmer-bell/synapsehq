@@ -27,11 +27,7 @@ export type WorkspaceAccess = {
   membership: WorkspaceMember;
 };
 
-export type WorkspaceField =
-  | "name"
-  | "slug"
-  | "email"
-  | "role";
+export type WorkspaceField = "name" | "slug" | "email" | "role";
 
 export type WorkspaceFormState = {
   status: "idle" | "error" | "success";

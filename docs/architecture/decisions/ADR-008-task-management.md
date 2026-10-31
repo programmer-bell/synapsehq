@@ -15,18 +15,21 @@ views. Task access must follow project and workspace authorization.
 Tasks belong to projects and are managed through the tasks module.
 
 Task statuses:
+
 - `TODO`
 - `IN_PROGRESS`
 - `IN_REVIEW`
 - `DONE`
 
 Task priorities:
+
 - `LOW`
 - `MEDIUM`
 - `HIGH`
 - `URGENT`
 
 Task fields:
+
 - `id`
 - `projectId`
 - `title`
@@ -40,6 +43,7 @@ Task fields:
 - `updatedAt`
 
 Authorization:
+
 - Reading tasks requires project read access.
 - Creating tasks requires project read access.
 - Updating, assigning, transitioning, or deleting a task requires project
@@ -48,6 +52,7 @@ Authorization:
 - Cross-project task access is rejected before task data is returned.
 
 Filtering and sorting:
+
 - Filters and sort parameters are validated server-side.
 - Search matches title and description.
 - Pagination uses bounded limits.

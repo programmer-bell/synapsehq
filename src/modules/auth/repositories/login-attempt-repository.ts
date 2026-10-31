@@ -4,10 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/src/shared/db";
 
-import {
-  authLoginAttempts,
-  type AuthLoginAttemptRecord,
-} from "../db/schema";
+import { authLoginAttempts, type AuthLoginAttemptRecord } from "../db/schema";
 
 export function findLoginAttempt(
   key: string,
@@ -42,7 +39,5 @@ export async function saveLoginAttempt(input: {
 }
 
 export async function deleteLoginAttempt(key: string): Promise<void> {
-  await db
-    .delete(authLoginAttempts)
-    .where(eq(authLoginAttempts.key, key));
+  await db.delete(authLoginAttempts).where(eq(authLoginAttempts.key, key));
 }

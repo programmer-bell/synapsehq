@@ -31,7 +31,7 @@ export const createProjectSchema = z.object({
         `Description must be ${PROJECT_DESCRIPTION_MAX_LENGTH} characters or fewer.`,
       )
       .optional()
-      .transform((value) => (value === "" ? null : value ?? null)),
+      .transform((value) => (value === "" ? null : (value ?? null))),
   ),
   status: projectStatusSchema.default("ACTIVE"),
 });
@@ -58,7 +58,7 @@ export const updateProjectSchema = z.object({
         `Description must be ${PROJECT_DESCRIPTION_MAX_LENGTH} characters or fewer.`,
       )
       .optional()
-      .transform((value) => (value === "" ? null : value ?? null)),
+      .transform((value) => (value === "" ? null : (value ?? null))),
   ),
   status: projectStatusSchema,
 });

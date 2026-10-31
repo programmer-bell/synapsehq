@@ -9,17 +9,25 @@ type AddWorkspaceMemberFormProps = {
   workspaceId: string;
 };
 
-export function AddWorkspaceMemberForm({ workspaceId }: AddWorkspaceMemberFormProps) {
+export function AddWorkspaceMemberForm({
+  workspaceId,
+}: AddWorkspaceMemberFormProps) {
   const action = addWorkspaceMemberAction.bind(null, workspaceId);
-  const [state, formAction, isPending] = useActionState<WorkspaceMemberActionState, FormData>(
-    action,
-    { status: "idle" },
-  );
+  const [state, formAction, isPending] = useActionState<
+    WorkspaceMemberActionState,
+    FormData
+  >(action, { status: "idle" });
 
   return (
-    <form action={formAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <form
+      action={formAction}
+      className="flex flex-col gap-3 sm:flex-row sm:items-end"
+    >
       <div className="flex-1 space-y-2">
-        <label htmlFor="member-email" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="member-email"
+          className="block text-sm font-medium text-foreground"
+        >
           Member email
         </label>
         <input
@@ -32,7 +40,10 @@ export function AddWorkspaceMemberForm({ workspaceId }: AddWorkspaceMemberFormPr
         />
       </div>
       <div className="space-y-2">
-        <label htmlFor="member-role" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="member-role"
+          className="block text-sm font-medium text-foreground"
+        >
           Role
         </label>
         <select
@@ -53,7 +64,10 @@ export function AddWorkspaceMemberForm({ workspaceId }: AddWorkspaceMemberFormPr
         {isPending ? "Adding..." : "Add member"}
       </button>
       {state.message ? (
-        <p role="status" className="sm:basis-full text-sm text-muted-foreground">
+        <p
+          role="status"
+          className="sm:basis-full text-sm text-muted-foreground"
+        >
           {state.message}
         </p>
       ) : null}

@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 
 import { requireUser } from "@/src/modules/auth";
 import { getProjectAccess } from "@/src/modules/projects";
-import { getTaskAccess, listAssignableUsers } from "@/src/modules/tasks/services/task-service";
+import {
+  getTaskAccess,
+  listAssignableUsers,
+} from "@/src/modules/tasks/services/task-service";
 import { UpdateTaskForm } from "@/src/modules/tasks/components/update-task-form";
 import { deleteTaskAction } from "@/src/modules/tasks/actions/task-actions";
 

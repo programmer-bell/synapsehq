@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { hashPassword } from "../lib/password";
-import {
-  createUser,
-  findUserByEmail,
-} from "../repositories/user-repository";
+import { createUser, findUserByEmail } from "../repositories/user-repository";
 import { registerUser } from "./registration-service";
 
 vi.mock("../lib/password", () => ({

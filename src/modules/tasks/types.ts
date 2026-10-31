@@ -17,12 +17,7 @@ export type Task = {
 };
 
 export type TaskField =
-  | "title"
-  | "description"
-  | "status"
-  | "priority"
-  | "assigneeId"
-  | "dueDate";
+  "title" | "description" | "status" | "priority" | "assigneeId" | "dueDate";
 
 export type TaskFormState = {
   status: "idle" | "error" | "success";
@@ -31,11 +26,7 @@ export type TaskFormState = {
 };
 
 export type TaskSortBy =
-  | "createdAt"
-  | "dueDate"
-  | "priority"
-  | "title"
-  | "status";
+  "createdAt" | "dueDate" | "priority" | "title" | "status";
 
 export type TaskSortDirection = "asc" | "desc";
 

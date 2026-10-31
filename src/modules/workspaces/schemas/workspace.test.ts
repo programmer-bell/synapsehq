@@ -4,7 +4,9 @@ import { addWorkspaceMemberSchema, createWorkspaceSchema } from "./workspace";
 
 describe("workspace schemas", () => {
   it("accepts a valid workspace name", () => {
-    expect(createWorkspaceSchema.safeParse({ name: "Engineering" }).success).toBe(true);
+    expect(
+      createWorkspaceSchema.safeParse({ name: "Engineering" }).success,
+    ).toBe(true);
   });
 
   it("rejects short workspace names", () => {
@@ -25,7 +27,10 @@ describe("workspace schemas", () => {
 
   it("rejects invalid member roles", () => {
     expect(
-      addWorkspaceMemberSchema.safeParse({ email: "member@example.com", role: "OWNER" }).success,
+      addWorkspaceMemberSchema.safeParse({
+        email: "member@example.com",
+        role: "OWNER",
+      }).success,
     ).toBe(false);
   });
 });

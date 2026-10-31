@@ -16,22 +16,31 @@ type CreateTaskFormProps = {
   assignableUsers: AssignableUser[];
 };
 
-export function CreateTaskForm({ projectId, assignableUsers }: CreateTaskFormProps) {
-  const [state, formAction, isPending] = useActionState<TaskFormState, FormData>(
-    createTaskAction,
-    { status: "idle" },
-  );
+export function CreateTaskForm({
+  projectId,
+  assignableUsers,
+}: CreateTaskFormProps) {
+  const [state, formAction, isPending] = useActionState<
+    TaskFormState,
+    FormData
+  >(createTaskAction, { status: "idle" });
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="projectId" value={projectId} />
       {state.message ? (
-        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+        <p
+          role="status"
+          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+        >
           {state.message}
         </p>
       ) : null}
       <div className="space-y-2">
-        <label htmlFor="task-title" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="task-title"
+          className="block text-sm font-medium text-foreground"
+        >
           Title
         </label>
         <input
@@ -43,11 +52,16 @@ export function CreateTaskForm({ projectId, assignableUsers }: CreateTaskFormPro
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         {state.fieldErrors?.title?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{state.fieldErrors.title[0]}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {state.fieldErrors.title[0]}
+          </p>
         ) : null}
       </div>
       <div className="space-y-2">
-        <label htmlFor="task-description" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="task-description"
+          className="block text-sm font-medium text-foreground"
+        >
           Description
         </label>
         <textarea
@@ -60,7 +74,10 @@ export function CreateTaskForm({ projectId, assignableUsers }: CreateTaskFormPro
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="task-status" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-status"
+            className="block text-sm font-medium text-foreground"
+          >
             Status
           </label>
           <select
@@ -76,7 +93,10 @@ export function CreateTaskForm({ projectId, assignableUsers }: CreateTaskFormPro
           </select>
         </div>
         <div className="space-y-2">
-          <label htmlFor="task-priority" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-priority"
+            className="block text-sm font-medium text-foreground"
+          >
             Priority
           </label>
           <select
@@ -94,7 +114,10 @@ export function CreateTaskForm({ projectId, assignableUsers }: CreateTaskFormPro
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="task-assignee" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-assignee"
+            className="block text-sm font-medium text-foreground"
+          >
             Assignee
           </label>
           <select
@@ -112,7 +135,10 @@ export function CreateTaskForm({ projectId, assignableUsers }: CreateTaskFormPro
           </select>
         </div>
         <div className="space-y-2">
-          <label htmlFor="task-due-date" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="task-due-date"
+            className="block text-sm font-medium text-foreground"
+          >
             Due date
           </label>
           <input

@@ -11,7 +11,9 @@ export default async function DashboardPage() {
   const projectGroups = await Promise.all(
     workspaces.map(async (workspace) => {
       const result = await listProjectsForWorkspace(user.id, workspace.id);
-      return result.ok ? result.data.map((project) => ({ ...project, workspace })) : [];
+      return result.ok
+        ? result.data.map((project) => ({ ...project, workspace }))
+        : [];
     }),
   );
   const projects = projectGroups.flat();
@@ -54,13 +56,18 @@ export default async function DashboardPage() {
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
             Workspaces
           </h2>
-          <Link href="/workspaces" className="text-sm font-medium text-accent hover:underline">
+          <Link
+            href="/workspaces"
+            className="text-sm font-medium text-accent hover:underline"
+          >
             View all
           </Link>
         </div>
         {workspaces.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface p-8">
-            <p className="text-sm font-medium text-foreground">No workspaces yet</p>
+            <p className="text-sm font-medium text-foreground">
+              No workspaces yet
+            </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Create a workspace to start organizing projects.
             </p>
@@ -86,7 +93,8 @@ export default async function DashboardPage() {
                   {workspace.name}
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {workspace.projectCount} projects · {workspace.memberCount} members
+                  {workspace.projectCount} projects · {workspace.memberCount}{" "}
+                  members
                 </p>
               </Link>
             ))}
@@ -100,7 +108,9 @@ export default async function DashboardPage() {
         </h2>
         {projects.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface p-8">
-            <p className="text-sm font-medium text-foreground">No projects yet</p>
+            <p className="text-sm font-medium text-foreground">
+              No projects yet
+            </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Create a project from a workspace to start tracking work.
             </p>

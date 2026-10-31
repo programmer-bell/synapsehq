@@ -19,10 +19,7 @@ export const envSchema = z.object({
     .number()
     .int("AUTH_SESSION_TTL_SECONDS must be an integer")
     .min(300, "AUTH_SESSION_TTL_SECONDS must be at least 300 seconds")
-    .max(
-      2_592_000,
-      "AUTH_SESSION_TTL_SECONDS must be no more than 30 days",
-    )
+    .max(2_592_000, "AUTH_SESSION_TTL_SECONDS must be no more than 30 days")
     .default(604_800),
 });
 

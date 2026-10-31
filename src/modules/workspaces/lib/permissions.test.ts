@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { canDeleteProject, canManageProject, hasWorkspacePermission } from "./permissions";
+import {
+  canDeleteProject,
+  canManageProject,
+  hasWorkspacePermission,
+} from "./permissions";
 
 describe("workspace permissions", () => {
   it("grants owners all permissions", () => {
@@ -19,8 +23,12 @@ describe("workspace permissions", () => {
   });
 
   it("allows project creators to manage their own projects", () => {
-    expect(canManageProject("MEMBER", "project-owner", "project-owner")).toBe(true);
-    expect(canManageProject("MEMBER", "other-user", "project-owner")).toBe(false);
+    expect(canManageProject("MEMBER", "project-owner", "project-owner")).toBe(
+      true,
+    );
+    expect(canManageProject("MEMBER", "other-user", "project-owner")).toBe(
+      false,
+    );
   });
 
   it("allows deletion by admins or creators", () => {

@@ -28,7 +28,11 @@ type TaskTableProps = {
   };
 };
 
-function sortLink(projectId: string, filters: TaskTableProps["filters"], sortBy: string) {
+function sortLink(
+  projectId: string,
+  filters: TaskTableProps["filters"],
+  sortBy: string,
+) {
   const params = new URLSearchParams({
     view: "table",
     search: filters.search,
@@ -41,7 +45,9 @@ function sortLink(projectId: string, filters: TaskTableProps["filters"], sortBy:
     page: String(filters.page),
     sortBy,
     sortDirection:
-      filters.sortBy === sortBy && filters.sortDirection === "asc" ? "desc" : "asc",
+      filters.sortBy === sortBy && filters.sortDirection === "asc"
+        ? "desc"
+        : "asc",
   });
 
   return `/projects/${projectId}/tasks?${params.toString()}`;
@@ -60,16 +66,22 @@ export function TaskTable({ tasks, projectId, filters }: TaskTableProps) {
               <Link href={sortLink(projectId, filters, "status")}>Status</Link>
             </th>
             <th className="px-4 py-3 text-left font-medium text-foreground">
-              <Link href={sortLink(projectId, filters, "priority")}>Priority</Link>
+              <Link href={sortLink(projectId, filters, "priority")}>
+                Priority
+              </Link>
             </th>
             <th className="px-4 py-3 text-left font-medium text-foreground">
               Assignee
             </th>
             <th className="px-4 py-3 text-left font-medium text-foreground">
-              <Link href={sortLink(projectId, filters, "dueDate")}>Due date</Link>
+              <Link href={sortLink(projectId, filters, "dueDate")}>
+                Due date
+              </Link>
             </th>
             <th className="px-4 py-3 text-left font-medium text-foreground">
-              <Link href={sortLink(projectId, filters, "createdAt")}>Created</Link>
+              <Link href={sortLink(projectId, filters, "createdAt")}>
+                Created
+              </Link>
             </th>
             <th className="px-4 py-3 text-right font-medium text-foreground">
               Actions
@@ -93,7 +105,9 @@ export function TaskTable({ tasks, projectId, filters }: TaskTableProps) {
                 ) : null}
               </td>
               <td className="px-4 py-3 text-muted-foreground">{task.status}</td>
-              <td className="px-4 py-3 text-muted-foreground">{task.priority}</td>
+              <td className="px-4 py-3 text-muted-foreground">
+                {task.priority}
+              </td>
               <td className="px-4 py-3 text-muted-foreground">
                 {task.assigneeId ?? "Unassigned"}
               </td>

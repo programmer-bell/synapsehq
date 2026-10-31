@@ -3,7 +3,10 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { closeDb, db } from "@/src/shared/db";
 
 import { authLoginAttempts, users } from "@/src/modules/auth/db/schema";
-import { workspaceMembers, workspaces } from "@/src/modules/workspaces/db/schema";
+import {
+  workspaceMembers,
+  workspaces,
+} from "@/src/modules/workspaces/db/schema";
 import { projects } from "@/src/modules/projects/db/schema";
 import { tasks } from "@/src/modules/tasks/db/schema";
 import { registerUser } from "@/src/modules/auth/services/registration-service";
@@ -18,7 +21,9 @@ import {
   updateTaskStatus,
 } from "./task-service";
 
-const describeIntegration = process.env.TEST_DATABASE_URL ? describe : describe.skip;
+const describeIntegration = process.env.TEST_DATABASE_URL
+  ? describe
+  : describe.skip;
 
 const ownerInput = {
   name: "Task Owner",
@@ -59,7 +64,9 @@ describeIntegration("task database integration", () => {
     const owner = await registerUser(ownerInput);
     if (!owner.ok) throw new Error("owner registration failed");
 
-    const workspace = await createWorkspace(owner.user.id, { name: "Engineering" });
+    const workspace = await createWorkspace(owner.user.id, {
+      name: "Engineering",
+    });
     if (!workspace.ok) throw new Error("workspace creation failed");
 
     const project = await createProject(owner.user.id, {
@@ -89,7 +96,11 @@ describeIntegration("task database integration", () => {
     expect(created.ok).toBe(true);
     if (!created.ok) return;
 
-    const listed = await listTasksForProject(owner.user.id, project.data.id, {});
+    const listed = await listTasksForProject(
+      owner.user.id,
+      project.data.id,
+      {},
+    );
     expect(listed.ok).toBe(true);
     if (listed.ok) {
       expect(listed.data).toHaveLength(1);
@@ -98,7 +109,11 @@ describeIntegration("task database integration", () => {
     const access = await getTaskAccess(owner.user.id, created.data.id);
     expect(access?.task.title).toBe("Implement auth");
 
-    const status = await updateTaskStatus(owner.user.id, created.data.id, "IN_PROGRESS");
+    const status = await updateTaskStatus(
+      owner.user.id,
+      created.data.id,
+      "IN_PROGRESS",
+    );
     expect(status.ok).toBe(true);
     if (status.ok) {
       expect(status.data.status).toBe("IN_PROGRESS");
@@ -124,11 +139,12 @@ describeIntegration("task database integration", () => {
     const member = await registerUser(memberInput);
     if (!member.ok) throw new Error("member registration failed");
 
-    await (await import("@/src/modules/workspaces/services/workspace-service")).addWorkspaceMember(
-      owner.user.id,
-      project.data.workspaceId,
-      { email: member.user.email, role: "MEMBER" },
-    );
+    await (
+      await import("@/src/modules/workspaces/services/workspace-service")
+    ).addWorkspaceMember(owner.user.id, project.data.workspaceId, {
+      email: member.user.email,
+      role: "MEMBER",
+    });
 
     const assigned = await createTask(owner.user.id, {
       projectId: project.data.id,

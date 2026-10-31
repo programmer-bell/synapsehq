@@ -1,10 +1,22 @@
 import "server-only";
 
 import { getProjectAccess } from "@/src/modules/projects";
-import { getWorkspaceAccess, listWorkspaceMembers } from "@/src/modules/workspaces";
+import {
+  getWorkspaceAccess,
+  listWorkspaceMembers,
+} from "@/src/modules/workspaces";
 
-import { canCreateTasks, canDeleteTask, canReadTasks, canUpdateTask } from "../lib/permissions";
-import { createTaskSchema, updateTaskSchema, updateTaskStatusSchema } from "../schemas/task";
+import {
+  canCreateTasks,
+  canDeleteTask,
+  canReadTasks,
+  canUpdateTask,
+} from "../lib/permissions";
+import {
+  createTaskSchema,
+  updateTaskSchema,
+  updateTaskStatusSchema,
+} from "../schemas/task";
 import {
   createTaskRecord,
   deleteTaskRecord,
@@ -15,9 +27,7 @@ import {
 } from "../repositories/task-repository";
 import type { Task, TaskFilters } from "../types";
 
-type ServiceResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; code: string };
+type ServiceResult<T> = { ok: true; data: T } | { ok: false; code: string };
 
 function toTask(record: {
   id: string;
@@ -128,17 +138,14 @@ export async function listTasksForProject(
 export async function getTaskAccess(
   userId: string,
   taskId: string,
-): Promise<
-  | {
-      task: Task;
-      projectId: string;
-      workspaceId: string;
-      role: "OWNER" | "ADMIN" | "MEMBER";
-      createdBy: string;
-      assigneeId: string | null;
-    }
-  | null
-> {
+): Promise<{
+  task: Task;
+  projectId: string;
+  workspaceId: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+  createdBy: string;
+  assigneeId: string | null;
+} | null> {
   const record = await findTaskById(taskId);
 
   if (!record) {
@@ -176,7 +183,9 @@ export async function updateTask(
     return { ok: false, code: "NOT_FOUND" };
   }
 
-  if (!canUpdateTask(access.role, access.createdBy, access.assigneeId, userId)) {
+  if (
+    !canUpdateTask(access.role, access.createdBy, access.assigneeId, userId)
+  ) {
     return { ok: false, code: "FORBIDDEN" };
   }
 
@@ -222,7 +231,9 @@ export async function updateTaskStatus(
     return { ok: false, code: "NOT_FOUND" };
   }
 
-  if (!canUpdateTask(access.role, access.createdBy, access.assigneeId, userId)) {
+  if (
+    !canUpdateTask(access.role, access.createdBy, access.assigneeId, userId)
+  ) {
     return { ok: false, code: "FORBIDDEN" };
   }
 

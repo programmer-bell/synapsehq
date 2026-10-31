@@ -16,12 +16,18 @@ export function CreateWorkspaceForm() {
   return (
     <form action={formAction} className="space-y-4">
       {state.message ? (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300"
+        >
           {state.message}
         </p>
       ) : null}
       <div className="space-y-2">
-        <label htmlFor="workspace-name" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="workspace-name"
+          className="block text-sm font-medium text-foreground"
+        >
           Workspace name
         </label>
         <input
@@ -34,7 +40,9 @@ export function CreateWorkspaceForm() {
           placeholder="Engineering Platform"
         />
         {state.fieldErrors?.name?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{state.fieldErrors.name[0]}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {state.fieldErrors.name[0]}
+          </p>
         ) : null}
       </div>
       <button

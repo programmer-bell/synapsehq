@@ -44,7 +44,7 @@ Do not prioritize generating code quickly over understanding the existing implem
 
 # 2. Repository Awareness — Critical
 
-The repository has completed the **Phase 1 foundation** and implemented **Phase 2 authentication**, **Phase 3 workspaces and projects**, and **Phase 4 task management**, but it does not yet contain the complete product described in `README.md`.
+The repository has completed the **Phase 1 foundation**, implemented **Phases 2–4**, and is performing **Phase 5** testing, audit, and release-preparation work. Production deployment remains pending.
 
 The following functionality is implemented:
 
@@ -569,10 +569,10 @@ Ask questions only when a missing decision materially affects architecture, secu
 
 Use the following documents for their respective responsibilities:
 
-| Document | Responsibility |
-|---|---|
-| `.agents/AGENTS.md` | Agent behavior and engineering rules |
-| `.agents/roadmap.md` | Development phases and progress |
+| Document                  | Responsibility                              |
+| ------------------------- | ------------------------------------------- |
+| `.agents/AGENTS.md`       | Agent behavior and engineering rules        |
+| `.agents/roadmap.md`      | Development phases and progress             |
 | `.agents/ARCHITECTURE.md` | System architecture and technical decisions |
 
 If implementation and documentation disagree:

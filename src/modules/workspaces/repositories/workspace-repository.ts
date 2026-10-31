@@ -12,9 +12,7 @@ import {
   type WorkspaceRecord,
 } from "../db/schema";
 
-export function findWorkspaceById(
-  id: string,
-): Promise<WorkspaceRecord | null> {
+export function findWorkspaceById(id: string): Promise<WorkspaceRecord | null> {
   return db
     .select()
     .from(workspaces)
@@ -102,10 +100,12 @@ export async function deleteWorkspaceMembership(
     );
 }
 
-export async function listWorkspaceMembers(
-  workspaceId: string,
-): Promise<
-  Array<WorkspaceMemberRecord & { user: { id: string; name: string; email: string } }>
+export async function listWorkspaceMembers(workspaceId: string): Promise<
+  Array<
+    WorkspaceMemberRecord & {
+      user: { id: string; name: string; email: string };
+    }
+  >
 > {
   const rows = await db
     .select({
@@ -126,7 +126,9 @@ export async function listWorkspaceMembers(
   }));
 }
 
-export async function listWorkspacesForUser(userId: string): Promise<
+export async function listWorkspacesForUser(
+  userId: string,
+): Promise<
   Array<{ workspace: WorkspaceRecord; role: "OWNER" | "ADMIN" | "MEMBER" }>
 > {
   const rows = await db

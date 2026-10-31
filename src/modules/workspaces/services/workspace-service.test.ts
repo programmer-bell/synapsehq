@@ -27,7 +27,9 @@ describe("workspace service", () => {
   it("returns NOT_FOUND when the workspace does not exist", async () => {
     vi.mocked(findWorkspaceById).mockResolvedValue(null);
 
-    await expect(updateWorkspace("user-1", "workspace-1", { name: "New name" })).resolves.toEqual({
+    await expect(
+      updateWorkspace("user-1", "workspace-1", { name: "New name" }),
+    ).resolves.toEqual({
       ok: false,
       code: "NOT_FOUND",
     });

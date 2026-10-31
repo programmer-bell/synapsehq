@@ -52,8 +52,9 @@ export const sessions = pgTable(
 export const authLoginAttempts = pgTable("auth_login_attempts", {
   key: varchar("key", { length: 128 }).primaryKey(),
   failedCount: integer("failed_count").notNull().default(0),
-  windowStartedAt: timestamp("window_started_at", { withTimezone: true })
-    .notNull(),
+  windowStartedAt: timestamp("window_started_at", {
+    withTimezone: true,
+  }).notNull(),
   blockedUntil: timestamp("blocked_until", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()

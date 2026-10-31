@@ -33,7 +33,9 @@ export default async function WorkspacesPage() {
 
       {workspaces.length === 0 ? (
         <section className="rounded-2xl border border-dashed border-border bg-surface p-8">
-          <p className="text-sm font-medium text-foreground">No workspaces yet</p>
+          <p className="text-sm font-medium text-foreground">
+            No workspaces yet
+          </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Create your first workspace to start organizing projects.
           </p>
@@ -53,7 +55,8 @@ export default async function WorkspacesPage() {
                 {workspace.name}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                {workspace.projectCount} projects · {workspace.memberCount} members
+                {workspace.projectCount} projects · {workspace.memberCount}{" "}
+                members
               </p>
             </Link>
           ))}
