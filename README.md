@@ -2,15 +2,13 @@
 
 ![SynapseHQ logo](./public/logo.png)
 
-**A modular project management workspace designed for software engineering teams.**
+**A modular project management workspace for software engineering teams.**
 
-SynapseHQ is a full-stack workspace application concept focused on helping engineering teams organize projects, manage tasks, track milestones, and monitor team progress through a structured, data-dense interface.
+SynapseHQ helps engineering teams organize workspaces and projects, manage tasks and milestones, coordinate team allocations, and track progress through a structured, data-dense interface.
 
 The project is designed around a **Modular Monolith architecture**, with clearly defined domain boundaries, strict TypeScript practices, server-driven business logic, and custom authentication.
 
-Its goal is to demonstrate practical full-stack engineering skills through a production-minded application rather than a basic CRUD tutorial.
-
-> **Project status:** Authentication, workspace/project management, task collaboration, milestones, team allocation, and in-app notifications are implemented. Hardening and release verification are in progress; production deployment has not been verified.
+> **Project status:** The application is deployed to Vercel from `main`; the project owner has confirmed the live application works. CI, database-backed tests, and authenticated browser workflows are configured.
 
 ---
 
@@ -20,30 +18,31 @@ Its goal is to demonstrate practical full-stack engineering skills through a pro
 - [Core Features](#core-features)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
-- [Planned Project Structure](#planned-project-structure)
+- [Repository Structure](#repository-structure)
 - [Authentication & Security](#authentication--security)
 - [Database Design](#database-design)
 - [Development Roadmap](#development-roadmap)
 - [Getting Started](#getting-started)
 - [Development Commands](#development-commands)
-- [Environment Configuration](#environment-configuration)
 - [Engineering Principles](#engineering-principles)
-- [Remaining Work](#remaining-work)
+- [Deployment](#deployment)
+- [Future Work](#future-work)
 
 ---
 
 ## Project Overview
 
-Engineering teams need more than a simple task list. They need a centralized workspace where projects, team responsibilities, development progress, and technical documentation can be managed together.
+Engineering teams need more than a simple task list. They need a centralized workspace for projects, team responsibilities, development progress, and project documentation.
 
-SynapseHQ aims to provide that environment.
+SynapseHQ provides that environment as a server-first Next.js application.
 
-The application is designed around four primary areas:
+The application centers on three product workflows, complemented by
+repository-managed project documentation:
 
 - **Workspace Management:** Organize engineering teams and their projects.
 - **Project Management:** Track project progress, milestones, and team allocation.
 - **Task Management:** Manage development tasks through Kanban boards and structured data tables.
-- **Engineering Documentation:** Maintain project-related technical documentation using Markdown.
+- **Project documentation:** Repository-managed Markdown for SynapseHQ's project context and architecture. This is not an in-app document editor or storage feature.
 
 The application follows a server-first approach using Next.js App Router, Server Components, Server Actions, and a PostgreSQL database.
 
@@ -97,7 +96,7 @@ pagination, and access checks.
 **Kanban Board**
 
 - Organize tasks by status.
-- Move tasks between workflow columns.
+- Update task status across workflow columns.
 - Track task assignments and priorities.
 - View task progress within a project.
 
@@ -155,9 +154,11 @@ Implemented capabilities:
 
 Notifications are in-app only; email and push delivery are not implemented.
 
-### 8. Engineering Documentation
+### 8. Project Documentation
 
-Project-scoped Markdown documentation remains a planned capability.
+Repository-managed project documentation is available in
+[`docs/projects/synapsehq/`](./docs/projects/synapsehq/README.md). Users cannot
+create or edit Markdown documents inside the application.
 
 ---
 
@@ -180,10 +181,10 @@ The project uses the following installed stack.
 | Container         | Docker          | Production application image   |
 | Database Hosting  | Neon            | PostgreSQL hosting             |
 
-**Testing:** Vitest and Playwright are installed. Database integration tests run
-when `TEST_DATABASE_URL` is configured; browser smoke tests use Playwright.
-React Testing Library is installed, but component-level coverage is not yet a
-maintained part of the test suite.
+**Testing:** Vitest covers unit and database integration tests, React Testing
+Library covers component behavior, and Playwright covers browser smoke and
+authenticated workflows. Database-backed tests and authenticated E2E require
+an isolated `TEST_DATABASE_URL`.
 
 ---
 
@@ -208,17 +209,17 @@ The project does not require microservices or distributed infrastructure at its 
 
 ### Domain Modules
 
-| Module        | Responsibility                                   |
-| ------------- | ------------------------------------------------ |
-| Auth          | Registration, login, sessions, and authorization |
-| Workspaces    | Workspace creation and membership                |
-| Projects      | Project lifecycle and ownership                  |
-| Tasks         | Task creation, assignment, and workflow          |
-| Notifications | In-app notifications and read state              |
+| Module        | Responsibility                                     |
+| ------------- | -------------------------------------------------- |
+| Auth          | Registration, login, sessions, and authorization   |
+| Workspaces    | Workspace creation, membership, roles, and access  |
+| Projects      | Project lifecycle, milestones, and team allocation |
+| Tasks         | Task workflows, assignment, and collaboration      |
+| Notifications | In-app notifications and read state                |
 
-Each module should own its domain-specific schemas, validation, services, and components where appropriate.
-
-Shared infrastructure and genuinely reusable utilities belong in the shared layer.
+Each module owns its domain-specific schemas, actions, services, repositories,
+and components where appropriate. Shared database, environment, layout, and
+utility infrastructure lives in `src/shared/`.
 
 ### Request & Data Flow
 
@@ -256,9 +257,9 @@ Server Actions should remain thin entry points. Business rules belong in domain 
 
 ---
 
-## Planned Project Structure
+## Repository Structure
 
-The following is the target architectural layout, not the current repository tree. Directories and modules will be introduced incrementally as their implementation becomes necessary.
+The following is a condensed view of the current tracked repository:
 
 ```text
 SynapseHQ/
@@ -268,10 +269,10 @@ SynapseHQ/
 │   ├── ARCHITECTURE.md
 │   └── roadmap.md
 │
-├── app/
-│   ├── (auth)/
-│   ├── (dashboard)/
-│   ├── api/
+├── app/                        # Root-level Next.js App Router
+│   ├── (auth)/                 # Login and signup
+│   ├── (dashboard)/            # Dashboard, workspaces, projects, tasks, milestones
+│   ├── api/                    # Authentication and task attachment endpoints
 │   ├── error.tsx
 │   ├── globals.css
 │   ├── layout.tsx
@@ -295,35 +296,57 @@ SynapseHQ/
 │   │   ├── tasks/
 │   │   └── notifications/
 │   │
-│   └── shared/
+│   ├── shared/
 │       ├── components/
 │       │   └── layout/
 │       ├── config/
 │       ├── db/
-│       ├── hooks/
 │       ├── lib/
-│       ├── types/
-│       ├── utils/
-│       └── errors/
+│   └── test/                   # Vitest setup and test-only support
 │
+├── components/
+│   ├── layout/                 # Application shell and theme providers
+│   └── ui/                     # Shared UI primitives
 ├── drizzle/
 │
 ├── docs/
-│   └── architecture/
-│       └── decisions/
+│   ├── architecture/decisions/ # Architecture decision records
+│   └── projects/synapsehq/     # Project-scoped repository documentation
 │
+├── e2e/                        # Playwright tests
 ├── public/
 │
+├── .github/workflows/          # GitHub Actions CI/CD
+├── Dockerfile
+├── docker-compose.yml
 ├── README.md
 ├── package.json
 ├── next.config.ts
 ├── tsconfig.json
 ├── drizzle.config.ts
 ├── vitest.config.mts
+├── playwright.config.ts
+├── proxy.ts
 └── .env.sample
 ```
 
-The Next.js App Router remains in the repository-root `app/` directory. The `src/` foundation was introduced in Phase 1; domain modules are added incrementally as their functionality is implemented.
+The Next.js App Router is at the repository root (`app/`, not `src/app/`).
+Domain code is organized under `src/modules/`; cross-cutting infrastructure
+lives under `src/shared/`.
+
+### Main Application Routes
+
+| Route                                       | Purpose                          |
+| ------------------------------------------- | -------------------------------- |
+| `/`                                         | Public landing page              |
+| `/signup`, `/login`                         | Account registration and sign-in |
+| `/dashboard`                                | Authenticated dashboard          |
+| `/workspaces`, `/workspaces/[workspaceId]`  | Workspace list and details       |
+| `/projects/[projectId]`                     | Project overview and team        |
+| `/projects/[projectId]/tasks`               | Project task board and table     |
+| `/projects/[projectId]/tasks/[taskId]`      | Task details and collaboration   |
+| `/projects/[projectId]/tasks/[taskId]/edit` | Task editing                     |
+| `/projects/[projectId]/milestones`          | Project milestones and progress  |
 
 ---
 
@@ -352,30 +375,23 @@ Security measures include:
 and server-side session guards validate the JWT and persistent session against
 the database. Proxy checks are never the only security boundary.
 
-Resource-level workspace and project authorization is implemented in Phase 3.
-
 ---
 
 ## Database Design
 
-Neon PostgreSQL will serve as the primary relational database, with Drizzle ORM providing type-safe database access.
+Neon PostgreSQL is the primary relational database, with Drizzle ORM providing type-safe database access.
 
-### Planned Core Entities
+### Implemented Core Entities
 
-| Entity            | Purpose                                 | Status      |
-| ----------------- | --------------------------------------- | ----------- |
-| Users             | User accounts and identity              | Implemented |
-| Sessions          | Persistent authentication sessions      | Implemented |
-| AuthLoginAttempts | Shared login throttling state           | Implemented |
-| Workspaces        | Team workspaces                         | Implemented |
-| WorkspaceMembers  | Workspace membership and roles          | Implemented |
-| Projects          | Projects belonging to workspaces        | Implemented |
-| Tasks             | Development tasks belonging to projects | Implemented |
-| Notifications     | In-app user notifications               | Implemented |
-| ProjectMembers    | Project team allocation                 | Implemented |
-| Milestones        | Project milestones and task progress    | Implemented |
-| TaskComments      | Task collaboration and discussion       | Implemented |
-| TaskAttachments   | Authorized task file attachments        | Implemented |
+| Entity                               | Purpose                                                                                  |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Users, sessions, login attempts      | Accounts, revocable sessions, and login throttling                                       |
+| Workspaces, workspace members        | Workspace ownership, membership, and roles                                               |
+| Projects, project members            | Project records and team allocation                                                      |
+| Milestones                           | Project delivery goals and due dates                                                     |
+| Tasks                                | Project tasks, one-level subtasks, status, priority, assignee, and milestone association |
+| Task comments, activity, attachments | Task collaboration and audit history                                                     |
+| Notifications                        | Per-user in-app notifications and read state                                             |
 
 ### Relationships
 
@@ -399,7 +415,7 @@ Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.m
 | Phase 2 | Implemented | Custom Authentication     | Registration, login, sessions, route protection               |
 | Phase 3 | Implemented | Workspaces & Projects     | Workspace membership and project management                   |
 | Phase 4 | Implemented | Task Management           | Kanban, table views, filtering, and sorting                   |
-| Phase 5 | In progress | Polish & Deployment       | Hardening, verification, and production deployment            |
+| Phase 5 | Complete    | Polish & Deployment       | Hardening, verification, and production deployment            |
 | Phase 6 | In progress | DevOps & Security         | Containerization, CI/CD, and security hardening               |
 
 Each phase has its own implementation tasks and completion criteria.
@@ -418,13 +434,14 @@ Before starting development, install:
 - npm.
 - Git.
 
-A Neon PostgreSQL account is required for the database, and a Vercel account will be needed for deployment in Phase 5.
+A Neon PostgreSQL database is required for local development. Vercel hosts the
+production application.
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/programmer-bell/synapsehq.git
-cd SynapseHQ
+cd synapsehq
 ```
 
 ### 2. Install Dependencies
@@ -456,9 +473,23 @@ JWT_SECRET=
 AUTH_SESSION_TTL_SECONDS=604800
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 TEST_DATABASE_URL=
+POSTGRES_DB=synapsehq
+POSTGRES_USER=synapsehq
+POSTGRES_PASSWORD=
 ```
 
-`DATABASE_URL`, `JWT_SECRET`, and `NEXT_PUBLIC_APP_URL` are required by the environment validator. `JWT_SECRET` must be at least 32 characters. `DATABASE_URL_UNPOOLED` is optional and is used by Drizzle Kit when available. `AUTH_SESSION_TTL_SECONDS` is optional and defaults to seven days (604800 seconds). `TEST_DATABASE_URL` is optional and should point to an isolated Neon branch or database for integration tests. The application validates runtime variables on the server and fails clearly when required configuration is missing.
+| Variable                                            | Required     | Purpose                                                                  |
+| --------------------------------------------------- | ------------ | ------------------------------------------------------------------------ |
+| `DATABASE_URL`                                      | Yes          | PostgreSQL connection for application runtime                            |
+| `JWT_SECRET`                                        | Yes          | Server-only signing and auth identifier secret; at least 32 characters   |
+| `NEXT_PUBLIC_APP_URL`                               | Yes          | Canonical application URL                                                |
+| `DATABASE_URL_UNPOOLED`                             | No           | Direct connection preferred by Drizzle Kit; falls back to `DATABASE_URL` |
+| `AUTH_SESSION_TTL_SECONDS`                          | No           | Session lifetime; defaults to 604800 seconds (7 days)                    |
+| `TEST_DATABASE_URL`                                 | No           | Isolated database for integration and authenticated E2E tests            |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Compose only | Local Docker PostgreSQL configuration                                    |
+
+Keep `.env` private and never use the production database as a test database.
+Runtime environment values are validated on the server.
 
 ### 4. Start the Development Server
 
@@ -476,25 +507,31 @@ http://localhost:3000
 
 ## Development Commands
 
-| Command               | Description                                             |
-| --------------------- | ------------------------------------------------------- |
-| `npm install`         | Install project dependencies                            |
-| `npm run dev`         | Start the Next.js development server                    |
-| `npm run lint`        | Run ESLint                                              |
-| `npm run typecheck`   | Run TypeScript type checking                            |
-| `npm test`            | Run unit tests and DB integration tests when configured |
-| `npm run test:e2e`    | Run Playwright browser smoke tests                      |
-| `npm run build`       | Create a production build                               |
-| `npm run db:generate` | Generate Drizzle migrations                             |
-| `npm run db:migrate`  | Apply Drizzle migrations                                |
-| `npm run db:check`    | Check Drizzle migration consistency                     |
-| `npm run db:studio`   | Open Drizzle Studio                                     |
+| Command                | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `npm install`          | Install project dependencies                            |
+| `npm run dev`          | Start the Next.js development server                    |
+| `npm run lint`         | Run ESLint                                              |
+| `npm run format:check` | Check Prettier formatting                               |
+| `npm run typecheck`    | Run TypeScript type checking                            |
+| `npm test`             | Run unit tests and DB integration tests when configured |
+| `npm run test:e2e`     | Run Playwright browser smoke tests                      |
+| `npm run build`        | Create a production build                               |
+| `npm run db:generate`  | Generate Drizzle migrations                             |
+| `npm run db:migrate`   | Apply Drizzle migrations                                |
+| `npm run db:check`     | Check Drizzle migration consistency                     |
+| `npm run db:studio`    | Open Drizzle Studio                                     |
 
 Run linting, type checking, and tests after implementation changes. Run a production build when changes affect routing, configuration, or production rendering.
 
-Vitest covers unit and integration tests, React Testing Library covers component tests, and Playwright covers end-to-end smoke tests. CI runs the full quality gate through `.github/workflows/ci.yaml`.
+Vitest covers unit and integration tests, React Testing Library covers
+component behavior, and Playwright covers browser smoke and authenticated
+workflows. GitHub Actions runs lint, formatting, type checking, tests, a
+production build, and E2E checks. Database-backed integration tests and the
+authenticated E2E workflow require `TEST_DATABASE_URL`; those cases are skipped
+when it is not configured.
 
-### Containerized Deployment
+### Optional Docker Workflow
 
 Build the production image:
 
@@ -517,20 +554,18 @@ before using the application:
 DATABASE_URL="postgresql://synapsehq:<password>@localhost:5432/synapsehq?sslmode=disable" npm run db:migrate
 ```
 
-Production image publishing is restricted to `main` in CI. Configure the
-`NEXT_PUBLIC_APP_URL` repository variable and, when automatic deployment is
-enabled, the `ENABLE_PRODUCTION_DEPLOY` repository variable,
-`VERCEL_DEPLOY_HOOK_URL` secret, and the `PRODUCTION_DATABASE_URL_UNPOOLED`
-secret in the `production` environment. CI applies pending production database
-migrations before triggering the deployment; deployment is stopped if the
-migration URL is missing or migrations fail.
+Docker image publishing is disabled by default and can be enabled in GitHub
+Actions with the `ENABLE_CONTAINER_PUBLISH=true` repository variable. The
+optional GitHub deploy-hook job additionally requires
+`ENABLE_PRODUCTION_DEPLOY=true`, production migration and deploy-hook secrets,
+and the image publishing job. These optional jobs are separate from the Vercel
+Git integration used for the normal production release.
 
 ### Database Integration Tests and Authenticated E2E
 
-Database integration tests and authenticated browser workflows are skipped
-unless `TEST_DATABASE_URL` is set. Point it to an isolated Neon branch or
-database, map both runtime and migration URLs to that test database, apply
-migrations there, then run:
+Database integration tests and the authenticated browser workflow require an
+isolated `TEST_DATABASE_URL`. Point it to a dedicated Neon branch or database,
+apply migrations to that database, then run:
 
 ```bash
 export TEST_DATABASE_URL="postgresql://..."
@@ -541,11 +576,10 @@ npm test
 npm run test:e2e
 ```
 
-The test setup maps `TEST_DATABASE_URL` to `DATABASE_URL` for Vitest. Keep both
-database variables pointed at the isolated test database when applying
-migrations to avoid modifying development data. CI applies migrations and runs
-database-backed checks only when the `TEST_DATABASE_URL` repository secret is
-configured.
+The test setup maps `TEST_DATABASE_URL` to `DATABASE_URL` for Vitest and E2E.
+Keep both database variables pointed at the isolated test database when
+applying migrations. CI applies test migrations and runs database-backed checks
+only when the `TEST_DATABASE_URL` repository secret is configured.
 
 ### Neon Connectivity Troubleshooting
 
@@ -568,6 +602,27 @@ development database when you intend to migrate production, or at
 Login throttling reads `auth_login_attempts`, created by the initial auth
 migration. If login fails on a query to that table, apply pending migrations
 using the same `DATABASE_URL` used by the running app, then retry the login.
+
+---
+
+## Deployment
+
+The production application is hosted on Vercel. Vercel Git deployments are
+restricted to `main` by [`vercel.json`](./vercel.json); Preview deployments are
+disabled in this repository configuration. The project owner has confirmed the
+live production application works.
+
+Configure these values in Vercel's **Production** environment:
+
+- `DATABASE_URL`: pooled Neon connection string for runtime use.
+- `JWT_SECRET`: strong server-only secret, at least 32 characters.
+- `NEXT_PUBLIC_APP_URL`: the deployed application's canonical HTTPS URL.
+
+Apply database migrations separately using `DATABASE_URL_UNPOOLED` (direct
+connection) or the intended database URL. Never run production migrations
+against the test database. GitHub Actions' optional Docker image publishing and
+deploy-hook jobs are disabled unless explicitly enabled; they are not required
+for Vercel's Git-based production deployment.
 
 ---
 
@@ -624,15 +679,15 @@ The goal is to prioritize clarity, usability, and information density over unnec
 
 ---
 
-## Remaining Work
+## Future Work
 
-These features are not implemented or have not yet been verified for production:
+These are not current application capabilities; they are potential future
+extensions rather than release blockers:
 
-- Project-scoped Markdown documentation.
+- In-app Markdown document editing and storage (repository documentation exists, but this is not implemented in the product).
 - Real-time task updates and external email/push notification delivery.
-- Workspace invitations and advanced permission administration.
+- Workspace invitations and more granular permission administration.
 - Project analytics, velocity reporting, and sprint planning.
-- Production deployment, live health checks, and release smoke tests.
 
 ---
 
@@ -640,12 +695,14 @@ These features are not implemented or have not yet been verified for production:
 
 The repository maintains separate documents for product development and engineering decisions:
 
-| Document                                       | Purpose                                                             |
-| ---------------------------------------------- | ------------------------------------------------------------------- |
-| [`AGENTS.md`](./.agents/AGENTS.md)             | Repository-specific instructions and development rules              |
-| [`roadmap.md`](./.agents/roadmap.md)           | Phased implementation roadmap and progress tracking                 |
-| [`ARCHITECTURE.md`](./.agents/ARCHITECTURE.md) | Architectural boundaries, design decisions, and technical standards |
-| [`README.md`](./README.md)                     | Project overview, setup, features, and documentation entry point    |
+| Document                                                                   | Purpose                                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [`AGENTS.md`](./.agents/AGENTS.md)                                         | Repository-specific instructions and development rules              |
+| [`roadmap.md`](./.agents/roadmap.md)                                       | Phased implementation roadmap and progress tracking                 |
+| [`ARCHITECTURE.md`](./.agents/ARCHITECTURE.md)                             | Architectural boundaries, design decisions, and technical standards |
+| [`docs/projects/synapsehq/README.md`](./docs/projects/synapsehq/README.md) | Project-scoped repository documentation                             |
+| [`docs/architecture/decisions/`](./docs/architecture/decisions/)           | Accepted architecture decision records                              |
+| [`README.md`](./README.md)                                                 | Project overview, actual structure, features, and setup             |
 
 These documents should remain synchronized as the project evolves.
 
