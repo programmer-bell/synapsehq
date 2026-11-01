@@ -117,7 +117,9 @@ test("authenticated users can create and collaborate on project tasks", async ({
   await taskDialog
     .getByRole("button", { name: "Create task", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText("Task created");
+  await expect(
+    page.getByLabel("Notifications").getByRole("status"),
+  ).toContainText("Task created");
   await taskDialog
     .getByRole("button", { name: "Close create task dialog", exact: true })
     .click();
