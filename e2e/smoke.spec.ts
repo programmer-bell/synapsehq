@@ -108,10 +108,11 @@ test("authenticated users can create and collaborate on project tasks", async ({
     page.getByRole("heading", { name: milestoneName }),
   ).toBeVisible();
 
-  await page.goto(`/projects/${projectId}/tasks?new=1`);
+  await page.goto(`/projects/${projectId}/tasks`);
+  await page.getByRole("button", { name: "New task" }).click();
   const taskDialog = page.getByRole("dialog");
   await expect(taskDialog).toBeVisible();
-  await page.getByLabel("Title", { exact: true }).fill(taskName);
+  await taskDialog.getByLabel("Title").fill(taskName);
   await page.getByLabel("Milestone").selectOption({ label: milestoneName });
   await page.getByRole("button", { name: "Create task" }).click();
   await expect(page.getByRole("status")).toContainText("Task created");
