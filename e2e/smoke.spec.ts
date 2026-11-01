@@ -126,7 +126,7 @@ test("authenticated users can create and collaborate on project tasks", async ({
   await page.getByRole("link", { name: taskName }).click();
   await expect(page.getByRole("heading", { name: taskName })).toBeVisible();
 
-  await page.getByPlaceholder("Subtask title").fill("Add workflow tests");
+  await page.getByPlaceholder("Add a subtask...").fill("Add workflow tests");
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expect(
     page.getByRole("link", { name: "Add workflow tests" }),
