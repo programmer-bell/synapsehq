@@ -93,7 +93,10 @@ test("authenticated users can create and collaborate on project tasks", async ({
 
   await page.getByRole("button", { name: "New project" }).click();
   await page.getByLabel("Project name").fill(projectName);
-  await page.getByRole("button", { name: "Create project" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Create project", exact: true })
+    .click();
   await expect(page).toHaveURL(/\/projects\/[0-9a-f-]+$/);
   const projectId = new URL(page.url()).pathname.split("/").at(-1);
   if (!projectId) throw new Error("Project route did not include an ID.");
