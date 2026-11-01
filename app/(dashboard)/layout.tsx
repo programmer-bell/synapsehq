@@ -32,10 +32,11 @@ async function DashboardShell({ children }: { children: ReactNode }) {
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopHeader
+          userName={user.name}
           projects={projects.map(({ id, name }) => ({ id, name }))}
           notifications={notifications}
         />
-        <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
           {children}
         </main>
       </div>
@@ -48,7 +49,7 @@ function DashboardShellFallback() {
     <div className="flex min-h-screen bg-background">
       <aside
         aria-label="Loading workspace navigation"
-        className="relative hidden h-screen w-60 shrink-0 border-r border-border bg-surface lg:block"
+        className="relative hidden h-screen w-[264px] shrink-0 border-r border-border bg-sidebar lg:block"
       >
         <div className="flex h-[60px] items-center gap-2.5 border-b border-border px-4">
           <span className="size-[34px] rounded-md bg-surface-muted" />

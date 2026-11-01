@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { requireUser } from "@/src/modules/auth";
 import { getProjectAccess } from "@/src/modules/projects";
 import { getProjectMilestones } from "@/src/modules/projects";
@@ -34,45 +36,63 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
     milestoneResult?.milestones.map(({ id, name }) => ({ id, name })) ?? [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">Task</p>
-          <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
-            Edit task
-          </h1>
-          <Link
-            href={`/projects/${projectId}/tasks`}
-            className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
-          >
-            Back to tasks
-          </Link>
-        </div>
-        <form action={deleteTaskAction.bind(null, taskId)}>
-          <input type="hidden" name="projectId" value={projectId} />
-          <button
-            type="submit"
-            className="rounded-md border border-rose-200 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/40"
-          >
-            Delete task
-          </button>
-        </form>
-      </div>
+    <div className="mx-auto max-w-4xl space-y-5">
+      <Link
+        href={`/projects/${projectId}/tasks`}
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-accent"
+      >
+        <ArrowLeft aria-hidden="true" className="size-3.5" />
+        Back to tasks
+      </Link>
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <UpdateTaskForm
-          taskId={taskId}
-          projectId={projectId}
-          initialTitle={taskAccess.task.title}
-          initialDescription={taskAccess.task.description}
-          initialStatus={taskAccess.task.status}
-          initialPriority={taskAccess.task.priority}
-          initialAssigneeId={taskAccess.task.assigneeId}
-          initialDueDate={taskAccess.task.dueDate?.toISOString() ?? null}
-          initialMilestoneId={taskAccess.task.milestoneId}
-          assignableUsers={assignableUsers}
-          milestones={milestones}
-        />
+      <PageHeader
+        eyebrow="Task"
+        title="Edit task"
+        description="Update the task details, ownership, and delivery plan."
+        icon={<Pencil aria-hidden="true" />}
+        actions={
+          <form action={deleteTaskAction.bind(null, taskId)}>
+            <input type="hidden" name="projectId" value={projectId} />
+            <button
+              type="submit"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-500/25 bg-rose-500/5 px-3.5 text-sm font-medium text-rose-700 transition-all duration-200 hover:bg-rose-500/10 active:scale-[0.98] dark:text-rose-300"
+            >
+              <Trash2 aria-hidden="true" className="size-4" />
+              Delete task
+            </button>
+          </form>
+        }
+      />
+
+      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex items-center gap-2.5 border-b border-border/70 bg-surface-muted/30 px-4 py-3">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+            <Pencil aria-hidden="true" className="size-4" />
+          </span>
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Task details
+            </h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Changes are saved to the project immediately.
+            </p>
+          </div>
+        </div>
+        <div className="p-4">
+          <UpdateTaskForm
+            taskId={taskId}
+            projectId={projectId}
+            initialTitle={taskAccess.task.title}
+            initialDescription={taskAccess.task.description}
+            initialStatus={taskAccess.task.status}
+            initialPriority={taskAccess.task.priority}
+            initialAssigneeId={taskAccess.task.assigneeId}
+            initialDueDate={taskAccess.task.dueDate?.toISOString() ?? null}
+            initialMilestoneId={taskAccess.task.milestoneId}
+            assignableUsers={assignableUsers}
+            milestones={milestones}
+          />
+        </div>
       </section>
     </div>
   );

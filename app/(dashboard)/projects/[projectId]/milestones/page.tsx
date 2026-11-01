@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  Flag,
+  ListChecks,
+  Milestone,
+} from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { requireUser } from "@/src/modules/auth";
 import { getProjectAccess, getProjectMilestones } from "@/src/modules/projects";
 import { CreateMilestoneForm } from "@/src/modules/projects/components/create-milestone-form";
@@ -19,77 +30,82 @@ export default async function ProjectMilestonesPage({
   ]);
   if (!project || !progress) notFound();
 
+  const percent = progress.taskProgress.total
+    ? Math.round(
+        (progress.taskProgress.completed / progress.taskProgress.total) * 100,
+      )
+    : 0;
+
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <Link
-            href={`/projects/${projectId}`}
-            className="text-xs font-medium text-accent hover:underline"
-          >
-            {project.project.name}
-          </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-            Milestones
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track delivery dates and linked task completion.
-          </p>
-        </div>
-        <Link
-          href={`/projects/${projectId}/tasks`}
-          className="text-sm font-medium text-accent hover:underline"
-        >
-          View tasks
-        </Link>
-      </header>
+      <PageHeader
+        eyebrow={project.project.name}
+        title="Milestones"
+        description="Track delivery dates and linked task completion across the project."
+        icon={<Milestone aria-hidden="true" />}
+        actions={
+          <>
+            <Link
+              href={`/projects/${projectId}`}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:border-accent/40 hover:bg-accent/5 hover:text-accent active:scale-[0.98]"
+            >
+              <ArrowLeft aria-hidden="true" className="size-4" />
+              Project
+            </Link>
+            <Link
+              href={`/projects/${projectId}/tasks`}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-indigo-500/25 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-200 hover:from-indigo-500 hover:via-violet-500 hover:to-fuchsia-500 active:scale-[0.98]"
+            >
+              <ListChecks aria-hidden="true" className="size-4" />
+              View tasks
+            </Link>
+          </>
+        }
+      />
 
-      <section className="rounded-md border border-border bg-surface p-4">
-        <div className="flex items-center justify-between gap-4">
+      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between gap-4 border-b border-border/70 bg-surface-muted/30 px-4 py-3">
           <div>
             <h2 className="text-sm font-semibold text-foreground">
               Overall task completion
             </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
               {progress.taskProgress.completed} of {progress.taskProgress.total}{" "}
               tasks complete
             </p>
           </div>
-          <span className="text-sm font-semibold tabular-nums text-foreground">
-            {progress.taskProgress.total
-              ? Math.round(
-                  (progress.taskProgress.completed /
-                    progress.taskProgress.total) *
-                    100,
-                )
-              : 0}
-            %
+          <span className="text-lg font-semibold tabular-nums text-foreground">
+            {percent}%
           </span>
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded bg-surface-muted">
-          <div
-            className="h-full rounded bg-accent"
-            style={{
-              width: `${
-                progress.taskProgress.total
-                  ? Math.round(
-                      (progress.taskProgress.completed /
-                        progress.taskProgress.total) *
-                        100,
-                    )
-                  : 0
-              }%`,
-            }}
-          />
+        <div className="p-4">
+          <div className="h-2 overflow-hidden rounded-full bg-surface-muted">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 transition-[width] duration-500"
+              style={{ width: `${percent}%` }}
+            />
+          </div>
         </div>
       </section>
 
       {progress.canManage ? (
-        <section className="rounded-md border border-border bg-surface p-4">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">
-            Add milestone
-          </h2>
-          <CreateMilestoneForm projectId={projectId} />
+        <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+          <div className="flex items-center gap-2.5 border-b border-border/70 bg-surface-muted/30 px-4 py-3">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-300">
+              <Flag aria-hidden="true" className="size-4" />
+            </span>
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">
+                Add milestone
+              </h2>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                Define a delivery target and track linked tasks.
+              </p>
+            </div>
+          </div>
+          <div className="p-4">
+            <CreateMilestoneForm projectId={projectId} />
+          </div>
         </section>
       ) : null}
 
@@ -103,79 +119,103 @@ export default async function ProjectMilestonesPage({
               : milestone.status === "COMPLETED"
                 ? 100
                 : 0;
+            const isComplete = milestone.status === "COMPLETED";
             return (
               <li
                 key={milestone.id}
-                className="rounded-md border border-border bg-surface p-4"
+                className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h2 className="text-sm font-semibold text-foreground">
-                      {milestone.name}
-                    </h2>
-                    {milestone.description ? (
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                        {milestone.description}
+                <div className="p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-sm font-semibold text-foreground">
+                          {milestone.name}
+                        </h2>
+                        <Badge
+                          variant={
+                            isComplete
+                              ? "success"
+                              : milestone.status === "IN_PROGRESS"
+                                ? "warning"
+                                : "outline"
+                          }
+                          dot
+                        >
+                          {milestone.status.replace("_", " ")}
+                        </Badge>
+                      </div>
+                      {milestone.description ? (
+                        <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                          {milestone.description}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <CalendarDays aria-hidden="true" className="size-3" />
+                          {milestone.dueDate
+                            ? `Due ${milestone.dueDate.toLocaleDateString()}`
+                            : "No due date"}
+                        </span>
+                        <span aria-hidden="true">·</span>
+                        <span className="flex items-center gap-1">
+                          <CheckCircle2 aria-hidden="true" className="size-3" />
+                          {milestone.completedTaskCount} of{" "}
+                          {milestone.taskCount} linked tasks complete
+                        </span>
                       </p>
+                    </div>
+                    {progress.canManage ? (
+                      <form
+                        action={updateMilestoneStatusAction}
+                        className="flex items-center gap-2"
+                      >
+                        <input
+                          type="hidden"
+                          name="milestoneId"
+                          value={milestone.id}
+                        />
+                        <select
+                          name="status"
+                          defaultValue={milestone.status}
+                          aria-label={`${milestone.name} status`}
+                          className="h-8 rounded-lg border border-border bg-background px-2.5 text-xs text-foreground shadow-sm outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        >
+                          <option value="PLANNED">Planned</option>
+                          <option value="IN_PROGRESS">In progress</option>
+                          <option value="COMPLETED">Completed</option>
+                        </select>
+                        <button
+                          type="submit"
+                          className="inline-flex h-8 items-center rounded-lg border border-border bg-card px-2.5 text-xs font-medium text-foreground shadow-sm transition-all duration-200 hover:border-accent/40 hover:bg-accent/5 hover:text-accent active:scale-[0.98]"
+                        >
+                          Save
+                        </button>
+                      </form>
                     ) : null}
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {milestone.dueDate
-                        ? `Due ${milestone.dueDate.toLocaleDateString()}`
-                        : "No due date"}
-                      {" · "}
-                      {milestone.completedTaskCount} of {milestone.taskCount}{" "}
-                      linked tasks complete
-                    </p>
                   </div>
-                  {progress.canManage ? (
-                    <form action={updateMilestoneStatusAction}>
-                      <input
-                        type="hidden"
-                        name="milestoneId"
-                        value={milestone.id}
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-muted">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                        style={{ width: `${percent}%` }}
                       />
-                      <select
-                        name="status"
-                        defaultValue={milestone.status}
-                        aria-label={`${milestone.name} status`}
-                        className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground"
-                      >
-                        <option value="PLANNED">Planned</option>
-                        <option value="IN_PROGRESS">In progress</option>
-                        <option value="COMPLETED">Completed</option>
-                      </select>
-                      <button
-                        type="submit"
-                        className="ml-2 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-surface-muted"
-                      >
-                        Save
-                      </button>
-                    </form>
-                  ) : (
-                    <span className="rounded border border-border px-2 py-1 text-xs text-muted-foreground">
-                      {milestone.status.replace("_", " ")}
+                    </div>
+                    <span className="text-[10px] font-medium tabular-nums text-muted-foreground">
+                      {percent}%
                     </span>
-                  )}
-                </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded bg-surface-muted">
-                  <div
-                    className="h-full rounded bg-emerald-600 dark:bg-emerald-500"
-                    style={{ width: `${percent}%` }}
-                  />
+                  </div>
                 </div>
               </li>
             );
           })}
         </ul>
       ) : (
-        <div className="rounded-md border border-dashed border-border bg-surface px-5 py-8">
-          <p className="text-sm font-medium text-foreground">
-            No milestones yet
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Add a milestone to define a delivery target.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Milestone aria-hidden="true" />}
+          title="No milestones yet"
+          description="Add a milestone to define a delivery target and connect it to project tasks."
+        />
       )}
     </div>
   );

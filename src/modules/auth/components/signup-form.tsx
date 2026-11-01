@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { UserPlus } from "lucide-react";
 import { useActionState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { registerAction } from "../actions/register";
 import type { AuthFormState } from "../types";
 import { AuthField } from "./auth-field";
@@ -16,11 +18,11 @@ export function SignupForm() {
   );
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="space-y-4">
       {state.message ? (
         <p
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300"
+          className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-700 dark:text-rose-300"
         >
           {state.message}
         </p>
@@ -32,6 +34,7 @@ export function SignupForm() {
         label="Name"
         type="text"
         autoComplete="name"
+        placeholder="Ada Lovelace"
         error={state.fieldErrors?.name?.[0]}
       />
       <AuthField
@@ -60,17 +63,17 @@ export function SignupForm() {
         error={state.fieldErrors?.confirmPassword?.[0]}
       />
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" size="lg" loading={isPending} className="w-full">
+        <UserPlus aria-hidden="true" className="size-4" />
         {isPending ? "Creating account..." : "Create account"}
-      </button>
+      </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-xs text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-accent hover:underline">
+        <Link
+          href="/login"
+          className="font-semibold text-accent transition-colors hover:text-accent/80 hover:underline"
+        >
           Sign in
         </Link>
       </p>

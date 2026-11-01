@@ -6,6 +6,7 @@ import { requireUser } from "@/src/modules/auth";
 import {
   addTaskComment,
   createTaskSubtask,
+  getTaskDetails,
   removeTaskAttachment,
   uploadTaskAttachment,
 } from "../services/task-collaboration-service";
@@ -14,6 +15,13 @@ type FormState = { status: "idle" | "error" | "success"; message?: string };
 
 function getFormValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "");
+}
+
+export async function getTaskPreviewAction(taskId: string) {
+  const user = await requireUser();
+  const details = await getTaskDetails(user.id, taskId);
+  if (!details) return null;
+  return { task: details.task, subtasks: details.subtasks };
 }
 
 export async function addTaskCommentAction(

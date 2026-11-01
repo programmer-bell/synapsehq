@@ -9,9 +9,11 @@ import { logServerError } from "@/src/shared/lib/log-server-error";
 import {
   createTask,
   deleteTask,
+  listTasksForProject,
   updateTask,
   updateTaskStatus,
 } from "../services/task-service";
+import { getDashboardData } from "@/src/shared/lib/dashboard-data";
 import { createTaskSchema, updateTaskSchema } from "../schemas/task";
 import type { TaskFormState } from "../types";
 
@@ -25,6 +27,44 @@ function toFieldErrors(error: z.ZodError) {
       ([, messages]) => messages && messages.length > 0,
     ),
   );
+}
+
+export type TaskSearchResult = {
+  id: string;
+  title: string;
+  status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  projectId: string;
+  projectName: string;
+};
+
+export async function searchWorkspaceTasksAction(
+  query: string,
+): Promise<TaskSearchResult[]> {
+  const user = await requireUser();
+  const normalized = query.trim();
+  if (normalized.length < 2) return [];
+
+  const { projects } = await getDashboardData(user.id);
+  const results = await Promise.all(
+    projects.slice(0, 12).map(async (project) => {
+      const result = await listTasksForProject(user.id, project.id, {
+        search: normalized,
+        pageSize: 5,
+      });
+      if (!result.ok) return [];
+      return result.data.map((task) => ({
+        id: task.id,
+        title: task.title,
+        status: task.status,
+        priority: task.priority,
+        projectId: task.projectId,
+        projectName: project.name,
+      }));
+    }),
+  );
+
+  return results.flat().slice(0, 10);
 }
 
 export async function createTaskAction(

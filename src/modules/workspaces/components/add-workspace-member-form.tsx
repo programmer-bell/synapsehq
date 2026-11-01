@@ -1,7 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { UserPlus } from "lucide-react";
+import { useActionState, useEffect } from "react";
 
+import {
+  FormAlert,
+  inputClass,
+  labelClass,
+  selectClass,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { addWorkspaceMemberAction } from "../actions/workspace-actions";
 import type { WorkspaceMemberActionState } from "../types";
 
@@ -12,22 +21,36 @@ type AddWorkspaceMemberFormProps = {
 export function AddWorkspaceMemberForm({
   workspaceId,
 }: AddWorkspaceMemberFormProps) {
+  const { toast } = useToast();
   const action = addWorkspaceMemberAction.bind(null, workspaceId);
   const [state, formAction, isPending] = useActionState<
     WorkspaceMemberActionState,
     FormData
   >(action, { status: "idle" });
 
+  useEffect(() => {
+    if (state.status === "success") {
+      toast({
+        title: "Member added",
+        description: state.message ?? "They now have workspace access.",
+        variant: "success",
+      });
+    } else if (state.status === "error" && state.message) {
+      toast({
+        title: "Could not add member",
+        description: state.message,
+        variant: "error",
+      });
+    }
+  }, [state.status, state.message, toast]);
+
   return (
     <form
       action={formAction}
       className="flex flex-col gap-3 sm:flex-row sm:items-end"
     >
-      <div className="flex-1 space-y-2">
-        <label
-          htmlFor="member-email"
-          className="block text-sm font-medium text-foreground"
-        >
+      <div className="flex-1 space-y-1.5">
+        <label htmlFor="member-email" className={labelClass}>
           Member email
         </label>
         <input
@@ -35,41 +58,32 @@ export function AddWorkspaceMemberForm({
           name="email"
           type="email"
           required
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className={inputClass}
           placeholder="teammate@example.com"
         />
       </div>
-      <div className="space-y-2">
-        <label
-          htmlFor="member-role"
-          className="block text-sm font-medium text-foreground"
-        >
+      <div className="space-y-1.5">
+        <label htmlFor="member-role" className={labelClass}>
           Role
         </label>
         <select
           id="member-role"
           name="role"
           defaultValue="MEMBER"
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className={selectClass}
         >
           <option value="MEMBER">Member</option>
           <option value="ADMIN">Admin</option>
         </select>
       </div>
-      <button
-        type="submit"
-        disabled={isPending}
-        className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" loading={isPending}>
+        <UserPlus aria-hidden="true" className="size-4" />
         {isPending ? "Adding..." : "Add member"}
-      </button>
+      </Button>
       {state.message ? (
-        <p
-          role="status"
-          className="sm:basis-full text-sm text-muted-foreground"
-        >
-          {state.message}
-        </p>
+        <div className="sm:basis-full">
+          <FormAlert status={state.status} message={state.message} />
+        </div>
       ) : null}
     </form>
   );

@@ -1,7 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
+import { Save } from "lucide-react";
+import { useActionState, useEffect } from "react";
 
+import {
+  FormAlert,
+  fieldErrorClass,
+  inputClass,
+  labelClass,
+  selectClass,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { updateProjectAction } from "../actions/project-actions";
 import type { ProjectFormState } from "../types";
 
@@ -18,28 +28,35 @@ export function UpdateProjectForm({
   initialDescription,
   initialStatus,
 }: UpdateProjectFormProps) {
+  const { toast } = useToast();
   const action = updateProjectAction.bind(null, projectId);
   const [state, formAction, isPending] = useActionState<
     ProjectFormState,
     FormData
   >(action, { status: "idle" });
 
+  useEffect(() => {
+    if (state.status === "success") {
+      toast({
+        title: "Project updated",
+        description: state.message ?? "Your changes have been saved.",
+        variant: "success",
+      });
+    } else if (state.status === "error" && state.message) {
+      toast({
+        title: "Could not update project",
+        description: state.message,
+        variant: "error",
+      });
+    }
+  }, [state.status, state.message, toast]);
+
   return (
     <form action={formAction} className="space-y-4">
-      {state.message ? (
-        <p
-          role="status"
-          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
-        >
-          {state.message}
-        </p>
-      ) : null}
-      <div className="space-y-2">
-        <label
-          htmlFor="project-update-name"
-          className="block text-sm font-medium text-foreground"
-        >
-          Project name
+      <FormAlert status={state.status} message={state.message} />
+      <div className="space-y-1.5">
+        <label htmlFor="project-update-name" className={labelClass}>
+          Project name <span className="text-rose-500">*</span>
         </label>
         <input
           id="project-update-name"
@@ -48,19 +65,14 @@ export function UpdateProjectForm({
           required
           minLength={2}
           maxLength={120}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className={inputClass}
         />
         {state.fieldErrors?.name?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">
-            {state.fieldErrors.name[0]}
-          </p>
+          <p className={fieldErrorClass}>{state.fieldErrors.name[0]}</p>
         ) : null}
       </div>
-      <div className="space-y-2">
-        <label
-          htmlFor="project-update-description"
-          className="block text-sm font-medium text-foreground"
-        >
+      <div className="space-y-1.5">
+        <label htmlFor="project-update-description" className={labelClass}>
           Description
         </label>
         <textarea
@@ -69,38 +81,30 @@ export function UpdateProjectForm({
           defaultValue={initialDescription ?? ""}
           rows={3}
           maxLength={2000}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className={inputClass}
         />
         {state.fieldErrors?.description?.[0] ? (
-          <p className="text-sm text-red-600 dark:text-red-400">
-            {state.fieldErrors.description[0]}
-          </p>
+          <p className={fieldErrorClass}>{state.fieldErrors.description[0]}</p>
         ) : null}
       </div>
-      <div className="space-y-2">
-        <label
-          htmlFor="project-update-status"
-          className="block text-sm font-medium text-foreground"
-        >
+      <div className="space-y-1.5">
+        <label htmlFor="project-update-status" className={labelClass}>
           Status
         </label>
         <select
           id="project-update-status"
           name="status"
           defaultValue={initialStatus}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className={selectClass}
         >
           <option value="ACTIVE">Active</option>
           <option value="ARCHIVED">Archived</option>
         </select>
       </div>
-      <button
-        type="submit"
-        disabled={isPending}
-        className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" size="md" loading={isPending} className="h-10 px-4">
+        <Save aria-hidden="true" className="size-4" />
         {isPending ? "Saving..." : "Save changes"}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -1,4 +1,24 @@
+"use client";
+
 import Link from "next/link";
+import {
+  ArrowUpDown,
+  CalendarDays,
+  CheckCircle2,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  X,
+} from "lucide-react";
+import { useState, useTransition } from "react";
+import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
+
+import { Avatar } from "@/components/ui/avatar";
+import { Badge, priorityVariant, statusVariant } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/toast";
+import { cn } from "@/src/shared/lib/cn";
+import { updateTaskStatusAction } from "../actions/task-actions";
+import { TaskPreviewSheet } from "./task-preview-sheet";
 
 type Task = {
   id: string;
@@ -53,27 +73,6 @@ function sortLink(
   return `/projects/${projectId}/tasks?${params.toString()}`;
 }
 
-function statusStyle(status: Task["status"]) {
-  switch (status) {
-    case "DONE":
-      return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300";
-    case "IN_PROGRESS":
-      return "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300";
-    case "IN_REVIEW":
-      return "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300";
-    default:
-      return "bg-surface-muted text-muted-foreground";
-  }
-}
-
-function priorityStyle(priority: Task["priority"]) {
-  if (priority === "URGENT" || priority === "HIGH") {
-    return "text-rose-700 dark:text-rose-300";
-  }
-  if (priority === "MEDIUM") return "text-amber-700 dark:text-amber-300";
-  return "text-muted-foreground";
-}
-
 function readableLabel(value: string) {
   return value
     .split("_")
@@ -81,85 +80,328 @@ function readableLabel(value: string) {
     .join(" ");
 }
 
-export function TaskTable({ tasks, projectId, filters }: TaskTableProps) {
+function SortHeader({
+  href,
+  children,
+  active,
+}: {
+  href: string;
+  children: ReactNode;
+  active: boolean;
+}) {
   return (
-    <div className="overflow-x-auto rounded-md border border-border bg-surface">
-      <table className="min-w-full divide-y divide-border text-sm">
-        <thead className="bg-surface-muted/70">
-          <tr>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              <Link href={sortLink(projectId, filters, "title")}>Title</Link>
-            </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              <Link href={sortLink(projectId, filters, "status")}>Status</Link>
-            </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              <Link href={sortLink(projectId, filters, "priority")}>
-                Priority
-              </Link>
-            </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Assignee
-            </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              <Link href={sortLink(projectId, filters, "dueDate")}>
-                Due date
-              </Link>
-            </th>
-            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              <span className="sr-only">Actions</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {tasks.map((task) => (
-            <tr
-              key={task.id}
-              className="transition-colors duration-150 hover:bg-surface-muted/50"
+    <Link
+      href={href}
+      className={cn(
+        "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+        active && "text-accent",
+      )}
+    >
+      {children}
+      <ArrowUpDown
+        aria-hidden="true"
+        className={cn("size-3", active ? "opacity-100" : "opacity-40")}
+      />
+    </Link>
+  );
+}
+
+export function TaskTable({ tasks, projectId, filters }: TaskTableProps) {
+  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [previewTask, setPreviewTask] = useState<Task | null>(null);
+  const allSelected = tasks.length > 0 && selected.size === tasks.length;
+
+  function toggle(id: string) {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected(
+      allSelected ? new Set() : new Set(tasks.map((task) => task.id)),
+    );
+  }
+
+  function closeMenu(event: ReactMouseEvent<HTMLElement>) {
+    event.currentTarget.closest("details")?.removeAttribute("open");
+  }
+
+  function markSelectedDone() {
+    const targets = tasks.filter(
+      (task) => selected.has(task.id) && task.status !== "DONE",
+    );
+    if (!targets.length) {
+      toast({
+        title: "Nothing to update",
+        description: "Selected tasks are already done.",
+        variant: "info",
+      });
+      return;
+    }
+    startTransition(async () => {
+      await Promise.all(
+        targets.map((task) => {
+          const formData = new FormData();
+          formData.set("projectId", projectId);
+          formData.set("status", "DONE");
+          return updateTaskStatusAction(task.id, formData);
+        }),
+      );
+      setSelected(new Set());
+      toast({
+        title: "Tasks completed",
+        description: `${targets.length} task${targets.length === 1 ? "" : "s"} marked as done.`,
+        variant: "success",
+      });
+    });
+  }
+
+  return (
+    <>
+      {selected.size ? (
+        <div className="sticky top-[68px] z-20 mb-2 flex animate-fade-up items-center justify-between gap-3 rounded-xl border border-accent/25 bg-accent/[0.07] px-3 py-2 shadow-sm backdrop-blur">
+          <span className="text-xs font-medium text-foreground">
+            {selected.size} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={markSelectedDone}
+              disabled={isPending}
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 text-xs font-medium text-emerald-700 transition-all duration-200 hover:bg-emerald-500/15 active:scale-[0.98] disabled:opacity-50 dark:text-emerald-300"
             >
-              <td className="px-4 py-3 font-medium text-foreground">
-                <Link
-                  href={`/projects/${projectId}/tasks/${task.id}`}
-                  className="transition-colors hover:text-accent"
-                >
-                  {task.title}
-                </Link>
-                {task.description ? (
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                    {task.description}
-                  </p>
-                ) : null}
-              </td>
-              <td className="px-4 py-3">
-                <span
-                  className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusStyle(task.status)}`}
-                >
-                  {readableLabel(task.status)}
-                </span>
-              </td>
-              <td
-                className={`px-4 py-3 text-xs font-medium ${priorityStyle(task.priority)}`}
-              >
-                {readableLabel(task.priority)}
-              </td>
-              <td className="px-4 py-3 text-muted-foreground">
-                {task.assigneeId ? "Assigned" : "Unassigned"}
-              </td>
-              <td className="px-4 py-3 tabular-nums text-muted-foreground">
-                {task.dueDate ? task.dueDate.toLocaleDateString() : "—"}
-              </td>
-              <td className="px-4 py-3 text-right">
-                <Link
-                  href={`/projects/${projectId}/tasks/${task.id}`}
-                  className="rounded px-2 py-1 text-xs font-medium text-accent transition-colors hover:bg-accent/10"
-                >
-                  Open
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+              <CheckCircle2 aria-hidden="true" className="size-3.5" />
+              Mark done
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelected(new Set())}
+              className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
+            >
+              <X aria-hidden="true" className="size-3.5" />
+              Clear
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border text-sm">
+            <thead className="bg-surface-muted/60">
+              <tr>
+                <th className="w-10 px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    aria-label="Select all tasks"
+                    className="size-3.5 cursor-pointer rounded border-border accent-indigo-600"
+                  />
+                </th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <SortHeader
+                    href={sortLink(projectId, filters, "title")}
+                    active={filters.sortBy === "title"}
+                  >
+                    Task
+                  </SortHeader>
+                </th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <SortHeader
+                    href={sortLink(projectId, filters, "status")}
+                    active={filters.sortBy === "status"}
+                  >
+                    Status
+                  </SortHeader>
+                </th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <SortHeader
+                    href={sortLink(projectId, filters, "priority")}
+                    active={filters.sortBy === "priority"}
+                  >
+                    Priority
+                  </SortHeader>
+                </th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  Assignee
+                </th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <SortHeader
+                    href={sortLink(projectId, filters, "dueDate")}
+                    active={filters.sortBy === "dueDate"}
+                  >
+                    Due
+                  </SortHeader>
+                </th>
+                <th className="w-12 px-3 py-2.5 text-right">
+                  <span className="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {tasks.map((task) => {
+                const isSelected = selected.has(task.id);
+                return (
+                  <tr
+                    key={task.id}
+                    className={cn(
+                      "group transition-colors duration-150",
+                      isSelected
+                        ? "bg-accent/[0.06]"
+                        : "hover:bg-surface-muted/50",
+                    )}
+                  >
+                    <td className="px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggle(task.id)}
+                        aria-label={`Select ${task.title}`}
+                        className="size-3.5 cursor-pointer rounded border-border accent-indigo-600"
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-start gap-2">
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "mt-1.5 size-1.5 shrink-0 rounded-full",
+                            task.priority === "URGENT" ||
+                              task.priority === "HIGH"
+                              ? "bg-rose-500"
+                              : task.priority === "MEDIUM"
+                                ? "bg-amber-500"
+                                : "bg-slate-400",
+                          )}
+                        />
+                        <div className="min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewTask(task)}
+                            className="text-left text-sm font-medium text-foreground transition-colors hover:text-accent"
+                          >
+                            {task.title}
+                          </button>
+                          {task.description ? (
+                            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                              {task.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge variant={statusVariant(task.status)} dot>
+                        {readableLabel(task.status)}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge variant={priorityVariant(task.priority)}>
+                        {readableLabel(task.priority)}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <Avatar
+                          name={
+                            task.assigneeId ? "Assigned member" : "Unassigned"
+                          }
+                          size="xs"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {task.assigneeId ? "Assigned" : "Unassigned"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span
+                        suppressHydrationWarning
+                        className="flex items-center gap-1 text-xs tabular-nums text-muted-foreground"
+                      >
+                        {task.dueDate ? (
+                          <>
+                            <CalendarDays
+                              aria-hidden="true"
+                              className="size-3"
+                            />
+                            {task.dueDate.toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      <details className="group/menu relative inline-block">
+                        <summary
+                          aria-label={`Actions for ${task.title}`}
+                          className="flex size-7 cursor-pointer list-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground [&::-webkit-details-marker]:hidden"
+                        >
+                          <MoreHorizontal
+                            aria-hidden="true"
+                            className="size-4"
+                          />
+                        </summary>
+                        <div className="absolute right-0 top-8 z-20 w-40 animate-scale-in overflow-hidden rounded-lg border border-border bg-popover p-1 shadow-xl">
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              closeMenu(event);
+                              setPreviewTask(task);
+                            }}
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-foreground transition-colors hover:bg-surface-muted"
+                          >
+                            <Eye aria-hidden="true" className="size-3.5" />
+                            Quick preview
+                          </button>
+                          <Link
+                            href={`/projects/${projectId}/tasks/${task.id}`}
+                            onClick={closeMenu}
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-foreground transition-colors hover:bg-surface-muted"
+                          >
+                            <ArrowUpDown
+                              aria-hidden="true"
+                              className="size-3.5"
+                            />
+                            Open task
+                          </Link>
+                          <Link
+                            href={`/projects/${projectId}/tasks/${task.id}/edit`}
+                            onClick={closeMenu}
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-foreground transition-colors hover:bg-surface-muted"
+                          >
+                            <Pencil aria-hidden="true" className="size-3.5" />
+                            Edit task
+                          </Link>
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <TaskPreviewSheet
+        task={previewTask}
+        projectId={projectId}
+        open={Boolean(previewTask)}
+        onOpenChange={(open) => {
+          if (!open) setPreviewTask(null);
+        }}
+      />
+    </>
   );
 }

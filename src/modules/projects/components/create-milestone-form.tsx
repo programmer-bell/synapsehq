@@ -1,57 +1,75 @@
 "use client";
 
-import { useActionState } from "react";
+import { CalendarDays, Milestone } from "lucide-react";
+import { useActionState, useEffect } from "react";
 
+import { Button } from "@/components/ui/button";
+import { FormAlert, inputClass, labelClass } from "@/components/ui/form";
+import { useToast } from "@/components/ui/toast";
 import { createProjectMilestoneAction } from "../actions/project-work-actions";
 
 export function CreateMilestoneForm({ projectId }: { projectId: string }) {
+  const { toast } = useToast();
   const [state, action, pending] = useActionState<{ error?: string }, FormData>(
     createProjectMilestoneAction,
     {},
   );
 
+  useEffect(() => {
+    if (state.error) {
+      toast({
+        title: "Could not add milestone",
+        description: state.error,
+        variant: "error",
+      });
+    }
+  }, [state.error, toast]);
+
   return (
     <form action={action} className="grid gap-3 sm:grid-cols-2">
       <input type="hidden" name="projectId" value={projectId} />
-      <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
-        Milestone name
+      <label className="space-y-1.5">
+        <span className={`${labelClass} flex items-center gap-1`}>
+          <Milestone aria-hidden="true" className="size-3 text-violet-500" />
+          Milestone name <span className="text-rose-500">*</span>
+        </span>
         <input
           name="name"
           required
           minLength={2}
           maxLength={120}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          placeholder="Beta launch"
+          className={inputClass}
         />
       </label>
-      <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
-        Due date
-        <input
-          name="dueDate"
-          type="date"
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
-        />
+      <label className="space-y-1.5">
+        <span className={`${labelClass} flex items-center gap-1`}>
+          <CalendarDays
+            aria-hidden="true"
+            className="size-3 text-emerald-500"
+          />
+          Due date
+        </span>
+        <input name="dueDate" type="date" className={inputClass} />
       </label>
-      <label className="space-y-1.5 text-xs font-medium text-muted-foreground sm:col-span-2">
-        Description
+      <label className="space-y-1.5 sm:col-span-2">
+        <span className={labelClass}>Description</span>
         <textarea
           name="description"
           maxLength={2000}
           rows={2}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          placeholder="What does success look like?"
+          className={inputClass}
         />
       </label>
       {state.error ? (
-        <p role="alert" className="text-sm text-rose-700 dark:text-rose-300">
-          {state.error}
-        </p>
+        <div className="sm:col-span-2">
+          <FormAlert status="error" message={state.error} />
+        </div>
       ) : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-fit rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground disabled:opacity-50"
-      >
+      <Button type="submit" loading={pending} className="w-fit">
         {pending ? "Creating..." : "Add milestone"}
-      </button>
+      </Button>
     </form>
   );
 }

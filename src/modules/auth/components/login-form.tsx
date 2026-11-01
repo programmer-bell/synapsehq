@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { LogIn } from "lucide-react";
 import { useActionState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { loginAction } from "../actions/login";
 import type { AuthFormState } from "../types";
 import { AuthField } from "./auth-field";
@@ -16,11 +18,11 @@ export function LoginForm() {
   );
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="space-y-4">
       {state.message ? (
         <p
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300"
+          className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-700 dark:text-rose-300"
         >
           {state.message}
         </p>
@@ -44,19 +46,16 @@ export function LoginForm() {
         error={state.fieldErrors?.password?.[0]}
       />
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" size="lg" loading={isPending} className="w-full">
+        <LogIn aria-hidden="true" className="size-4" />
         {isPending ? "Signing in..." : "Sign in"}
-      </button>
+      </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-xs text-muted-foreground">
         Need an account?{" "}
         <Link
           href="/signup"
-          className="font-medium text-accent hover:underline"
+          className="font-semibold text-accent transition-colors hover:text-accent/80 hover:underline"
         >
           Create one
         </Link>
