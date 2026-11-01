@@ -44,22 +44,34 @@ Do not prioritize generating code quickly over understanding the existing implem
 
 # 2. Repository Awareness — Critical
 
-The repository has completed **Phases 1–4**, completed the Phase 5 testing and audit work, and is implementing **Phase 6 — DevOps & Security Hardening**. Production deployment remains pending.
+SynapseHQ's initial product scope is complete and deployed to Vercel from
+`main`. The project owner confirmed the live application works. Phases 1–6 in
+`.agents/roadmap.md` are complete; future enhancements are product options, not
+unfinished release requirements.
 
-The following functionality is implemented:
+Implemented product functionality includes:
 
-- Custom authentication with registration, login, logout, and session revocation.
-- `jose` JWT signing and verification.
-- `bcryptjs` password hashing and verification.
-- Persistent JWT-backed sessions and database-backed login throttling.
-- Protected dashboard routes and optimistic `proxy.ts` navigation checks.
+- Registration, login, logout, persistent JWT-backed sessions, revocation,
+  secure cookies, and database-backed login throttling.
+- Workspace management, membership and roles, workspace-validated project
+  access, and project lifecycle management.
+- Project-scoped tasks with Kanban and table views, assignment, filtering,
+  sorting, subtasks, comments, activity, and authorized attachments.
+- Project milestones and progress, project team allocation, and user-scoped
+  in-app notifications.
+- Responsive dashboard UI, light/dark theme, loading/error/empty states, and
+  server-side authorization.
+- Repository-managed project Markdown in `docs/projects/synapsehq/`. This is
+  not an in-app Markdown editor or document-storage feature.
 
-The following functionality is planned, not yet implemented:
+The deployed stack includes Next.js 16, React 19, TypeScript, Tailwind CSS v4,
+Neon PostgreSQL, Drizzle ORM, Zod, Vitest, React Testing Library, Playwright,
+Prettier, Docker, and GitHub Actions. Verify `package.json` and configuration
+before relying on a dependency or behavior.
 
-- Notifications.
-- Production deployment and production database verification.
-
-Neon PostgreSQL, Drizzle ORM, Zod-based environment validation, Vitest, React Testing Library, Playwright, Prettier, Docker, and GitHub Actions are installed or configured.
+Potential future work includes real-time collaboration, email/push
+notification delivery, workspace invitations, in-app Markdown editing, and
+analytics. Do not describe these as implemented or as release blockers.
 
 **Always inspect `package.json` before importing or installing dependencies.**
 
@@ -72,17 +84,28 @@ The current repository has these characteristics:
 - Next.js App Router lives in the root-level `app/` directory.
 - The application does not use `src/app/`.
 - The `@/*` alias maps to the repository root, according to `tsconfig.json`.
-- `src/shared/` contains database, environment, and layout foundations.
-- `src/modules/auth/` contains the implemented authentication module.
-- `src/modules/workspaces/` and `src/modules/projects/` contain the implemented Phase 3 modules.
-- `src/modules/` contains placeholders for future domain modules.
-- `drizzle/` contains generated migrations, including the auth schema.
+- `src/shared/` contains database, environment, layout, and shared utility code.
+- `src/modules/` contains implemented `auth`, `workspaces`, `projects`, `tasks`,
+  and `notifications` domains.
+- Domain modules own their actions, components, schemas, services, repositories,
+  and database schema where applicable.
+- `components/layout/` and `components/ui/` contain shared application-shell
+  and UI components.
+- `drizzle/` contains the versioned SQL migrations and snapshots.
+- `docs/architecture/decisions/` contains ADRs; `docs/projects/synapsehq/`
+  contains project-scoped repository documentation.
+- `e2e/` contains Playwright browser tests; `src/test/` contains test setup.
+- `.github/workflows/ci.yaml` runs formatting/lint, typecheck, unit/integration
+  tests, production build, and E2E.
+- `vercel.json` enables Vercel Git deployments only for `main`. Vercel is the
+  production host; optional GHCR publishing and GitHub deploy-hook jobs are
+  disabled unless explicitly enabled.
 - The canonical engineering documents live in `.agents/`.
-- The tasks domain module is implemented; notifications remain planned.
 
 Do not move the existing App Router into `src/app/` without explicitly planning, implementing, and validating the migration.
 
-Introduce the target architecture incrementally while preserving existing functionality.
+Preserve the deployed architecture and existing functionality when extending
+the application.
 
 ## Repository Inspection
 
@@ -398,7 +421,7 @@ At the end of a completed roadmap phase, display a textual progress bar in the t
 Example:
 
 ```text
-[████████████░░░░░░░░] 60% Complete | Phase 3/5 Done
+[████████████████████] 100% Complete | Phase 6/6 Done
 ```
 
 Calculate progress based on actual completed roadmap work.
@@ -521,11 +544,11 @@ Vitest is configured for unit and integration testing. React Testing Library is 
 
 When extending testing infrastructure, select tools based on actual requirements.
 
-Current and planned tools:
+Configured tools:
 
-- Vitest — unit and integration testing.
+- Vitest — unit and database integration testing.
 - React Testing Library — component behavior.
-- Playwright — end-to-end testing.
+- Playwright — browser smoke and authenticated end-to-end workflows.
 
 Prioritize:
 

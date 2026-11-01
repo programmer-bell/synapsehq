@@ -407,16 +407,17 @@ Schema changes are managed through version-controlled Drizzle migrations.
 
 ## Development Roadmap
 
-Development will follow the phases defined in [`roadmap.md`](./.agents/roadmap.md).
+The completed implementation is recorded in [`roadmap.md`](./.agents/roadmap.md);
+future product extensions are listed separately from delivered scope.
 
-| Phase   | Status      | Focus                     | Main Deliverables                                             |
-| ------- | ----------- | ------------------------- | ------------------------------------------------------------- |
-| Phase 1 | Complete    | Foundation & Architecture | Project structure, database foundation, development standards |
-| Phase 2 | Implemented | Custom Authentication     | Registration, login, sessions, route protection               |
-| Phase 3 | Implemented | Workspaces & Projects     | Workspace membership and project management                   |
-| Phase 4 | Implemented | Task Management           | Kanban, table views, filtering, and sorting                   |
-| Phase 5 | Complete    | Polish & Deployment       | Hardening, verification, and production deployment            |
-| Phase 6 | In progress | DevOps & Security         | Containerization, CI/CD, and security hardening               |
+| Phase   | Status   | Focus                     | Main Deliverables                                             |
+| ------- | -------- | ------------------------- | ------------------------------------------------------------- |
+| Phase 1 | Complete | Foundation & Architecture | Project structure, database foundation, development standards |
+| Phase 2 | Complete | Custom Authentication     | Registration, login, sessions, route protection               |
+| Phase 3 | Complete | Workspaces & Projects     | Workspace membership and project management                   |
+| Phase 4 | Complete | Task Management           | Kanban, table views, filtering, and sorting                   |
+| Phase 5 | Complete | Polish & Deployment       | Hardening, verification, and production deployment            |
+| Phase 6 | Complete | DevOps & Security         | Containerization, CI/CD, and security hardening               |
 
 Each phase has its own implementation tasks and completion criteria.
 

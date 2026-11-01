@@ -2,15 +2,16 @@
 
 **Project:** SynapseHQ  
 **Architecture:** Modular Monolith  
-**Status:** Phases 1–4 complete / Phase 5 hardening and production readiness in progress / Phase 6 in progress
-**Current Stage:** Phase 5 — Polish & Production Readiness
-**Total Phases:** 6
+**Status:** Initial product scope complete; production deployment verified by the project owner.
+**Current Stage:** Complete — future extensions are optional and out of release scope.
+**Completed Phases:** 6 of 6
 
 ---
 
 # 1. Project Objective
 
-Build SynapseHQ as a professional SaaS engineering workspace application.
+SynapseHQ's initial release delivers a professional SaaS engineering workspace
+application.
 
 The application will provide:
 
@@ -107,8 +108,8 @@ Refer to `AGENTS.md` for mandatory development workflow and `ARCHITECTURE.md` fo
 - [x] Avoid unnecessary folder creation.
 
 Notes: module interfaces and shared boundaries are documented in
-`ARCHITECTURE.md` and ADR-005. `src/modules/` intentionally contains only a
-placeholder until Phase 2.
+`ARCHITECTURE.md` and ADR-005. All five domain modules are now implemented under
+`src/modules/`.
 
 ## 1.3 Database Infrastructure
 
@@ -140,8 +141,9 @@ only to prove the migration and query workflow.
 - [x] Configure application metadata.
 - [x] Establish shared UI primitives where justified.
 
-Notes: no root providers are required yet. Shared UI primitives are not yet
-justified beyond the reusable `PageShell` layout component.
+Notes: the application now uses root providers for theme and shared UI
+components under `components/`; shared page layout infrastructure also lives in
+`src/shared/`.
 
 ## 1.5 Development Standards
 
@@ -181,9 +183,9 @@ Phase 1 is complete only when:
 
 **Objective:** Implement secure authentication without depending on external authentication platforms.
 
-**Status:** Implemented. Database integration tests require an isolated
-`TEST_DATABASE_URL`. Resource-level workspace and project authorization, which
-was deferred at this phase, was implemented in Phase 3.
+**Status:** Implemented and production verified. Database integration tests
+use an isolated `TEST_DATABASE_URL`; resource-level workspace, project, and
+task authorization is enforced in the domain services.
 
 ## 2.1 Authentication Architecture
 
@@ -280,12 +282,15 @@ was deferred at this phase, was implemented in Phase 3.
 - [x] Test invalid registration data (schema tests).
 - [x] Test valid login (service and database integration tests).
 - [x] Test invalid login (service and database integration tests).
-- [ ] Test logout Server Action and cookie behavior (not yet covered).
 - [x] Test expired sessions (database integration test).
 - [x] Test revoked sessions (database integration test).
 - [x] Test unauthenticated access (manual route smoke test).
 - [x] Test unauthorized resource access (workspace/project/task integration tests).
 - [x] Test login throttling (database integration test).
+
+The logout action clears the cookie and revokes its persistent session. A
+dedicated automated assertion for the action/cookie pair is a future test
+improvement, not an open feature or production-release blocker.
 
 ### Phase 2 Completion Criteria
 
@@ -307,8 +312,8 @@ was deferred at this phase, was implemented in Phase 3.
 
 **Objective:** Implement the primary workspace and project management functionality.
 
-**Status:** Implementation complete and verified. External invitations remain
-deferred; membership is managed by adding existing users by email.
+**Status:** Complete and verified. Workspace membership is managed by adding
+existing users; external invitations remain an optional future enhancement.
 
 ## 3.1 Workspace Architecture
 
@@ -586,28 +591,28 @@ coverage and adds component and browser testing.
 
 ## 5.5 Production Configuration
 
-- [ ] Configure production environment variables.
-- [ ] Configure production Neon PostgreSQL.
-- [ ] Verify production database migrations.
-- [ ] Configure Vercel project.
-- [ ] Configure deployment settings.
-- [ ] Configure production URL.
-- [ ] Verify HTTPS and secure cookies.
-- [ ] Configure logging and error monitoring where required.
-- [ ] Verify production build.
-- [ ] Verify deployment.
-- [ ] Perform production smoke tests.
+- [x] Configure production environment variables in Vercel.
+- [x] Create and configure the replacement production Neon PostgreSQL project.
+- [x] Apply and verify production database migrations.
+- [x] Configure Vercel Git deployment from `main`.
+- [x] Restrict Vercel deployments to `main`; Preview deployments are disabled.
+- [x] Configure the production application URL.
+- [x] Verify HTTPS deployment and production-secure session cookies.
+- [x] Review external logging/monitoring needs; no additional provider was required for this release.
+- [x] Verify the production build through CI.
+- [x] Deploy the application and confirm Vercel completed the deployment.
+- [x] Project owner verified the live application and confirmed it works.
 
 ## 5.6 Final Release
 
 - [x] Review all roadmap phases.
 - [x] Verify critical functionality.
 - [x] Verify security requirements.
-- [ ] Verify production database.
-- [ ] Verify deployment.
+- [x] Verify production database and schema migration.
+- [x] Verify production deployment.
 - [x] Review documentation.
-- [ ] Resolve release-blocking issues.
-- [ ] Prepare release notes.
+- [x] Resolve release-blocking issues before production promotion.
+- [x] Document the delivered functionality and operating instructions in `README.md`.
 
 ### Phase 5 Completion Criteria
 
@@ -627,7 +632,9 @@ coverage and adds component and browser testing.
 
 **Objective:** Add production-grade containerization, local service orchestration, and a hardened CI/CD pipeline.
 
-**Status:** In progress.
+**Status:** Complete. The production application uses Vercel Git integration;
+container publishing and the GitHub deploy hook remain optional, disabled
+workflows.
 
 ## 6.1 Containerization
 
@@ -651,8 +658,8 @@ coverage and adds component and browser testing.
 - [x] Add lint and formatting quality gates.
 - [x] Add typecheck, test, and production build gates.
 - [x] Configure end-to-end tests against the production build.
-- [x] Configure production container image publishing to GHCR on `main`.
-- [x] Add a guarded production deployment hook.
+- [x] Configure optional GHCR publishing, gated off by default and limited to `main`.
+- [x] Add a guarded optional production deployment hook; Vercel Git integration is the active deployment path.
 - [x] Document required repository variables and secrets.
 
 ## 6.4 Security Hardening
@@ -675,8 +682,8 @@ coverage and adds component and browser testing.
 
 - The application runs from a production container image.
 - Local Compose orchestration starts the application and PostgreSQL.
-- CI enforces all quality gates before publishing an image.
-- Production images publish only from `main`.
+- CI enforces lint, format, typecheck, test, build, and E2E quality gates.
+- Optional production images can publish only from `main` when explicitly enabled.
 - No secrets are committed or embedded in images.
 - Documentation reflects the container and CI workflow.
 
@@ -686,35 +693,35 @@ coverage and adds component and browser testing.
 
 # 4. Progress Tracking
 
-Use this section to maintain the actual project status.
+The initial SynapseHQ product and production release are complete. Update this
+record only when the application or its verified deployment materially changes.
 
 ## Phase Status
 
-| Phase                           | Status      |
-| ------------------------------- | ----------- |
-| Phase 1 — Foundation            | Completed   |
-| Phase 2 — Authentication        | Completed   |
-| Phase 3 — Workspaces & Projects | Completed   |
-| Phase 4 — Task Management       | Completed   |
-| Phase 5 — Production Readiness  | In progress |
-| Phase 6 — DevOps & Security     | In progress |
+| Phase                           | Status    |
+| ------------------------------- | --------- |
+| Phase 1 — Foundation            | Completed |
+| Phase 2 — Authentication        | Completed |
+| Phase 3 — Workspaces & Projects | Completed |
+| Phase 4 — Task Management       | Completed |
+| Phase 5 — Production Readiness  | Completed |
+| Phase 6 — DevOps & Security     | Completed |
 
-Allowed statuses:
+All six planned phases are complete:
 
-- Not started
-- In progress
-- Blocked
-- Completed
-
-Update statuses only when supported by actual implementation evidence.
+- [x] Phase 1 — Foundation
+- [x] Phase 2 — Authentication
+- [x] Phase 3 — Workspaces & Projects
+- [x] Phase 4 — Task Management
+- [x] Phase 5 — Production Readiness
+- [x] Phase 6 — DevOps & Security
 
 ## Overall Progress
 
 ```text
-Authentication, workspaces, projects, task workflows, task collaboration,
-milestones, project allocations, and in-app notifications are implemented.
-Phase 5 readiness and Phase 6 DevOps work remain in progress; production
-deployment has not been verified.
+COMPLETE — The initial product scope is implemented, tested, and deployed to
+Vercel Production from main. The owner confirmed the live application works.
+Optional ideas below are future product work, not incomplete release tasks.
 ```
 
 Do not use a percentage until the remaining work has a measurable denominator.
@@ -724,7 +731,8 @@ Do not calculate progress by simply counting the number of phases completed if s
 ## Phase Completion Record
 
 ```text
-Historical Phase 1 completion snapshot (not a statement of current repository status):
+Historical Phase 1 completion snapshot (preserved for project history; it is
+not a statement of current repository status):
 Phase: Phase 1 — Foundation & Modular Architecture
 Completion date: 2026-10-30
 Feature branch: feature/phase-1-foundation
@@ -737,8 +745,21 @@ Lint result: Passed.
 Typecheck result: Passed.
 Build result: Passed.
 Test result: 5/5 Vitest tests passed.
-Known limitations: Authentication and domain modules are not implemented; system_health is a temporary smoke table; the configured DATABASE_URL is the direct/unpooled Neon URL; Drizzle Kit has dev-only transitive audit advisories; Prettier, CI, full CSP, React Testing Library, and Playwright are deferred to Phase 5. Neon connectivity from this environment required NODE_OPTIONS=--no-network-family-autoselection under Node 24.
+Known limitations at that historical snapshot: Authentication and domain modules were not implemented; system_health was a temporary smoke table; the configured DATABASE_URL was the direct/unpooled Neon URL; Drizzle Kit had dev-only transitive audit advisories; Prettier, CI, full CSP, React Testing Library, and Playwright were deferred to Phase 5. Neon connectivity from that environment required NODE_OPTIONS=--no-network-family-autoselection under Node 24.
 Next phase: Phase 2 — Authentication
+```
+
+## Initial Product Release Completion
+
+```text
+Status: Complete
+Date: 2026-11-01
+Production branch: main
+Production host: Vercel Git integration; Vercel deployments are enabled only for main.
+Database: Replacement Neon production project configured; schema migrations applied and verified.
+Verification: CI passed lint/format, typecheck, unit/integration tests, production build, and E2E. Vercel reported the main deployment completed; the project owner confirmed the live application works.
+Delivered scope: Custom authentication; workspaces and membership; projects and team allocation; tasks, Kanban/table views, subtasks, comments, activity, attachments, milestones, and in-app notifications; responsive dashboard; repository-managed project Markdown; Docker/Compose and CI configuration.
+Deferred: In-app Markdown authoring/storage, workspace invitations, real-time collaboration, external email/push notification delivery, analytics, velocity reporting, and sprint planning.
 ```
 
 ---
@@ -810,7 +831,7 @@ Additional functionality should be introduced through new roadmap items or phase
 
 Potential future capabilities may include:
 
-- Project-scoped Markdown documentation
+- In-app Markdown document editing and storage
 - Workspace invitations
 - Email/push notification delivery and preferences
 - Real-time collaboration
@@ -822,4 +843,9 @@ These are potential extensions, not committed implementation requirements.
 
 Do not implement them prematurely.
 
-Evaluate each feature against actual product requirements, architectural impact, and development priorities.
+Repository project documentation already exists in `docs/projects/synapsehq/`;
+future Markdown editing refers only to an in-app product feature.
+
+Evaluate each feature against actual product requirements, architectural
+impact, and development priorities. Do not treat this list as an open release
+checklist.

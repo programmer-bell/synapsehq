@@ -4,7 +4,7 @@
 **Project:** SynapseHQ  
 **Architecture Style:** Modular Monolith  
 **Application Type:** SaaS Engineering Workspace  
-**Status:** Active System Architecture
+**Status:** Implemented and production deployed
 **Primary Framework:** Next.js App Router
 
 ---
@@ -75,8 +75,9 @@ Microservices should only be considered when genuine organizational, deployment,
 | Container              | Docker                          | Production application image      |
 | Testing                | Vitest / Playwright             | Unit, integration, and E2E tests  |
 
-The installed dependency manifest (`package.json`) is authoritative. Production
-deployment has not been verified.
+The installed dependency manifest (`package.json`) and current source are
+authoritative. The initial product scope is deployed on Vercel from `main`; the
+project owner confirmed the live application works.
 
 ## High-Level Architecture
 
@@ -128,161 +129,58 @@ deployment has not been verified.
 
 # 3. Repository Structure
 
-## Current Repository Reality
+## Current Repository Structure
 
-The existing Next.js App Router is located at the repository root:
-
-```text
-app/
-```
-
-The current `@/*` TypeScript alias maps to the repository root.
-
-Phase 1 established the initial modular foundation: `src/shared/`, `src/modules/`, and `drizzle/`. Domain modules are still introduced incrementally as their functionality is implemented.
-
-The canonical engineering documents live in `.agents/`:
+The Next.js App Router is at the repository root; the project does not use
+`src/app/`. The `@/*` TypeScript alias maps to the repository root.
 
 ```text
-.agents/
-├── AGENTS.md
-├── ARCHITECTURE.md
-└── roadmap.md
+.
+├── .agents/                         # Agent instructions, architecture, roadmap
+├── .github/workflows/ci.yaml        # CI and optional publishing/deploy jobs
+├── app/                             # Root-level App Router
+│   ├── (auth)/                      # Login and signup routes
+│   ├── (dashboard)/                 # Dashboard, workspaces, projects, tasks
+│   ├── api/                         # Auth and task-attachment endpoints
+│   └── layout.tsx, globals.css, ...
+├── components/
+│   ├── layout/                      # Application shell and theme providers
+│   └── ui/                          # Shared UI primitives
+├── docs/
+│   ├── architecture/decisions/      # ADRs
+│   └── projects/synapsehq/          # Repository-managed project Markdown
+├── drizzle/                         # SQL migrations and snapshots
+├── e2e/                             # Playwright tests
+├── src/
+│   ├── modules/
+│   │   ├── auth/
+│   │   ├── workspaces/
+│   │   ├── projects/
+│   │   ├── tasks/
+│   │   └── notifications/
+│   ├── shared/                      # DB, config, shared layout and utilities
+│   └── test/                        # Vitest setup and test-only support
+├── public/
+├── Dockerfile, docker-compose.yml
+├── drizzle.config.ts, next.config.ts, proxy.ts
+├── package.json, package-lock.json, tsconfig.json
+└── playwright.config.ts, vitest.config.mts
 ```
 
-Do not move the existing App Router into `src/app/` without a deliberate migration.
+The main authenticated routes are `/dashboard`, `/workspaces`,
+`/workspaces/[workspaceId]`, `/projects/[projectId]`,
+`/projects/[projectId]/tasks`, task detail/edit routes, and project milestones.
+Module directories own domain functionality; `components/` contains shared
+presentation and layout pieces.
 
 Import conventions:
 
 - Use `@/src/modules/...` for domain code.
 - Use `@/src/shared/...` for shared infrastructure.
+- Use `@/components/...` for root shared UI and layout components.
 - Keep the existing `@/*` root alias.
 
-## Target Directory Structure
-
-The following is the intended organization after the modular architecture is introduced.
-
-```text
-synapsehq/
-│
-├── app/                              # Existing Next.js App Router
-│   │
-│   ├── (auth)/                       # Authentication route group
-│   │   ├── login/
-│   │   │   └── page.tsx
-│   │   └── signup/
-│   │       └── page.tsx
-│   │
-│   ├── (dashboard)/                  # Protected application routes
-│   │   ├── dashboard/
-│   │   │   └── page.tsx
-│   │   │
-│   │   ├── projects/
-│   │   │   ├── page.tsx
-│   │   │   └── [projectId]/
-│   │   │       └── page.tsx
-│   │   │
-│   │   └── tasks/
-│   │       └── page.tsx
-│   │
-│   ├── api/                          # HTTP Route Handlers
-│   │
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── globals.css
-│   ├── loading.tsx
-│   ├── error.tsx
-│   └── not-found.tsx
-│
-├── src/
-│   │
-│   ├── modules/
-│   │   │
-│   │   ├── auth/
-│   │   │   ├── actions/
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   ├── repositories/
-│   │   │   ├── schemas/
-│   │   │   ├── db/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   │
-│   │   ├── workspaces/
-│   │   │   ├── actions/
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   ├── repositories/
-│   │   │   ├── schemas/
-│   │   │   ├── db/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   │
-│   │   ├── projects/
-│   │   │   ├── actions/
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   ├── repositories/
-│   │   │   ├── schemas/
-│   │   │   ├── db/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   │
-│   │   ├── tasks/
-│   │   │   ├── actions/
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   ├── repositories/
-│   │   │   ├── schemas/
-│   │   │   ├── db/
-│   │   │   ├── types/
-│   │   │   └── index.ts
-│   │   │
-│   │   └── notifications/
-│   │       ├── services/
-│   │       ├── repositories/
-│   │       ├── schemas/
-│   │       ├── db/
-│   │       ├── types/
-│   │       └── index.ts
-│   │
-│   └── shared/
-│       ├── db/
-│       │   ├── client.ts
-│       │   └── index.ts
-│       │
-│       ├── components/
-│       ├── hooks/
-│       ├── lib/
-│       ├── utils/
-│       ├── types/
-│       ├── config/
-│       └── errors/
-│
-├── drizzle/                          # Generated SQL migrations
-│
-├── docs/
-│   └── architecture/
-│       ├── decisions/
-│       └── diagrams/
-│
-├── public/
-│
-├── .env.sample
-├── .gitignore
-├── drizzle.config.ts
-├── next.config.ts
-├── package.json
-├── tsconfig.json
-├── vitest.config.mts
-└── .agents/
-    ├── AGENTS.md
-    ├── ARCHITECTURE.md
-    └── roadmap.md
-```
-
-This is a target structure, not a requirement to create every directory immediately.
-
-Create directories only when the corresponding functionality is introduced.
+Do not move the App Router into `src/app/` without a deliberate migration.
 
 ## Directory Responsibilities
 
@@ -323,14 +221,14 @@ Contains genuinely reusable cross-domain functionality.
 Examples:
 
 - Database connection.
-- Shared UI primitives.
 - General utilities.
-- Shared types.
 - Configuration.
-- Error definitions.
-- Reusable hooks.
+- Shared page/layout infrastructure.
 
 Do not place domain-specific functionality in `shared/`.
+
+The cross-domain UI primitives and application shell are in the root
+`components/ui/` and `components/layout/` directories.
 
 ### `drizzle/`
 
@@ -346,7 +244,7 @@ The Drizzle configuration should discover the actual schema locations.
 
 # 4. Modular Boundaries
 
-The initial business modules are:
+The implemented business modules are:
 
 1. Auth
 2. Workspaces
@@ -354,7 +252,8 @@ The initial business modules are:
 4. Tasks
 5. Notifications
 
-Each module should expose a small, intentional public interface.
+Modules expose intentional public interfaces where cross-module use requires
+them.
 
 ## Auth Module
 
@@ -786,7 +685,7 @@ Stores shared rate-limit state for serverless deployments.
 
 ### Workspaces
 
-Represents an organizational workspace. Implemented in Phase 3.
+Represents an organizational workspace.
 
 Fields:
 
@@ -798,7 +697,7 @@ Fields:
 
 ### Workspace Members
 
-Represents membership within a workspace. Implemented in Phase 3.
+Represents membership within a workspace.
 
 Fields:
 
@@ -813,7 +712,7 @@ Membership is unique per workspace and user. The workspace owner also has an
 
 ### Projects
 
-Represents projects inside workspaces. Implemented in Phase 3.
+Represents projects inside workspaces.
 
 Fields:
 
@@ -829,7 +728,7 @@ Projects must belong to a valid workspace.
 
 ### Tasks
 
-Represents actionable work within projects. Implemented in Phase 4.
+Represents actionable work within projects.
 
 Fields:
 
@@ -1123,8 +1022,8 @@ The protected dashboard layout calls `requireUser()`, which verifies the JWT and
 the persistent session before rendering. Server Actions must use the same guard
 before sensitive operations. `proxy.ts` protects `/dashboard`, `/workspaces`,
 `/projects`, and `/tasks` as an optimistic navigation guard only.
-Resource-level authorization for workspaces and projects is implemented in
-Phase 3.
+Resource-level authorization is enforced in workspace, project, and task
+services close to the data operations.
 
 ## Login Throttling
 
@@ -1246,13 +1145,18 @@ src/modules/projects/components/
 
 ### Shared Components
 
-Located in:
+Reusable UI primitives and application-shell components are located in:
 
 ```text
-src/shared/components/
+components/ui/
+components/layout/
 ```
 
-Examples:
+The shared page shell and related infrastructure live in
+`src/shared/components/layout/`. Keep domain-specific presentation in its
+own module.
+
+Examples of shared root UI components include:
 
 - Button.
 - Input.
@@ -1326,32 +1230,29 @@ Avoid generic AI-generated dashboard aesthetics.
 
 ## Color System
 
-Use a monochromatic foundation:
-
-- Zinc.
-- Slate.
-
-Use one intentional accent color.
-
-Recommended starting direction:
+The active theme tokens are defined as CSS variables in `app/globals.css` and
+mapped into Tailwind through `@theme inline`.
 
 ```text
 Light:
-Background: zinc-50
+Background: #f6f7fb
 Surface: white
-Border: zinc-200
-Primary text: zinc-950
-Secondary text: zinc-500
+Border: #e2e8f0
+Primary text: #0f172a
+Secondary text: #64748b
+Accent: #4f46e5
 
 Dark:
-Background: zinc-950
-Surface: zinc-900
-Border: zinc-800
-Primary text: zinc-50
-Secondary text: zinc-400
+Background: #070b14
+Surface: #0f172a
+Border: #253248
+Primary text: #f8fafc
+Secondary text: #94a3b8
+Accent: #818cf8
 ```
 
-These are design recommendations, not finalized theme tokens.
+Semantic tokens also define status colors, surfaces, focus rings, and sidebar
+surfaces. `next-themes` controls the class-based light/dark theme.
 
 ## Surface Design
 
@@ -1471,7 +1372,7 @@ The existing application enables:
 
 `cacheComponents` enables Partial Prerendering and the `use cache` directive.
 `partialPrefetching` requires `cacheComponents` and limits prefetching to static
-route content. Both remain enabled in Phase 1.
+route content. Both are enabled in the current production configuration.
 
 Caching policy:
 
@@ -1569,17 +1470,11 @@ Prioritize:
 
 ## End-to-End Testing
 
-Test important user workflows:
-
-1. User registration.
-2. User login.
-3. Protected dashboard access.
-4. Workspace creation.
-5. Project creation.
-6. Task creation.
-7. Task status updates.
-8. Unauthorized access handling.
-9. Logout.
+The Playwright suite covers public and authentication routes, unauthenticated
+protected-route redirects, and an authenticated workflow that creates a
+workspace, project, milestone, and task, then exercises subtasks, comments, and
+attachments. The authenticated workflow uses an isolated `TEST_DATABASE_URL`.
+Vitest covers unit, component, and database integration behavior.
 
 ## Test Isolation
 
@@ -1593,7 +1488,7 @@ Test failure cases as well as successful cases.
 
 # 18. Deployment Architecture
 
-## Target Deployment
+## Production Deployment
 
 Application hosting:
 
@@ -1602,6 +1497,18 @@ Application hosting:
 Database:
 
 **Neon PostgreSQL**
+
+The initial release is live and was confirmed working by the project owner.
+Vercel Git deployments are configured for `main` only through `vercel.json`;
+Preview deployments are disabled. The Vercel Production environment contains
+the runtime database URL, JWT secret, and canonical application URL. The
+replacement Neon production schema was migrated and verified before release.
+
+GitHub Actions runs CI on `main` and `dev`, including lint/format, typecheck,
+unit/integration tests, a production build, and E2E. CI applies migrations to
+the isolated test database when `TEST_DATABASE_URL` is configured. GHCR
+publishing and the GitHub production deploy-hook job are opt-in and disabled by
+default; Vercel Git integration is the active deployment path.
 
 ## Environment Separation
 
@@ -1613,19 +1520,18 @@ Maintain separate configuration for:
 
 Do not reuse production credentials in local development or automated tests.
 
-## Deployment Requirements
+## Release Verification
 
-- Configure environment variables.
-- Configure production database connection.
-- Apply reviewed migrations.
-- Verify production build.
-- Verify secure cookie behavior.
-- Verify authentication.
-- Verify critical database operations.
-- Verify production URL.
-- Perform smoke testing.
+- CI passed lint/format, typecheck, unit/integration tests, build, and E2E
+  before production promotion.
+- Production environment variables and the replacement Neon connection were
+  configured.
+- The production schema migrations were applied and verified.
+- The Vercel deployment completed from `main`.
+- The project owner verified that the deployed application works.
 
-Never assume a successful build guarantees a successful production deployment.
+Future releases must repeat relevant checks. A successful build alone does not
+guarantee a successful production deployment.
 
 ---
 
@@ -1639,15 +1545,14 @@ Location:
 docs/architecture/decisions/
 ```
 
-Naming:
+Current records:
 
-```text
-ADR-001-modular-monolith.md
-ADR-002-custom-authentication.md
-ADR-003-database-selection.md
-ADR-004-session-management.md
-ADR-005-module-boundaries.md
-```
+- `ADR-001-modular-monolith.md`
+- `ADR-003-database-selection.md`
+- `ADR-005-module-boundaries.md`
+- `ADR-006-custom-jwt-sessions.md`
+- `ADR-007-workspace-project-authorization.md`
+- `ADR-008-task-management.md`
 
 ## ADR Template
 
