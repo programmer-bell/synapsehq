@@ -176,7 +176,7 @@ jobs:
     name: Build and publish container
     runs-on: ubuntu-latest
     needs: [build, e2e]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (vars.ENABLE_CONTAINER_PUBLISH || 'false') == 'true'
     permissions:
       contents: read
       packages: write
