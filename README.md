@@ -565,6 +565,10 @@ pending migrations with `npm run db:migrate`. Do not point that command at the
 development database when you intend to migrate production, or at
 `TEST_DATABASE_URL` unless you are preparing the isolated test database.
 
+Login throttling reads `auth_login_attempts`, created by the initial auth
+migration. If login fails on a query to that table, apply pending migrations
+using the same `DATABASE_URL` used by the running app, then retry the login.
+
 ---
 
 ## Engineering Principles
