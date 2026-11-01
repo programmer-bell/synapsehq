@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   ArrowUpRight,
   Building2,
@@ -14,10 +15,7 @@ import { requireUser } from "@/src/modules/auth";
 import { listWorkspacesForUserWithSummary } from "@/src/modules/workspaces";
 import { CreateWorkspaceForm } from "@/src/modules/workspaces/components/create-workspace-form";
 
-export default async function WorkspacesPage() {
-  const user = await requireUser();
-  const workspaces = await listWorkspacesForUserWithSummary(user.id);
-
+export default function WorkspacesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
@@ -49,6 +47,19 @@ export default async function WorkspacesPage() {
         </div>
       </section>
 
+      <Suspense fallback={<WorkspaceListFallback />}>
+        <WorkspaceList />
+      </Suspense>
+    </div>
+  );
+}
+
+async function WorkspaceList() {
+  const user = await requireUser();
+  const workspaces = await listWorkspacesForUserWithSummary(user.id);
+
+  return (
+    <>
       {workspaces.length === 0 ? (
         <EmptyState
           icon={<Building2 aria-hidden="true" />}
@@ -98,6 +109,22 @@ export default async function WorkspacesPage() {
           ))}
         </section>
       )}
-    </div>
+    </>
+  );
+}
+
+function WorkspaceListFallback() {
+  return (
+    <section
+      aria-label="Loading workspaces"
+      className="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+    >
+      {["workspace-1", "workspace-2", "workspace-3"].map((item) => (
+        <div
+          key={item}
+          className="h-24 animate-pulse rounded-xl border border-border bg-card"
+        />
+      ))}
+    </section>
   );
 }

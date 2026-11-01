@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -36,10 +37,18 @@ function firstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default async function ProjectTasksPage({
+export default function ProjectTasksPage({
   params,
   searchParams,
 }: TasksPageProps) {
+  return (
+    <Suspense fallback={<ProjectTasksPageFallback />}>
+      <ProjectTasksContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function ProjectTasksContent({ params, searchParams }: TasksPageProps) {
   const { projectId } = await params;
   const rawSearchParams = await searchParams;
   const user = await requireUser();
@@ -237,6 +246,44 @@ export default async function ProjectTasksPage({
       ) : (
         <TaskKanban tasks={tasks} projectId={projectId} />
       )}
+    </div>
+  );
+}
+
+function ProjectTasksPageFallback() {
+  return (
+    <div className="space-y-5" aria-label="Loading project tasks">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="space-y-2">
+          <div className="h-3 w-24 animate-pulse rounded bg-surface-muted" />
+          <div className="h-7 w-32 animate-pulse rounded bg-surface-muted" />
+          <div className="h-4 w-64 animate-pulse rounded bg-surface-muted/70" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-9 w-24 animate-pulse rounded-lg border border-border bg-card" />
+          <div className="h-9 w-32 animate-pulse rounded-lg bg-accent/70" />
+        </div>
+      </div>
+      <div className="flex flex-wrap justify-between gap-3">
+        <div className="h-10 w-full animate-pulse rounded-lg border border-border bg-card sm:w-96" />
+        <div className="h-8 w-40 animate-pulse rounded-lg bg-surface-muted" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {["todo", "progress", "review", "done"].map((column) => (
+          <section
+            key={column}
+            className="min-h-64 space-y-3 rounded-xl border border-border bg-surface-muted/30 p-3"
+          >
+            <div className="h-5 w-28 animate-pulse rounded bg-surface-muted" />
+            {["first", "second"].map((card) => (
+              <div
+                key={`${column}-${card}`}
+                className="h-24 animate-pulse rounded-lg border border-border bg-card"
+              />
+            ))}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

@@ -28,7 +28,7 @@ test("login page shows the registered account confirmation", async ({
     "Account created. Sign in with your new credentials.",
   );
   await expect(page.getByLabel("Email")).toBeVisible();
-  await expect(page.getByLabel("Password")).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
 });
 
 test("signup and login pages link to each other", async ({ page }) => {
